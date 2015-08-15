@@ -1,0 +1,1125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+<title type="text">Weapon's Journal</title>
+<generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
+<link rel="self" type="application/atom+xml" href="/feed.xml" />
+<link rel="alternate" type="text/html" href="" />
+<updated>2015-08-15T03:09:46+00:00</updated>
+<id>/</id>
+<author>
+  <name>Frank Weapon</name>
+  <uri>/</uri>
+  <email>helldarkfire@gmail.com</email>
+</author>
+
+
+<entry>
+  <title type="html"><![CDATA[用Emacs实现GTD]]></title>
+ <link rel="alternate" type="text/html" href="/emacs/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" />
+  <id>/emacs/用Emacs实现GTD</id>
+  <published>2015-08-14T00:00:00+00:00</published>
+  <updated>2015-08-14T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri></uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1&quot;&gt;1. 整体流程图&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2&quot;&gt;2. Emacs相关模式介绍&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3&quot;&gt;3. gtd&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-4&quot;&gt;4. 所需文件&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5&quot;&gt;5. 配置项&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-6&quot;&gt;6. 流程叙述&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-7&quot;&gt;7. 心得&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;整体流程图&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;整体内容的文字叙述比较难懂，给一张思维导图放在前面，请将后续表述与图中内容做对应以了解流程，针对各处操作未做太详尽描述，相信各位查阅资料能够解决问题，有问题的朋友可以联系我。
+&lt;img src=&quot;/assets/upload/gtd_guide.png&quot; alt=&quot;GTD流程&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;emacsa-idsec-2-namesec-2a&quot;&gt;Emacs相关模式介绍&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;org-mode
+关于该模式，网络上相关介绍非常之多，大概说来就是一个Mark-Down语法来编辑内容，并且通过Emacs内置功能可以极其方便的对内容格式进行组织操作，在阅读网上相关例程后参考上文中快捷键介绍，相信你可以很快熟悉该模式。&lt;/li&gt;
+  &lt;li&gt;capture-mode
+在Emacs的以前版本，还有一个叫remember-mode的东西，两者功能非常相近，若是使用最新版本的Emacs，可以不管remember－mode，直接使用capture-mode进行内容的抓取。
+该模式支持模版化操作，使用快捷键呼出capture-mode之后，将通过快捷键选择你预先设定好的模板，并随后输入内容保存到指定位置。&lt;/li&gt;
+  &lt;li&gt;agenda-mode
+agenda作为Emacs的一种模式，并不是用于编辑，而是用于审阅。 在配置文件中可以对agenda所包含的文件进行关联。在设置完成后，agenda将会对所包含的文件内容进行整理，以日历、列表、标签等形式将所有的TODO内容整体呈现到你面前，并可对其直接进行操作而不用手动打开某个文件进行修改。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;gtda-idsec-3-namesec-3a&quot;&gt;gtd&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;什么是GTD
+GTD的核心很简单，就是要清空大脑，按照事先设定好的路线一步步将工作做完。关于这方面的书籍有很多，最出名的莫过于《Getting things done 尽管去做——无压工作的艺术》。
+作为我的个人管理方式，主要就是收集－&amp;gt;整理-&amp;gt;组织－&amp;gt;行动－&amp;gt;回顾 这五步进行循环，首先把需要做的事情都记录在案，然后将整体内容进行分化不同类别，再针对每一个任务进行细化，接下来一步步去执行，最后将结果进行回顾。
+个人管理也是一门学问，想要深入了解恐怕需要认真阅读以下相关书籍，这里不再详述&lt;/li&gt;
+  &lt;li&gt;GTD与Emacs
+我想关于GTD，每个人都有自己不同的理解，更是有适合自己的一套工作流，而诸多关于利用Emacs进行GTD的博客文章介绍的并非十分详实，这里我想把我个人的流程分享出来。我作为初学者仅仅是刚掌握了一些理论，在很多细节问题上仍然需要不断的完善和改进，在这过程中我会不断维护此文章。
+GTD本身是不需要工具的，一个本子一支笔就可以清空大脑开始工作了， 而Emacs提供的是更快捷的操作方式和高效率的组织回顾手段，市面上的GTD类软件也非常之多，很多人直接败在了Emacs相对较高的入门门槛上，我在这里将把我学习使用的过程以自顶向下的方式表述，我想，在文章最后你就应该可以放手去做了。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;a-idsec-4-namesec-4a&quot;&gt;所需文件&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;inbox.org
+作为第一步的落脚点，周围所有杂事将在这里驻足
+    &lt;ol&gt;
+      &lt;li&gt;使用Capture-mode将目前所能想到的事情进行收集，保存到inbox.org中&lt;/li&gt;
+      &lt;li&gt;在每天早上对inbox进行填充，分解，清理，把插入的内容分配到project.org以及task.org两个文件中去&lt;/li&gt;
+      &lt;li&gt;工作中遇到突发事件，两分钟以内能解决的就马上办，否则Capture到inbox中&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;task.org
+一次性或短期任务将从inbox中细化至此
+    &lt;ol&gt;
+      &lt;li&gt;早上对当天任务的预先规划，包括打上相关标签、设定子任务（使用checkbox）等&lt;/li&gt;
+      &lt;li&gt;在工作过程中逐步将子任务打勾完成，将TODO状态转移至其他状态&lt;/li&gt;
+      &lt;li&gt;晚上将task内容迁移到finish.org中&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;project.org
+长远计划或项目计划
+    &lt;ol&gt;
+      &lt;li&gt;从inbox中抽象出project的内容，并做大致规划，不一定成为TODO项，但经常检阅&lt;/li&gt;
+      &lt;li&gt;随着项目推进，可以对项目完成度进行审核，计时&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;finished.org
+task内容归宿，按照tag进行划分
+    &lt;ol&gt;
+      &lt;li&gt;capture-mode添加datetree模板，每日添加记录，进行总结&lt;/li&gt;
+      &lt;li&gt;task内容移入每日记录下并打标签&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;a-idsec-5-namesec-5a&quot;&gt;配置项&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;emacs.d&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;&lt;span class=&quot;c1&quot;&gt;;;TODO项状态切换&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;setq&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;org-todo-keywords&lt;/span&gt;
+                  &lt;span class=&quot;o&quot;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;sequence&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;TODO(t!)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;NEXT(n)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;WAITTING(w)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;SOMEDAY(s)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;|&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;DONE(d@/!)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;ABORT(a@/!)&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                         &lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;;;关联agenda-mode的文件&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;setq&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;org-agenda-files&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/inbox.org&amp;quot;&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/project.org&amp;quot;&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/task.org&amp;quot;&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/finished.org&amp;quot;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;;;绑定快捷键&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;define-key&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;global-map&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;\C-cc&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;org-capture&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;define-key&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;global-map&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;\C-ca&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;org-agenda&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;;;capture的template&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;setq&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;org-capture-templates&lt;/span&gt;
+                    &lt;span class=&quot;o&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;t&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Todo&amp;quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;entry&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;file+headline&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/inbox.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Tasks&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                                &lt;span class=&quot;s&quot;&gt;&amp;quot;* TODO %?\n%U  %i&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:prepend&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;j&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Journal&amp;quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;entry&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;file+datetree&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/finished.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Journals&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                                &lt;span class=&quot;s&quot;&gt;&amp;quot;* %?\n %T  %i&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                      &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;n&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Note&amp;quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;entry&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;file+headline&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/notes.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Notes&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                                        &lt;span class=&quot;s&quot;&gt;&amp;quot;* %U %?\n\n  %i&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:prepend&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:empty-lines&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+                     &lt;span class=&quot;p&quot;&gt;)))&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;;;org-mode下跨文件移动标题设置&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;org-refile-targets&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;quote&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;~/Document/gtd/inbox.org&amp;quot;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:maxlevel&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;~/Document/gtd/task.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;level&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))))&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;;;定义快速打开task.org文件的方法并绑定以快捷键&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;defun&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;gtd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+          &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;interactive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+          &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;find-file&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/task.org&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;global-set-key&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;\C-cz&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;gtd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idsec-6-namesec-6a&quot;&gt;流程叙述&lt;a id=&quot;sec-6&quot; name=&quot;sec-6&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;可规划任务：
+    &lt;ol&gt;
+      &lt;li&gt;早晨开始工作前进行内容整理，清空inbox，将任务分配至task,project中，并视情况标记deadline和优先级&lt;/li&gt;
+      &lt;li&gt;一天的工作中以agenda作为里程碑，逐步干掉所有任务(包括task以及project)&lt;/li&gt;
+      &lt;li&gt;晚上通过capture建立finished中对应日期树，写总结并将完成的任务打标记移入finished中&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;临时事件：
+    &lt;ol&gt;
+      &lt;li&gt;预估事件处理事件，2分钟内立即着手解决&lt;/li&gt;
+      &lt;li&gt;超过两分钟的事件capture到inbox中，待下一番茄钟进行规划&lt;/li&gt;
+      &lt;li&gt;未能及时处理或特殊情况的事件待第二天早上整理清空inbox&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;a-idsec-7-namesec-7a&quot;&gt;心得&lt;a id=&quot;sec-7&quot; name=&quot;sec-7&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;整套流程并不复杂，可能看起来略显繁琐，很多人一定觉得这样折腾并没有价值。我作为刚开始采用GTD的方式的学生，其实觉得一旦着手这样做之后，不断修改状态或checkout子任务带来的成就感会促使你效率的提升。事先的安排更会清空大脑，做事效率有所提高。
+并且，此流程仅仅是我的习惯，针对不同的工作性质，应该更为私人定制一些。希望读到本文的人能花些时间去尝试一下这种个人管理的方法，面对这一个个的TODO变为DONE，感觉是充实的，会更有干劲去面对接下来的工作，愿本分享能够帮到更多的人。&lt;/p&gt;
+
+    &lt;p&gt;&lt;a href=&quot;/emacs/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/&quot;&gt;用Emacs实现GTD&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+  </content>
+</entry>
+
+
+<entry>
+  <title type="html"><![CDATA[开始使用emacs]]></title>
+ <link rel="alternate" type="text/html" href="/emacs/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" />
+  <id>/emacs/开始使用emacs</id>
+  <published>2015-08-14T00:00:00+00:00</published>
+  <updated>2015-08-14T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri></uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1&quot;&gt;1. 不要从零开始&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2&quot;&gt;2. 安装、配置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3&quot;&gt;3. 基本知识&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;不要从零开始&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;现在，功能强大的编辑器层出不穷，比如notepad＋＋，sublime text等，然而，面临这众多的新生代产物，Emacs仍然占有一席地位，因为他是已经超越了编辑器范畴的存在。
+其高度可定制化带来的复杂性和为了便捷操作设定的茫茫多的快捷键，入门难度令人发指。而Emacs又是以拓展能力闻名天下的，很多人在通读help－with－tutorial之后感觉不过尔尔便放弃了。
+陈斌的一篇文章《一年成为Emacs高手》带领很多人走进了Emacs的大门。作为高手，他提供了一个科学的方法论，对于具体的步骤，则需要我们自己步步摸索。本文作为我个人使用emacs过程中的心得总结，希望能帮助到更多的人。
+这里便提出第一个建议，请不要从零开始对emacs进行配置，繁琐的配置可能打消你使用他的积极性。所以采用大神的配置，直接知其然，再试图知其所以然。甚至你不必探寻配置细节，直接感受其魅力所在。&lt;/p&gt;
+
+&lt;h1 id=&quot;a-idsec-2-namesec-2a&quot;&gt;安装、配置&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;平台选择&lt;/p&gt;
+
+    &lt;p&gt;优先级如下：Mac &amp;gt; 你熟悉的linux发行版 &amp;gt; windows中cygwin &amp;gt; windows直接使用 &amp;gt; 你不熟悉的Linux&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;Mac作为Unix的分支和Linux相似度很高，保持了类似的目录结构和好用的Terminal的同时有丰富的软件资源，并且在很多地方沿用了Emacs的快捷键。&lt;/li&gt;
+      &lt;li&gt;没有Mac的环境下选择一款合适的发行版也是不错的，前提是你熟悉Linux，不然还是有点头大的。&lt;/li&gt;
+      &lt;li&gt;Cygwin作为windows下模拟Linux环境Terminal的老牌软件，在他的支持下在windows上使用Emacs也还可以接受。&lt;/li&gt;
+      &lt;li&gt;windows的目录与Linux严重不同，安装好的Emacs可能在环境变量等问题上遇到些麻烦，所以…&lt;/li&gt;
+      &lt;li&gt;Linux环境还是应该熟悉一下，微软大法好，可是作为一个程序员完全不会Linux感觉不太合适。&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;安装
+    &lt;ol&gt;
+      &lt;li&gt;Mac用户请到&lt;a href=&quot;http://emacsformacosx.com&quot;&gt;http://emacsformacosx.com&lt;/a&gt; 下载安装即可。还有其他版本，我没有用过&lt;/li&gt;
+      &lt;li&gt;Linux会自带一个Emacs，可能是Emacs23，有些插件也许与24不同。 为避免掉坑，还是建议删除之，根据不同发行版的源选择安装。&lt;/li&gt;
+      &lt;li&gt;cygwin的话在安装的时候可以选择欲安装的包，可以连同git等常用命令行工具一起下载&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;配置&lt;/p&gt;
+
+    &lt;p&gt;我这里所指的配置并不只是配置文件，而是包括很多插件在内的环境搭建。作为入门者，我听从陈斌大神的建议选择了他的配置文件，他的文章中有链接，是github上的一个文件夹。&lt;/p&gt;
+
+    &lt;ol&gt;
+      &lt;li&gt;要是之前没用过emacs可跳过这一步, 删除原有的配置文件，一般来讲在 ~/.emacs.d/，没有的话搜索一下。 直接 rm -r 即可。&lt;/li&gt;
+      &lt;li&gt;下载到的emacs.d解压到 ~ 下， 改名前面加 . 隐藏该目录。&lt;/li&gt;
+      &lt;li&gt;启动Emacs，不出现意外的话将自动下载文件，然后就可以使用了&lt;/li&gt;
+      &lt;li&gt;部分网络可能会出现插件网站被墙的情况，这时候需要安装goagent，代理下载文件。 若使用goagent请在配置好相关内容后，从terminal中输入 http&lt;sub&gt;proxy&lt;/sub&gt;=&lt;a href=&quot;http://127.0.0.1:8087&quot;&gt;http://127.0.0.1:8087&lt;/a&gt; emacs 进行插件的下载。&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;a-idsec-3-namesec-3a&quot;&gt;基本知识&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;快捷键：
+    &lt;ol&gt;
+      &lt;li&gt;&lt;strong&gt;C键:&lt;/strong&gt; control，可以理解为和语义无关的控制，比如移动一个字符，移动到行尾等。&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;M键:&lt;/strong&gt; meta，可以理解为语义相关控制，比如移动到句首，段尾等。&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;S键:&lt;/strong&gt; shift，和其他的组合使用。&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;RET:&lt;/strong&gt; return，回车。&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;ESC:&lt;/strong&gt; escape。&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;帮助文档：
+官方文档，并不长，介绍了一些基本用法。 M-x help-with-tutorial（在Emacs中按住Alt 按x 然后输入help-with-tutorial 回车） 花时间阅读一下，记住基本的十几个快捷键后开始使用Emacs吧&lt;/li&gt;
+  &lt;li&gt;buffer:
+Emacs中基本的单位，每打开一个文件或者窗体都将打开一个buffer，通过光标控制可以进入指定buffer进行操作，启动Emacs后会自动运行两个buffer（scratch,Messages)&lt;/li&gt;
+  &lt;li&gt;window:
+Emacs中一个的界面可以被任意切分，横向、纵向任意数量，使得不同的buffer同时出现在屏幕上&lt;/li&gt;
+  &lt;li&gt;frame：
+Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太常用&lt;/li&gt;
+  &lt;li&gt;M-x
+执行一个程序，配置插件后会根据你输入的内容自动补全&lt;/li&gt;
+&lt;/ul&gt;
+
+    &lt;p&gt;&lt;a href=&quot;/emacs/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/&quot;&gt;开始使用emacs&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+  </content>
+</entry>
+
+
+<entry>
+  <title type="html"><![CDATA[Emacs基本操作]]></title>
+ <link rel="alternate" type="text/html" href="/emacs/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" />
+  <id>/emacs/Emacs基本操作</id>
+  <published>2015-08-14T00:00:00+00:00</published>
+  <updated>2015-08-14T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri></uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1&quot;&gt;1. 文件、buffer、window操作&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2&quot;&gt;2. 光标的移动&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3&quot;&gt;3. 文本编辑&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-4&quot;&gt;4. 帮助&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5&quot;&gt;5. org-mode&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5-1&quot;&gt;5.1. 大纲&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5-2&quot;&gt;5.2. 文本&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5-3&quot;&gt;5.3. 表格&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5-4&quot;&gt;5.4. 列表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5-5&quot;&gt;5.5. 标记&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5-6&quot;&gt;5.6. 内容原数据&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Emacs功能与Vim有重叠部分，如果激活了Evil的话，可以用Vim的方式进行很多操作，而不必再次记忆Emacs快捷键&lt;/p&gt;
+
+&lt;h1 id=&quot;bufferwindowa-idsec-1-namesec-1a&quot;&gt;文件、buffer、window操作&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;以下快捷键均以 C-x 开始&lt;/p&gt;
+
+&lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;key&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;funciton&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-f&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;打开一个文件&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-s&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;保存&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-w&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;另存为&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-v&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;关闭当前buffer并打开新文件&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;i&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;在当前光标处插入内容&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;b&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;切换、新建buffer&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-b&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;显示当前所有buffer列表&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;k&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;关闭当前buffer&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;退出emacs&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-q&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;只读、读写模式的切换&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;0&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;关闭当前window&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;1&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;只保留当前window&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;2&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;上下分割当前window&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;3&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;左右分割当前window&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;o&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;切换到下一个窗口&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;a-idsec-2-namesec-2a&quot;&gt;光标的移动&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;Evil很强大，会覆盖掉部分默认的移动方式，若开启Evil请熟悉Vim&lt;/p&gt;
+
+&lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-f&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;后一个字符&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-b&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;前一个字符&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-p&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;上一行&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-n&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;下一行&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-a&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;行首&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-e&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;行尾&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-b&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;上一个单词&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-f&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;下一个单词&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-a&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;句首&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-e&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;句尾&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-&amp;lt;&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;文件开头&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-&amp;gt;&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;文件末尾&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-g g&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;跳到指定行&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-v&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;向下翻页&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-v&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;向上翻页&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-M-f&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;向前匹配括号&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-M-b&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;向后匹配括号&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;a-idsec-3-namesec-3a&quot;&gt;文本编辑&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-@&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;设置标记位&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-d&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除后一个字符&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-d&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除后一个单词&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-Del&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除前一个字符&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-Del&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除前一个单词&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-k&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除一行&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-w&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除标记区域内容&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-w&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;复制标记区域内容&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-y&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;粘贴&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-y&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;粘贴其他（循环缓冲区)&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-t&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;交换两个字符位置&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-t&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;交换两个单词位置&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-u n&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;重复上个命令n次&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-s&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;向后搜索&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-r&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;向前搜索&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;a-idsec-4-namesec-4a&quot;&gt;帮助&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;以下命令均以C-h开始&lt;/p&gt;
+
+&lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;m&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;查看当前模式&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;c&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;查看快捷键绑定的命令&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;k&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;显示快捷键绑定的命令的作用&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;f&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;显示函数功能&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;b&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;查看当前缓冲区的可用快捷键&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;t&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;Emacs教程&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;org-modea-idsec-5-namesec-5a&quot;&gt;org-mode&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;org-mode功能很强大，这里仅介绍快捷键以备查看&lt;/p&gt;
+
+&lt;h2 id=&quot;a-idsec-5-1-namesec-5-1a&quot;&gt;大纲&lt;a id=&quot;sec-5-1&quot; name=&quot;sec-5-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;折叠:&lt;/p&gt;
+
+    &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+    
+    
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+    
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;S-TAB&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;循环整个文档的折叠方式&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;TAB&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;循环光标所在处折叠方式&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;移动:&lt;/p&gt;
+
+    &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+    
+    
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+    
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-n/p&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;上、下一个标题&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-f/b&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;同级标题间上、下移动&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-u&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;跳到上级标题&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-j&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;切换大纲浏览状态&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;编辑:&lt;/p&gt;
+
+    &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+    
+    
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+    
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-RET&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;插入同级标题&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-RET&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;插入TODO标题&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-LEFT/RIGHT&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;标题升、降级&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-UP/DOWN&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;标题上、下移&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-LEFT/RIGHT&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;子树升、降级&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-UP/DONW&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;子树上、下移&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c \*&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;本行切换为标题、正文&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-w&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;跨缓冲区移动标题&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c /&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;搜索&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-t&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;设定TODO/DONE&amp;#x2026;&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-s&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;规划时间&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-d&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;设置Deadline&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-idsec-5-2-namesec-5-2a&quot;&gt;文本&lt;a id=&quot;sec-5-2&quot; name=&quot;sec-5-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;链接：
+description&lt;/p&gt;
+
+    &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+    
+    
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+    
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c l&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;保存链接&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-l&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;创建或修改链接&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-o&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;打开链接&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c %&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;记录内部链接地址&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c &amp;amp;&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;跳转到已记录的内部链接&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;字体：&lt;/p&gt;
+    &lt;ol&gt;
+      &lt;li&gt;&lt;strong&gt;粗体&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;em&gt;斜体&lt;/em&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;del&gt;删除线&lt;/del&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;span class=&quot;underline&quot;&gt;下划线&lt;/span&gt;&lt;/li&gt;
+      &lt;li&gt;下标： H&lt;sub&gt;2&lt;/sub&gt; O&lt;/li&gt;
+      &lt;li&gt;上标： E=mc&lt;sup&gt;2&lt;/sup&gt;&lt;/li&gt;
+      &lt;li&gt;等宽： &lt;code&gt;GIT&lt;/code&gt; 或 &lt;code&gt;GIT&lt;/code&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-idsec-5-3-namesec-5-3a&quot;&gt;表格&lt;a id=&quot;sec-5-3&quot; name=&quot;sec-5-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;移动&lt;/p&gt;
+
+    &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+    
+    
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+    
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-c&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;调整表格，不移动光标&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;TAB&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;移动到下一区域&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;S-TAB&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;移动到上一区域&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;RET&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;移动到下一行&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;编辑&lt;/p&gt;
+
+    &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+    
+    
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+    
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-LEFT/RIGHT&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;移动列&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-UP/DOWN&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;移动行&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-LEFT/RIGHT&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除、插入列&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-UP/DOWN&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;删除、插入行&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c -&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;插入水平分割线&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c RET&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;插入水平分割线并进入下一行&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c ^&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;根据当前列排序&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-idsec-5-4-namesec-5-4a&quot;&gt;列表&lt;a id=&quot;sec-5-4&quot; name=&quot;sec-5-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;TAB&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;折叠&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-RET&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;插入列表项&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-RET&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;插入复选框列表项&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-RET&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;插入标题项&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-UP/DOWN&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;移动列表项&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-LEFT/RIGHT&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;升、降级列表项&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;M-S-LEFT/RIGHT&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;升、降级列表项及其子项&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-c&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;改变复选框状态&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c -&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;更换列表标记&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;S-LEFT/RIGHT&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;更换列表标记&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;a-idsec-5-5-namesec-5-5a&quot;&gt;标记&lt;a id=&quot;sec-5-5&quot; name=&quot;sec-5-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class=&quot;left&quot; /&gt;
+
+&lt;col class=&quot;left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c C-q&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;设置tag&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c \\&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;按照tag搜索标题&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c / m&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;搜索并以树显示&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td class=&quot;left&quot;&gt;C-c a m&lt;/td&gt;
+&lt;td class=&quot;left&quot;&gt;按tag搜索多文件&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;a-idsec-5-6-namesec-5-6a&quot;&gt;内容原数据&lt;a id=&quot;sec-5-6&quot; name=&quot;sec-5-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;以 #+ 开始，标记文档内容。&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;&lt;span class=&quot;err&quot;&gt;#切换正常分行&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_VERSE&lt;/span&gt;
+
+    &lt;span class=&quot;err&quot;&gt;#引用、左右均有部分缩进&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_QUOTE&lt;/span&gt;
+
+    &lt;span class=&quot;err&quot;&gt;#居中&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_CENTER&lt;/span&gt;
+
+    &lt;span class=&quot;err&quot;&gt;#代码&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_SRC&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;java&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+    &lt;p&gt;&lt;a href=&quot;/emacs/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/&quot;&gt;Emacs基本操作&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+  </content>
+</entry>
+
+</feed>
