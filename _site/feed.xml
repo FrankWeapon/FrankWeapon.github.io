@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="/feed.xml" />
 <link rel="alternate" type="text/html" href="" />
-<updated>2015-08-15T03:09:46+00:00</updated>
+<updated>2015-11-14T08:12:40+00:00</updated>
 <id>/</id>
 <author>
   <name>Frank Weapon</name>
@@ -15,8 +15,8 @@
 
 <entry>
   <title type="html"><![CDATA[用Emacs实现GTD]]></title>
- <link rel="alternate" type="text/html" href="/emacs/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" />
-  <id>/emacs/用Emacs实现GTD</id>
+ <link rel="alternate" type="text/html" href="/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" />
+  <id>/用Emacs实现GTD</id>
   <published>2015-08-14T00:00:00+00:00</published>
   <updated>2015-08-14T00:00:00+00:00</updated>
   <author>
@@ -164,15 +164,15 @@ task内容归宿，按照tag进行划分
 &lt;p&gt;整套流程并不复杂，可能看起来略显繁琐，很多人一定觉得这样折腾并没有价值。我作为刚开始采用GTD的方式的学生，其实觉得一旦着手这样做之后，不断修改状态或checkout子任务带来的成就感会促使你效率的提升。事先的安排更会清空大脑，做事效率有所提高。
 并且，此流程仅仅是我的习惯，针对不同的工作性质，应该更为私人定制一些。希望读到本文的人能花些时间去尝试一下这种个人管理的方法，面对这一个个的TODO变为DONE，感觉是充实的，会更有干劲去面对接下来的工作，愿本分享能够帮到更多的人。&lt;/p&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/emacs/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/&quot;&gt;用Emacs实现GTD&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/&quot;&gt;用Emacs实现GTD&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[开始使用emacs]]></title>
- <link rel="alternate" type="text/html" href="/emacs/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" />
-  <id>/emacs/开始使用emacs</id>
+ <link rel="alternate" type="text/html" href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" />
+  <id>/开始使用emacs</id>
   <published>2015-08-14T00:00:00+00:00</published>
   <updated>2015-08-14T00:00:00+00:00</updated>
   <author>
@@ -260,15 +260,15 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 执行一个程序，配置插件后会根据你输入的内容自动补全&lt;/li&gt;
 &lt;/ul&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/emacs/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/&quot;&gt;开始使用emacs&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/&quot;&gt;开始使用emacs&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[Emacs基本操作]]></title>
- <link rel="alternate" type="text/html" href="/emacs/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" />
-  <id>/emacs/Emacs基本操作</id>
+ <link rel="alternate" type="text/html" href="/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" />
+  <id>/Emacs基本操作</id>
   <published>2015-08-14T00:00:00+00:00</published>
   <updated>2015-08-14T00:00:00+00:00</updated>
   <author>
@@ -1118,7 +1118,7 @@ description&lt;/p&gt;
     &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_SRC&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;java&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-    &lt;p&gt;&lt;a href=&quot;/emacs/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/&quot;&gt;Emacs基本操作&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/&quot;&gt;Emacs基本操作&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
   </content>
 </entry>
 
