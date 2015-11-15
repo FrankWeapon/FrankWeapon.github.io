@@ -5,30 +5,30 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>开始使用emacs &#8211; Weapon's Journal</title>
+<title>Openstack-功能介绍 &#8211; Weapon's Journal</title>
 <meta name="description" content="Personal technical Summary">
-<meta name="keywords" content="emacs">
+<meta name="keywords" content="OpenStack">
 
 <!-- Twitter Cards -->
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="/images/">
-<meta name="twitter:title" content="开始使用emacs">
+<meta name="twitter:title" content="Openstack-功能介绍">
 <meta name="twitter:description" content="Personal technical Summary">
 <meta name="twitter:creator" content="@FrankWeapon">
 
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="开始使用emacs">
+<meta property="og:title" content="Openstack-功能介绍">
 <meta property="og:description" content="Personal technical Summary">
-<meta property="og:url" content="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/">
+<meta property="og:url" content="/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">
 <meta property="og:site_name" content="Weapon's Journal">
 
 
 
 
 
-<link rel="canonical" href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/">
+<link rel="canonical" href="/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">
 <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Weapon's Journal Feed">
 
 <!-- http://t.co/dKP3o1e -->
@@ -126,9 +126,9 @@
     <header class="header-title">
       <div class="header-title-wrap">
         
-          <h1 class="entry-title"><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" rel="bookmark" title="开始使用emacs">开始使用emacs</a></h1>
+          <h1 class="entry-title"><a href="/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" rel="bookmark" title="Openstack-功能介绍">Openstack-功能介绍</a></h1>
         
-        <h2><span class="entry-date date published"><time datetime="2015-08-14T00:00:00+00:00">August 14, 2015</time></span></h2>
+        <h2><span class="entry-date date published"><time datetime="2015-11-15T00:00:00+00:00">November 15, 2015</time></span></h2>
         
         <p class="entry-reading-time">
           <i class="fa fa-clock-o"></i>
@@ -143,89 +143,113 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1. 不要从零开始</a></li>
-<li><a href="#sec-2">2. 安装、配置</a></li>
-<li><a href="#sec-3">3. 基本知识</a></li>
+<li><a href="#sec-1">1. 写在前面</a></li>
+<li><a href="#sec-2">2. 节点功能</a>
+<ul>
+<li><a href="#sec-2-1">2.1. controller</a></li>
+<li><a href="#sec-2-2">2.2. network</a></li>
+<li><a href="#sec-2-3">2.3. compute</a></li>
+<li><a href="#sec-2-4">2.4. block storage (可选）</a></li>
+<li><a href="#sec-2-5">2.5. object storage (可选）</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. 组件功能</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Identity Service 身份验证服务 （Keystone)</a></li>
+<li><a href="#sec-3-2">3.2. Image Service 镜像服务 （Glance)</a></li>
+<li><a href="#sec-3-3">3.3. Compute Service 计算服务 (Nova)</a></li>
+<li><a href="#sec-3-4">3.4. Networking Service 网络服务 (Neutron)</a></li>
+<li><a href="#sec-3-5">3.5. DashBoard 图形化管理界面 (Horizon)</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 
-<h1 id="a-idsec-1-namesec-1a">不要从零开始<a id="sec-1" name="sec-1"></a></h1>
-
-<p>现在，功能强大的编辑器层出不穷，比如notepad＋＋，sublime text等，然而，面临这众多的新生代产物，Emacs仍然占有一席地位，因为他是已经超越了编辑器范畴的存在。
-其高度可定制化带来的复杂性和为了便捷操作设定的茫茫多的快捷键，入门难度令人发指。而Emacs又是以拓展能力闻名天下的，很多人在通读help－with－tutorial之后感觉不过尔尔便放弃了。
-陈斌的一篇文章《一年成为Emacs高手》带领很多人走进了Emacs的大门。作为高手，他提供了一个科学的方法论，对于具体的步骤，则需要我们自己步步摸索。本文作为我个人使用emacs过程中的心得总结，希望能帮助到更多的人。
-这里便提出第一个建议，请不要从零开始对emacs进行配置，繁琐的配置可能打消你使用他的积极性。所以采用大神的配置，直接知其然，再试图知其所以然。甚至你不必探寻配置细节，直接感受其魅力所在。</p>
-
-<h1 id="a-idsec-2-namesec-2a">安装、配置<a id="sec-2" name="sec-2"></a></h1>
+<h1 id="a-idsec-1-namesec-1a">写在前面<a id="sec-1" name="sec-1"></a></h1>
 
 <ul>
-  <li>
-    <p>平台选择</p>
+  <li>openstack作为一个开源项目，每隔一段时间都会发布一个版本而且有两种部署方式，在不同平台上有不同的安装方式。 这里介绍的为kilo版本采用neutron布局，在centOS7下，3台物理机上部署安装。 在官方网站提供了详尽的部署文档（英文版），应该以该文档为主，这里记录一些问题的补充说明作为辅助。</li>
+  <li>根据个人经验，总体上对openstack有个概念性的了解，明白组件功能所在对部署时问题的解决有很大帮助，否则面对问题会有些无从下手。 请花些时间耐心阅读组件功能介绍。</li>
+  <li>有些问题源于配置文件的错误，可能是在复制过程中无意发生差错，这种问题在查找过程中不太容易发现。 若出现解决不掉的问题可以考虑将问题组件的配置文件备份后删除，然后重新安装该组件，再次配置问题可能就不复存在了。</li>
+  <li>注意验证工作，不要轻易跳过验证不通过的部分，除非你对该部分的原理相当了解，能弄明白验证不通过的原因所在。 否则请认真进行每一步验证工作，这样在问题出现时才有相当于检查点的存在。 不至于找不到问题所在而彻底重新安装。</li>
+</ul>
 
-    <p>优先级如下：Mac &gt; 你熟悉的linux发行版 &gt; windows中cygwin &gt; windows直接使用 &gt; 你不熟悉的Linux</p>
+<h1 id="a-idsec-2-namesec-2a">节点功能<a id="sec-2" name="sec-2"></a></h1>
 
+<p>节点指一台计算机，若采用neutron布局，则最少需要3台计算机。 包括一台计算节点（controller)需要1张网卡，一台网络节点（network)需要3张网卡，一台计算节点（compute1)需要两张网卡。 若需要加入存储节点请参照官网配置。</p>
+
+<h2 id="controllera-idsec-2-1-namesec-2-1a">controller<a id="sec-2-1" name="sec-2-1"></a></h2>
+
+<p>该节点相当于项目经理，大部分的组件都需要安装在该节点上，任务的分配也都在这里进行，但该节点并不承担虚拟机的运行负载，也不承担网络负载。数据库只运行在该节点上，Dashboard也部署在这台机器的Apache上，所以如果想要外网访问Dashboard就需要给它额外一张网卡并提供公网地址。</p>
+
+<h2 id="networka-idsec-2-2-namesec-2-2a">network<a id="sec-2-2" name="sec-2-2"></a></h2>
+
+<p>该节点承担所有实例（运行在openstack上的虚拟机）的网络访问职责，注意这里只负责实例的网络访问，和物理机无关。每个物理机通过自己的网线上网。除基本环境外只需要安装网络组件。</p>
+
+<h2 id="computea-idsec-2-3-namesec-2-3a">compute<a id="sec-2-3" name="sec-2-3"></a></h2>
+
+<p>所有的实例都运行在该节点上，虚拟机所占用的资源均为该节点的硬件资源，可在环境中添加多个compute节点。</p>
+
+<h2 id="block-storage-a-idsec-2-4-namesec-2-4a">block storage (可选）<a id="sec-2-4" name="sec-2-4"></a></h2>
+
+<p>简单来说相当于硬盘，以块存储序列化后的内容，添加该节点后需要额外网卡进行存储通信。</p>
+
+<h2 id="object-storage-a-idsec-2-5-namesec-2-5a">object storage (可选）<a id="sec-2-5" name="sec-2-5"></a></h2>
+
+<p>简单来说相当于内存，以对象的形式存储数据，添加该节点后需要额外网卡进行存储通信。</p>
+
+<h1 id="a-idsec-3-namesec-3a">组件功能<a id="sec-3" name="sec-3"></a></h1>
+
+<p>组件指安装在各节点上的软件，在不同节点上需要的组件有所不同，安装时注意选择。</p>
+
+<h2 id="identity-service--keystonea-idsec-3-1-namesec-3-1a">Identity Service 身份验证服务 （Keystone)<a id="sec-3-1" name="sec-3-1"></a></h2>
+
+<ul>
+  <li>功能：
     <ol>
-      <li>Mac作为Unix的分支和Linux相似度很高，保持了类似的目录结构和好用的Terminal的同时有丰富的软件资源，并且在很多地方沿用了Emacs的快捷键。</li>
-      <li>没有Mac的环境下选择一款合适的发行版也是不错的，前提是你熟悉Linux，不然还是有点头大的。</li>
-      <li>Cygwin作为windows下模拟Linux环境Terminal的老牌软件，在他的支持下在windows上使用Emacs也还可以接受。</li>
-      <li>windows的目录与Linux严重不同，安装好的Emacs可能在环境变量等问题上遇到些麻烦，所以…</li>
-      <li>Linux环境还是应该熟悉一下，微软大法好，可是作为一个程序员完全不会Linux感觉不太合适。</li>
-    </ol>
-  </li>
-  <li>安装
-    <ol>
-      <li>Mac用户请到<a href="http://emacsformacosx.com">http://emacsformacosx.com</a> 下载安装即可。还有其他版本，我没有用过</li>
-      <li>Linux会自带一个Emacs，可能是Emacs23，有些插件也许与24不同。 为避免掉坑，还是建议删除之，根据不同发行版的源选择安装。</li>
-      <li>cygwin的话在安装的时候可以选择欲安装的包，可以连同git等常用命令行工具一起下载</li>
-    </ol>
-  </li>
-  <li>
-    <p>配置</p>
-
-    <p>我这里所指的配置并不只是配置文件，而是包括很多插件在内的环境搭建。作为入门者，我听从陈斌大神的建议选择了他的配置文件，他的文章中有链接，是github上的一个文件夹。</p>
-
-    <ol>
-      <li>要是之前没用过emacs可跳过这一步, 删除原有的配置文件，一般来讲在 ~/.emacs.d/，没有的话搜索一下。 直接 rm -r 即可。</li>
-      <li>下载到的emacs.d解压到 ~ 下， 改名前面加 . 隐藏该目录。</li>
-      <li>启动Emacs，不出现意外的话将自动下载文件，然后就可以使用了</li>
-      <li>部分网络可能会出现插件网站被墙的情况，这时候需要安装goagent，代理下载文件。 若使用goagent请在配置好相关内容后，从terminal中输入 http<sub>proxy</sub>=<a href="http://127.0.0.1:8087">http://127.0.0.1:8087</a> emacs 进行插件的下载。</li>
+      <li>记录用户以及其权限</li>
+      <li>提供了每个用户的可用服务列表</li>
     </ol>
   </li>
 </ul>
 
-<h1 id="a-idsec-3-namesec-3a">基本知识<a id="sec-3" name="sec-3"></a></h1>
+<h2 id="image-service--glancea-idsec-3-2-namesec-3-2a">Image Service 镜像服务 （Glance)<a id="sec-3-2" name="sec-3-2"></a></h2>
 
 <ul>
-  <li>快捷键：
-    <ol>
-      <li><strong>C键:</strong> control，可以理解为和语义无关的控制，比如移动一个字符，移动到行尾等。</li>
-      <li><strong>M键:</strong> meta，可以理解为语义相关控制，比如移动到句首，段尾等。</li>
-      <li><strong>S键:</strong> shift，和其他的组合使用。</li>
-      <li><strong>RET:</strong> return，回车。</li>
-      <li><strong>ESC:</strong> escape。</li>
-    </ol>
-  </li>
-  <li>帮助文档：
-官方文档，并不长，介绍了一些基本用法。 M-x help-with-tutorial（在Emacs中按住Alt 按x 然后输入help-with-tutorial 回车） 花时间阅读一下，记住基本的十几个快捷键后开始使用Emacs吧</li>
-  <li>buffer:
-Emacs中基本的单位，每打开一个文件或者窗体都将打开一个buffer，通过光标控制可以进入指定buffer进行操作，启动Emacs后会自动运行两个buffer（scratch,Messages)</li>
-  <li>window:
-Emacs中一个的界面可以被任意切分，横向、纵向任意数量，使得不同的buffer同时出现在屏幕上</li>
-  <li>frame：
-Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太常用</li>
-  <li>M-x
-执行一个程序，配置插件后会根据你输入的内容自动补全</li>
+  <li>功能：
+提供对包括制作在内的镜像管理。</li>
+</ul>
+
+<h2 id="compute-service--novaa-idsec-3-3-namesec-3-3a">Compute Service 计算服务 (Nova)<a id="sec-3-3" name="sec-3-3"></a></h2>
+
+<ul>
+  <li>功能：
+作为IaaS最主要的组成部分，计算服务负责云操作系统的运行。</li>
+</ul>
+
+<h2 id="networking-service--neutrona-idsec-3-4-namesec-3-4a">Networking Service 网络服务 (Neutron)<a id="sec-3-4" name="sec-3-4"></a></h2>
+
+<ul>
+  <li>功能：
+提供所有虚拟机的网络功能，包括基础网络设施的搭建以及网络访问控制。</li>
+</ul>
+
+<h2 id="dashboard--horizona-idsec-3-5-namesec-3-5a">DashBoard 图形化管理界面 (Horizon)<a id="sec-3-5" name="sec-3-5"></a></h2>
+
+<ul>
+  <li>功能：
+通过浏览器打开网页操作Openstack，否则只能记住大量API通过控制台控制。</li>
 </ul>
 
       <footer class="entry-meta">
-        <span class="entry-tags"><a href="/tags/#emacs" title="Pages tagged emacs" class="tag"><span class="term">emacs</span></a></span>
+        <span class="entry-tags"><a href="/tags/#OpenStack" title="Pages tagged OpenStack" class="tag"><span class="term">OpenStack</span></a></span>
         
         <div class="social-share">
   <ul class="socialcount socialcount-small inline-list">
-    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
-    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
-    <li class="googleplus"><a href="https://plus.google.com/share?url=/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
   </ul>
 </div><!-- /.social-share -->
       </footer>
@@ -234,7 +258,7 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
     <div class="read-more">
   
     <div class="read-more-header">
-      <a href="/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" class="read-more-btn">Read More</a>
+      <a href="/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" class="read-more-btn">Read More</a>
     </div><!-- /.read-more-header -->
     <div class="read-more-content">
       <h3><a href="/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="OpenStack-基础环境搭建">OpenStack-基础环境搭建</a></h3>
@@ -244,12 +268,12 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
   <div class="read-more-list">
     
       <div class="list-item">
-        <h4><a href="/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" title="Openstack-功能介绍">Openstack-功能介绍</a></h4>
-        <span>Published on November 15, 2015</span>
+        <h4><a href="/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" title="用Emacs实现GTD">用Emacs实现GTD</a></h4>
+        <span>Published on August 14, 2015</span>
       </div><!-- /.list-item -->
     
       <div class="list-item">
-        <h4><a href="/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" title="用Emacs实现GTD">用Emacs实现GTD</a></h4>
+        <h4><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" title="开始使用emacs">开始使用emacs</a></h4>
         <span>Published on August 14, 2015</span>
       </div><!-- /.list-item -->
     

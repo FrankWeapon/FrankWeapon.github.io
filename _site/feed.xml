@@ -4,13 +4,406 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="/feed.xml" />
 <link rel="alternate" type="text/html" href="" />
-<updated>2015-11-14T08:12:40+00:00</updated>
+<updated>2015-11-15T08:45:59+00:00</updated>
 <id>/</id>
 <author>
   <name>Frank Weapon</name>
   <uri>/</uri>
   <email>helldarkfire@gmail.com</email>
 </author>
+
+
+<entry>
+  <title type="html"><![CDATA[OpenStack-基础环境搭建]]></title>
+ <link rel="alternate" type="text/html" href="/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" />
+  <id>/Openstack-基础环境搭建</id>
+  <published>2015-11-15T00:00:00+00:00</published>
+  <updated>2015-11-15T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri></uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1&quot;&gt;1. 网络环境&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-1&quot;&gt;1.1. 网络概述&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-2&quot;&gt;1.2. 使用配置文件修改网络设置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-3&quot;&gt;1.3. 路由器设置&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-4&quot;&gt;1.4. 修改hosts&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-5&quot;&gt;1.5. controller&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-6&quot;&gt;1.6. network&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-7&quot;&gt;1.7. compute1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1-8&quot;&gt;1.8. 验证&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2&quot;&gt;2. Network Time Protocal (NTP)&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2-1&quot;&gt;2.1. 问题解决&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2-2&quot;&gt;2.2. 注意事项&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3&quot;&gt;3. OpenStack packages&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-4&quot;&gt;4. SQL database&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-4-1&quot;&gt;4.1. 注意事项&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5&quot;&gt;5. Message queue&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-5-1&quot;&gt;5.1. 注意事项&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;网络环境&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;openstack网络尤其重要，理解各节点组件作用，在正确稳定的网络结构下，可以避免很多不必要的问题。整体结构如图所示
+&lt;img src=&quot;/assets/upload/OpenStack-网络拓扑.jpg&quot; alt=&quot;网络拓扑&quot; /&gt;
+该文章中采centOS7的网卡命名，集成网卡名为eno1、插入的两张PCI网卡分别为enp2s10和enp2s12。&lt;/p&gt;
+
+&lt;p&gt;一定要采用命令行下编辑配置文件的方式来进行网络配置，使用GUI可能会导致配置文件的混乱，要是已经弄乱了的话，后面会有解决方案。&lt;/p&gt;
+
+&lt;h2 id=&quot;a-idsec-1-1-namesec-1-1a&quot;&gt;网络概述&lt;a id=&quot;sec-1-1&quot; name=&quot;sec-1-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;10.0.0.0/24
+该网段称作management，用作3台物理机间的数据通信。 需要一个网关（这里使用路由器）接入互联网。&lt;/li&gt;
+  &lt;li&gt;10.0.1.0/24
+该网段称作tunnel，用作运行在compute上的实例与network间的数据通信，与controller无关。&lt;/li&gt;
+  &lt;li&gt;外网
+只在network上有，不指定IP地址且BOOTPROTO为none，在安装好网络组件之前这块网卡并没有用。 创建网络环境时会将一段IP地址分配到这里，以池的形式提供NAT以及虚拟机的IP地址绑定。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-idsec-1-2-namesec-1-2a&quot;&gt;使用配置文件修改网络设置&lt;a id=&quot;sec-1-2&quot; name=&quot;sec-1-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;centOS7 网络配置文件位于&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;em&gt;etc/sysconfig/network-scripts&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;目录下对应3块网卡的配置文件分别为ifcfg-eno1, ifcfg-enp2s10, ifcfg-enp2s12。&lt;/p&gt;
+
+&lt;p&gt;环境中所有IP均为静态指定，所以BOOTPROTO=static。network的第三块网卡除外，要设置为 BOOTPROTO=none。&lt;/p&gt;
+
+&lt;p&gt;编辑完成后重启网络&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;systemctl restart network
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;a-idsec-1-3-namesec-1-3a&quot;&gt;路由器设置&lt;a id=&quot;sec-1-3&quot; name=&quot;sec-1-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;CentOS下无法直接进入路由器设置界面，需要一台windows接入LAN口输入192.168.1.1进入路由器设置。 路由器网段改为10.0.0.0,子网掩码255.255.255.0，路由器地址10.0.0.1，路由器重启后进入指定3台机器eno1的MAC地址和IP地址
+1.  controller
+    10.0.0.11
+2.  network
+    10.0.0.21
+3.  compute1
+    10.0.0.31
+4.  compute2(可选）
+    10.0.0.32（以此类推）&lt;/p&gt;
+
+&lt;p&gt;注意，如果你之前在其他连入LAN口的电脑上配置了地址10.0.0.1，会导致无法进入路由器设置页面，记得修改它以避免冲突。&lt;/p&gt;
+
+&lt;h2 id=&quot;hostsa-idsec-1-4-namesec-1-4a&quot;&gt;修改hosts&lt;a id=&quot;sec-1-4&quot; name=&quot;sec-1-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;每个节点都需要修改hosts文件，指定各节点的通信地址。配置文件在&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; /etc/host
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;#controller
+10.0.0.11 controller&lt;/p&gt;
+
+&lt;p&gt;#network
+10.0.0.21 network&lt;/p&gt;
+
+&lt;p&gt;#compute1
+10.0.0.31 compute1&lt;/p&gt;
+
+&lt;p&gt;#compute2
+10.0.0.32 compute2&lt;/p&gt;
+
+&lt;h2 id=&quot;controllera-idsec-1-5-namesec-1-5a&quot;&gt;controller&lt;a id=&quot;sec-1-5&quot; name=&quot;sec-1-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;ifcfg-eno1&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;BOOTPROTO=static
+IPADDR=10.0.0.11
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1&lt;/p&gt;
+
+      &lt;p&gt;DNS = 8.8.8.8&lt;/p&gt;
+
+      &lt;p&gt;DNS1 = 8.8.4.4&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;networka-idsec-1-6-namesec-1-6a&quot;&gt;network&lt;a id=&quot;sec-1-6&quot; name=&quot;sec-1-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;ifcfg-eno1&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;BOOTPROTO=static
+IPADDR=10.0.0.21
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1&lt;/p&gt;
+
+      &lt;p&gt;DNS = 8.8.8.8&lt;/p&gt;
+
+      &lt;p&gt;DNS1 = 8.8.4.4&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;ifcfg-enp2s10&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;BOOTPROTO=static
+IPADDR=10.0.1.21
+NETMASK=255.255.255.0&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;ifcfg-enp2s12&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;BOOTPROTO=none&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;compute1a-idsec-1-7-namesec-1-7a&quot;&gt;compute1&lt;a id=&quot;sec-1-7&quot; name=&quot;sec-1-7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;ifcfg-eno1&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;BOOTPROTO=static
+IPADDR=10.0.0.31
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1&lt;/p&gt;
+
+      &lt;p&gt;DNS = 8.8.8.8&lt;/p&gt;
+
+      &lt;p&gt;DNS1 = 8.8.4.4&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;ifcfg-enp2s10&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;BOOTPROTO=static
+IPADDR=10.0.1.31
+NETMASK=255.255.255.0&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-idsec-1-8-namesec-1-8a&quot;&gt;验证&lt;a id=&quot;sec-1-8&quot; name=&quot;sec-1-8&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;所有主机都能ping通外网&lt;/li&gt;
+  &lt;li&gt;所有主机之间使用hosts文件中的名字都能相互ping通&lt;/li&gt;
+  &lt;li&gt;compute和network可以ping通对方tunnel地址&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;network-time-protocal-ntpa-idsec-2-namesec-2a&quot;&gt;Network Time Protocal (NTP)&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;a-idsec-2-1-namesec-2-1a&quot;&gt;问题解决&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;控制节点上要填一个地址，用于统一时间，许多都不能用，在验证的时候显示.INIT.&lt;/p&gt;
+
+    &lt;p&gt;这里给出国家授时中心的域名&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;cn.pool.ntp.org
+1.cn.pool.ntp.org&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;防火墙可能会导致NTP的通信异常，可以关闭并禁用防火墙&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;systemctl stop firewalld
+systemctl disable firewalld
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-idsec-2-2-namesec-2-2a&quot;&gt;注意事项&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;其他节点都以controller作为时间标准。以后安装过程中遇到问题可以先验证NTP是否运行正常，有时网络问题会导致组件功能不正常。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;openstack-packagesa-idsec-3-namesec-3a&quot;&gt;OpenStack packages&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;这里的按照官方文档安装没有问题&lt;/p&gt;
+
+&lt;h1 id=&quot;sql-databasea-idsec-4-namesec-4a&quot;&gt;SQL database&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;a-idsec-4-1-namesec-4-1a&quot;&gt;注意事项&lt;a id=&quot;sec-4-1&quot; name=&quot;sec-4-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;记得要执行Mysql的安装过程&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;mysql_secure_installation
+&lt;/code&gt;&lt;/pre&gt;
+
+    &lt;p&gt;少了这一步可能会导致在之后调用程序方法的时候报服务器500错误&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;数据库出现问题是可以删掉重新安装的，数据会存放在另一个地方，将程序重装后数据还在。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;message-queuea-idsec-5-namesec-5a&quot;&gt;Message queue&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;a-idsec-5-1-namesec-5-1a&quot;&gt;注意事项&lt;a id=&quot;sec-5-1&quot; name=&quot;sec-5-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;消息队列是保证物理机之间消息通信的基础，组件出现问题的时候可以查看消息队列的日志观察是否有问题。 有的时候无法正确解析地址会导致消息队列不通使程序出现问题。 消息队列的问题不会报错，查看日志文档(存放在/var/log/rabbit&lt;sub&gt;mq下&lt;/sub&gt;)会发现ERROR，根据提示解决问题即可。&lt;/li&gt;
+&lt;/ul&gt;
+
+    &lt;p&gt;&lt;a href=&quot;/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/&quot;&gt;OpenStack-基础环境搭建&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on November 15, 2015.&lt;/p&gt;
+  </content>
+</entry>
+
+
+<entry>
+  <title type="html"><![CDATA[Openstack-功能介绍]]></title>
+ <link rel="alternate" type="text/html" href="/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" />
+  <id>/Openstack-功能介绍</id>
+  <published>2015-11-15T00:00:00+00:00</published>
+  <updated>2015-11-15T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri></uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-1&quot;&gt;1. 写在前面&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2&quot;&gt;2. 节点功能&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2-1&quot;&gt;2.1. controller&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2-2&quot;&gt;2.2. network&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2-3&quot;&gt;2.3. compute&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2-4&quot;&gt;2.4. block storage (可选）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-2-5&quot;&gt;2.5. object storage (可选）&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3&quot;&gt;3. 组件功能&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3-1&quot;&gt;3.1. Identity Service 身份验证服务 （Keystone)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3-2&quot;&gt;3.2. Image Service 镜像服务 （Glance)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3-3&quot;&gt;3.3. Compute Service 计算服务 (Nova)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3-4&quot;&gt;3.4. Networking Service 网络服务 (Neutron)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#sec-3-5&quot;&gt;3.5. DashBoard 图形化管理界面 (Horizon)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;写在前面&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;openstack作为一个开源项目，每隔一段时间都会发布一个版本而且有两种部署方式，在不同平台上有不同的安装方式。 这里介绍的为kilo版本采用neutron布局，在centOS7下，3台物理机上部署安装。 在官方网站提供了详尽的部署文档（英文版），应该以该文档为主，这里记录一些问题的补充说明作为辅助。&lt;/li&gt;
+  &lt;li&gt;根据个人经验，总体上对openstack有个概念性的了解，明白组件功能所在对部署时问题的解决有很大帮助，否则面对问题会有些无从下手。 请花些时间耐心阅读组件功能介绍。&lt;/li&gt;
+  &lt;li&gt;有些问题源于配置文件的错误，可能是在复制过程中无意发生差错，这种问题在查找过程中不太容易发现。 若出现解决不掉的问题可以考虑将问题组件的配置文件备份后删除，然后重新安装该组件，再次配置问题可能就不复存在了。&lt;/li&gt;
+  &lt;li&gt;注意验证工作，不要轻易跳过验证不通过的部分，除非你对该部分的原理相当了解，能弄明白验证不通过的原因所在。 否则请认真进行每一步验证工作，这样在问题出现时才有相当于检查点的存在。 不至于找不到问题所在而彻底重新安装。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;a-idsec-2-namesec-2a&quot;&gt;节点功能&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;节点指一台计算机，若采用neutron布局，则最少需要3台计算机。 包括一台计算节点（controller)需要1张网卡，一台网络节点（network)需要3张网卡，一台计算节点（compute1)需要两张网卡。 若需要加入存储节点请参照官网配置。&lt;/p&gt;
+
+&lt;h2 id=&quot;controllera-idsec-2-1-namesec-2-1a&quot;&gt;controller&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;该节点相当于项目经理，大部分的组件都需要安装在该节点上，任务的分配也都在这里进行，但该节点并不承担虚拟机的运行负载，也不承担网络负载。数据库只运行在该节点上，Dashboard也部署在这台机器的Apache上，所以如果想要外网访问Dashboard就需要给它额外一张网卡并提供公网地址。&lt;/p&gt;
+
+&lt;h2 id=&quot;networka-idsec-2-2-namesec-2-2a&quot;&gt;network&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;该节点承担所有实例（运行在openstack上的虚拟机）的网络访问职责，注意这里只负责实例的网络访问，和物理机无关。每个物理机通过自己的网线上网。除基本环境外只需要安装网络组件。&lt;/p&gt;
+
+&lt;h2 id=&quot;computea-idsec-2-3-namesec-2-3a&quot;&gt;compute&lt;a id=&quot;sec-2-3&quot; name=&quot;sec-2-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;所有的实例都运行在该节点上，虚拟机所占用的资源均为该节点的硬件资源，可在环境中添加多个compute节点。&lt;/p&gt;
+
+&lt;h2 id=&quot;block-storage-a-idsec-2-4-namesec-2-4a&quot;&gt;block storage (可选）&lt;a id=&quot;sec-2-4&quot; name=&quot;sec-2-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;简单来说相当于硬盘，以块存储序列化后的内容，添加该节点后需要额外网卡进行存储通信。&lt;/p&gt;
+
+&lt;h2 id=&quot;object-storage-a-idsec-2-5-namesec-2-5a&quot;&gt;object storage (可选）&lt;a id=&quot;sec-2-5&quot; name=&quot;sec-2-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;简单来说相当于内存，以对象的形式存储数据，添加该节点后需要额外网卡进行存储通信。&lt;/p&gt;
+
+&lt;h1 id=&quot;a-idsec-3-namesec-3a&quot;&gt;组件功能&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;p&gt;组件指安装在各节点上的软件，在不同节点上需要的组件有所不同，安装时注意选择。&lt;/p&gt;
+
+&lt;h2 id=&quot;identity-service--keystonea-idsec-3-1-namesec-3-1a&quot;&gt;Identity Service 身份验证服务 （Keystone)&lt;a id=&quot;sec-3-1&quot; name=&quot;sec-3-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;功能：
+    &lt;ol&gt;
+      &lt;li&gt;记录用户以及其权限&lt;/li&gt;
+      &lt;li&gt;提供了每个用户的可用服务列表&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;image-service--glancea-idsec-3-2-namesec-3-2a&quot;&gt;Image Service 镜像服务 （Glance)&lt;a id=&quot;sec-3-2&quot; name=&quot;sec-3-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;功能：
+提供对包括制作在内的镜像管理。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;compute-service--novaa-idsec-3-3-namesec-3-3a&quot;&gt;Compute Service 计算服务 (Nova)&lt;a id=&quot;sec-3-3&quot; name=&quot;sec-3-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;功能：
+作为IaaS最主要的组成部分，计算服务负责云操作系统的运行。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;networking-service--neutrona-idsec-3-4-namesec-3-4a&quot;&gt;Networking Service 网络服务 (Neutron)&lt;a id=&quot;sec-3-4&quot; name=&quot;sec-3-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;功能：
+提供所有虚拟机的网络功能，包括基础网络设施的搭建以及网络访问控制。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;dashboard--horizona-idsec-3-5-namesec-3-5a&quot;&gt;DashBoard 图形化管理界面 (Horizon)&lt;a id=&quot;sec-3-5&quot; name=&quot;sec-3-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;功能：
+通过浏览器打开网页操作Openstack，否则只能记住大量API通过控制台控制。&lt;/li&gt;
+&lt;/ul&gt;
+
+    &lt;p&gt;&lt;a href=&quot;/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/&quot;&gt;Openstack-功能介绍&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on November 15, 2015.&lt;/p&gt;
+  </content>
+</entry>
 
 
 <entry>
