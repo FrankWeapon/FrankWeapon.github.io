@@ -4,13 +4,209 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="/feed.xml" />
 <link rel="alternate" type="text/html" href="" />
-<updated>2015-11-16T04:23:03+00:00</updated>
+<updated>2016-01-25T03:27:50+00:00</updated>
 <id>/</id>
 <author>
   <name>Frank Weapon</name>
   <uri>/</uri>
   <email>helldarkfire@gmail.com</email>
 </author>
+
+
+<entry>
+  <title type="html"><![CDATA[Spacemacs简介]]></title>
+ <link rel="alternate" type="text/html" href="/Spacemacs/" />
+  <id>/Spacemacs</id>
+  <published>2016-01-25T00:00:00+00:00</published>
+  <updated>2016-01-25T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri></uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;1. Why Spacemacs&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;1.1. Compare to Emacs?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;1.2. Compare to Vim?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;1.3. Compaire to other IDE?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;2. Spacemacs introduction&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;2.1. 官网&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;2.2. 项目结构&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;2.3. 目录结构&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;3. Using spacemacs&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;3.1. 安装(Mac OS X)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;3.2. 配置.spacemacs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;3.3. 开始使用&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;why-spacemacsa-idorgheadline4a&quot;&gt;Why Spacemacs&lt;a id=&quot;orgheadline4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;compare-to-emacsa-idorgheadline1a&quot;&gt;Compare to Emacs?&lt;a id=&quot;orgheadline1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Spacemacs作为Emacs的一个扩展,Spacemacs相对于其他的Emacs配置来说，文档的详细程度绝对完胜其他配置。从头开始折腾Emacs是不太明智的行为，而采用各路大神的配置又会有些摸不清头脑不知道如何入手。
+这时候，Spacemacs详细的文档和清晰的分层可以作为想转向Emacs的人入门非常好的版本。&lt;/p&gt;
+
+&lt;h2 id=&quot;compare-to-vima-idorgheadline2a&quot;&gt;Compare to Vim?&lt;a id=&quot;orgheadline2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Spacemacs最突出的特点就是与Vim极高的相似性，以空格键作为leader键，甚至文档中专门为有兴趣转入Emacs的Vim党提供了专门的内容。安装过程中选择Vim布局，可以完全采用Vim的编辑方式享受Emacs的各种优势。&lt;/p&gt;
+
+&lt;h2 id=&quot;compaire-to-other-idea-idorgheadline3a&quot;&gt;Compaire to other IDE?&lt;a id=&quot;orgheadline3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;如果写Java，目前可能没有工具能超过Intellij Idea，但是做轻量级一些的编码工作，一个庞大的IDE可能有些太过重量级。而且Emacs高度的可扩展性给了Geek们无限的空间，其写文档、Latex的能力也是其他IDE不能相比的。&lt;/p&gt;
+
+&lt;h1 id=&quot;spacemacs-introductiona-idorgheadline8a&quot;&gt;Spacemacs introduction&lt;a id=&quot;orgheadline8&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;a-idorgheadline5a&quot;&gt;官网&lt;a id=&quot;orgheadline5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://spacemacs.org&quot;&gt;Spacemacs.org&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;a-idorgheadline6a&quot;&gt;项目结构&lt;a id=&quot;orgheadline6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Spacemacs 以layer来进行功能的分割，通过.spacemacs文件来进行配置管理，具体内容在仍然在.emacs.d目录下。某个layer的具体配置可以到layer目录下查看文档。&lt;/p&gt;
+
+&lt;h2 id=&quot;a-idorgheadline7a&quot;&gt;目录结构&lt;a id=&quot;orgheadline7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;assets: 图标等内容,不需要关注。&lt;/li&gt;
+  &lt;li&gt;core: Spacemacs 配置的核心内容，最好不要修改其内容。&lt;/li&gt;
+  &lt;li&gt;doc: Spacemacs 的各类相关文档。&lt;/li&gt;
+  &lt;li&gt;layers: 其他开发者贡献的代码，用于扩展Spacemacs&lt;/li&gt;
+  &lt;li&gt;private: 本地个人目录，用于存放自己写的一些EL和keybinding等&lt;/li&gt;
+  &lt;li&gt;tests: 测试目录，不需要关注。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;using-spacemacsa-idorgheadline12a&quot;&gt;Using spacemacs&lt;a id=&quot;orgheadline12&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;mac-os-xa-idorgheadline9a&quot;&gt;安装(Mac OS X)&lt;a id=&quot;orgheadline9&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;安装Emacs24.4以上的版本&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;brew tap railwaycat/homebrew-emacsmacport
+brew install emacs-mac --with-spacemacs-icon
+brew linkapps
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;下载配置文件&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;以非安全模式启动emacs以保证成功下载插件&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;emacs --insecure
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;选择编辑模式、待安装完成后重启&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;spacemacsa-idorgheadline10a&quot;&gt;配置.spacemacs&lt;a id=&quot;orgheadline10&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;打开 &lt;em&gt;~.spacemacs&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;在layers中打开需要用的注释掉的layer，并添加osx以使emacs能正常使用Max OS x的快捷键。&lt;/li&gt;
+  &lt;li&gt;最下面 &lt;code&gt;(defun dotspacemacs/user-config ()&lt;/code&gt; 中添加自己的配置。(若配置有明显分类，应参考官方文档创建自己的layer并进行引用管理）&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;SPC f e R&lt;/code&gt; 刷新配置&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-idorgheadline11a&quot;&gt;开始使用&lt;a id=&quot;orgheadline11&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;与Emacs不同，采用SPC作为Leader键可以减少很多组合型快捷键的使用，在Normal Mode（Vim基本常识）中按下空格键会有大量功能键提示,多看文档多尝试。&lt;/p&gt;
+
+    &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
+    
+    
+&lt;colgroup&gt;
+&lt;col class=&quot;org-left&quot; /&gt;
+    
+&lt;col class=&quot;org-left&quot; /&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;b&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;buffer&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;f&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;file&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;w&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;window&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;m&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;mode&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;s&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;search&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;h&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;help&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;c&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;comment/compile&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;p&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;project&lt;/td&gt;
+&lt;/tr&gt;
+    
+    
+&lt;tr&gt;
+&lt;td class=&quot;org-left&quot;&gt;l&lt;/td&gt;
+&lt;td class=&quot;org-left&quot;&gt;layout&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;通过查看layout的文档、根据个人需求定制自己的Emacs&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+    &lt;p&gt;&lt;a href=&quot;/Spacemacs/&quot;&gt;Spacemacs简介&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on January 25, 2016.&lt;/p&gt;
+  </content>
+</entry>
 
 
 <entry>

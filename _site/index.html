@@ -141,6 +141,206 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2016-01-25T00:00:00+00:00"><a href="/Spacemacs/">January 25, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Spacemacs/" rel="bookmark" title="Spacemacs简介" itemprop="url">Spacemacs简介</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline4">1. Why Spacemacs</a>
+<ul>
+<li><a href="#orgheadline1">1.1. Compare to Emacs?</a></li>
+<li><a href="#orgheadline2">1.2. Compare to Vim?</a></li>
+<li><a href="#orgheadline3">1.3. Compaire to other IDE?</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">2. Spacemacs introduction</a>
+<ul>
+<li><a href="#orgheadline5">2.1. 官网</a></li>
+<li><a href="#orgheadline6">2.2. 项目结构</a></li>
+<li><a href="#orgheadline7">2.3. 目录结构</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">3. Using spacemacs</a>
+<ul>
+<li><a href="#orgheadline9">3.1. 安装(Mac OS X)</a></li>
+<li><a href="#orgheadline10">3.2. 配置.spacemacs</a></li>
+<li><a href="#orgheadline11">3.3. 开始使用</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="why-spacemacsa-idorgheadline4a">Why Spacemacs<a id="orgheadline4"></a></h1>
+
+<h2 id="compare-to-emacsa-idorgheadline1a">Compare to Emacs?<a id="orgheadline1"></a></h2>
+
+<p>Spacemacs作为Emacs的一个扩展,Spacemacs相对于其他的Emacs配置来说，文档的详细程度绝对完胜其他配置。从头开始折腾Emacs是不太明智的行为，而采用各路大神的配置又会有些摸不清头脑不知道如何入手。
+这时候，Spacemacs详细的文档和清晰的分层可以作为想转向Emacs的人入门非常好的版本。</p>
+
+<h2 id="compare-to-vima-idorgheadline2a">Compare to Vim?<a id="orgheadline2"></a></h2>
+
+<p>Spacemacs最突出的特点就是与Vim极高的相似性，以空格键作为leader键，甚至文档中专门为有兴趣转入Emacs的Vim党提供了专门的内容。安装过程中选择Vim布局，可以完全采用Vim的编辑方式享受Emacs的各种优势。</p>
+
+<h2 id="compaire-to-other-idea-idorgheadline3a">Compaire to other IDE?<a id="orgheadline3"></a></h2>
+
+<p>如果写Java，目前可能没有工具能超过Intellij Idea，但是做轻量级一些的编码工作，一个庞大的IDE可能有些太过重量级。而且Emacs高度的可扩展性给了Geek们无限的空间，其写文档、Latex的能力也是其他IDE不能相比的。</p>
+
+<h1 id="spacemacs-introductiona-idorgheadline8a">Spacemacs introduction<a id="orgheadline8"></a></h1>
+
+<h2 id="a-idorgheadline5a">官网<a id="orgheadline5"></a></h2>
+
+<p><a href="http://spacemacs.org">Spacemacs.org</a></p>
+
+<h2 id="a-idorgheadline6a">项目结构<a id="orgheadline6"></a></h2>
+
+<p>Spacemacs 以layer来进行功能的分割，通过.spacemacs文件来进行配置管理，具体内容在仍然在.emacs.d目录下。某个layer的具体配置可以到layer目录下查看文档。</p>
+
+<h2 id="a-idorgheadline7a">目录结构<a id="orgheadline7"></a></h2>
+
+<ul>
+  <li>assets: 图标等内容,不需要关注。</li>
+  <li>core: Spacemacs 配置的核心内容，最好不要修改其内容。</li>
+  <li>doc: Spacemacs 的各类相关文档。</li>
+  <li>layers: 其他开发者贡献的代码，用于扩展Spacemacs</li>
+  <li>private: 本地个人目录，用于存放自己写的一些EL和keybinding等</li>
+  <li>tests: 测试目录，不需要关注。</li>
+</ul>
+
+<h1 id="using-spacemacsa-idorgheadline12a">Using spacemacs<a id="orgheadline12"></a></h1>
+
+<h2 id="mac-os-xa-idorgheadline9a">安装(Mac OS X)<a id="orgheadline9"></a></h2>
+
+<ul>
+  <li>
+    <p>安装Emacs24.4以上的版本</p>
+
+    <pre><code>brew tap railwaycat/homebrew-emacsmacport
+brew install emacs-mac --with-spacemacs-icon
+brew linkapps
+</code></pre>
+  </li>
+  <li>
+    <p>下载配置文件</p>
+
+    <pre><code>git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+</code></pre>
+  </li>
+  <li>
+    <p>以非安全模式启动emacs以保证成功下载插件</p>
+
+    <pre><code>emacs --insecure
+</code></pre>
+  </li>
+  <li>
+    <p>选择编辑模式、待安装完成后重启</p>
+  </li>
+</ul>
+
+<h2 id="spacemacsa-idorgheadline10a">配置.spacemacs<a id="orgheadline10"></a></h2>
+
+<ul>
+  <li>打开 <em>~.spacemacs</em></li>
+  <li>在layers中打开需要用的注释掉的layer，并添加osx以使emacs能正常使用Max OS x的快捷键。</li>
+  <li>最下面 <code>(defun dotspacemacs/user-config ()</code> 中添加自己的配置。(若配置有明显分类，应参考官方文档创建自己的layer并进行引用管理）</li>
+  <li><code>SPC f e R</code> 刷新配置</li>
+</ul>
+
+<h2 id="a-idorgheadline11a">开始使用<a id="orgheadline11"></a></h2>
+
+<ul>
+  <li>
+    <p>与Emacs不同，采用SPC作为Leader键可以减少很多组合型快捷键的使用，在Normal Mode（Vim基本常识）中按下空格键会有大量功能键提示,多看文档多尝试。</p>
+
+    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    
+    
+<colgroup>
+<col class="org-left" />
+    
+<col class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">b</td>
+<td class="org-left">buffer</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">f</td>
+<td class="org-left">file</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">w</td>
+<td class="org-left">window</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">m</td>
+<td class="org-left">mode</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">s</td>
+<td class="org-left">search</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">h</td>
+<td class="org-left">help</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">c</td>
+<td class="org-left">comment/compile</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">p</td>
+<td class="org-left">project</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">l</td>
+<td class="org-left">layout</td>
+</tr>
+</tbody>
+</table>
+  </li>
+  <li>
+    <p>通过查看layout的文档、根据个人需求定制自己的Emacs</p>
+  </li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2015-11-16T00:00:00+00:00"><a href="/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/">November 16, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -988,106 +1188,6 @@ task内容归宿，按照tag进行划分
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" rel="bookmark" title="开始使用emacs" itemprop="url">开始使用emacs</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. 不要从零开始</a></li>
-<li><a href="#sec-2">2. 安装、配置</a></li>
-<li><a href="#sec-3">3. 基本知识</a></li>
-</ul>
-</div>
-</div>
-
-<h1 id="a-idsec-1-namesec-1a">不要从零开始<a id="sec-1" name="sec-1"></a></h1>
-
-<p>现在，功能强大的编辑器层出不穷，比如notepad＋＋，sublime text等，然而，面临这众多的新生代产物，Emacs仍然占有一席地位，因为他是已经超越了编辑器范畴的存在。
-其高度可定制化带来的复杂性和为了便捷操作设定的茫茫多的快捷键，入门难度令人发指。而Emacs又是以拓展能力闻名天下的，很多人在通读help－with－tutorial之后感觉不过尔尔便放弃了。
-陈斌的一篇文章《一年成为Emacs高手》带领很多人走进了Emacs的大门。作为高手，他提供了一个科学的方法论，对于具体的步骤，则需要我们自己步步摸索。本文作为我个人使用emacs过程中的心得总结，希望能帮助到更多的人。
-这里便提出第一个建议，请不要从零开始对emacs进行配置，繁琐的配置可能打消你使用他的积极性。所以采用大神的配置，直接知其然，再试图知其所以然。甚至你不必探寻配置细节，直接感受其魅力所在。</p>
-
-<h1 id="a-idsec-2-namesec-2a">安装、配置<a id="sec-2" name="sec-2"></a></h1>
-
-<ul>
-  <li>
-    <p>平台选择</p>
-
-    <p>优先级如下：Mac &gt; 你熟悉的linux发行版 &gt; windows中cygwin &gt; windows直接使用 &gt; 你不熟悉的Linux</p>
-
-    <ol>
-      <li>Mac作为Unix的分支和Linux相似度很高，保持了类似的目录结构和好用的Terminal的同时有丰富的软件资源，并且在很多地方沿用了Emacs的快捷键。</li>
-      <li>没有Mac的环境下选择一款合适的发行版也是不错的，前提是你熟悉Linux，不然还是有点头大的。</li>
-      <li>Cygwin作为windows下模拟Linux环境Terminal的老牌软件，在他的支持下在windows上使用Emacs也还可以接受。</li>
-      <li>windows的目录与Linux严重不同，安装好的Emacs可能在环境变量等问题上遇到些麻烦，所以…</li>
-      <li>Linux环境还是应该熟悉一下，微软大法好，可是作为一个程序员完全不会Linux感觉不太合适。</li>
-    </ol>
-  </li>
-  <li>安装
-    <ol>
-      <li>Mac用户请到<a href="http://emacsformacosx.com">http://emacsformacosx.com</a> 下载安装即可。还有其他版本，我没有用过</li>
-      <li>Linux会自带一个Emacs，可能是Emacs23，有些插件也许与24不同。 为避免掉坑，还是建议删除之，根据不同发行版的源选择安装。</li>
-      <li>cygwin的话在安装的时候可以选择欲安装的包，可以连同git等常用命令行工具一起下载</li>
-    </ol>
-  </li>
-  <li>
-    <p>配置</p>
-
-    <p>我这里所指的配置并不只是配置文件，而是包括很多插件在内的环境搭建。作为入门者，我听从陈斌大神的建议选择了他的配置文件，他的文章中有链接，是github上的一个文件夹。</p>
-
-    <ol>
-      <li>要是之前没用过emacs可跳过这一步, 删除原有的配置文件，一般来讲在 ~/.emacs.d/，没有的话搜索一下。 直接 rm -r 即可。</li>
-      <li>下载到的emacs.d解压到 ~ 下， 改名前面加 . 隐藏该目录。</li>
-      <li>启动Emacs，不出现意外的话将自动下载文件，然后就可以使用了</li>
-      <li>部分网络可能会出现插件网站被墙的情况，这时候需要安装goagent，代理下载文件。 若使用goagent请在配置好相关内容后，从terminal中输入 http<sub>proxy</sub>=<a href="http://127.0.0.1:8087">http://127.0.0.1:8087</a> emacs 进行插件的下载。</li>
-    </ol>
-  </li>
-</ul>
-
-<h1 id="a-idsec-3-namesec-3a">基本知识<a id="sec-3" name="sec-3"></a></h1>
-
-<ul>
-  <li>快捷键：
-    <ol>
-      <li><strong>C键:</strong> control，可以理解为和语义无关的控制，比如移动一个字符，移动到行尾等。</li>
-      <li><strong>M键:</strong> meta，可以理解为语义相关控制，比如移动到句首，段尾等。</li>
-      <li><strong>S键:</strong> shift，和其他的组合使用。</li>
-      <li><strong>RET:</strong> return，回车。</li>
-      <li><strong>ESC:</strong> escape。</li>
-    </ol>
-  </li>
-  <li>帮助文档：
-官方文档，并不长，介绍了一些基本用法。 M-x help-with-tutorial（在Emacs中按住Alt 按x 然后输入help-with-tutorial 回车） 花时间阅读一下，记住基本的十几个快捷键后开始使用Emacs吧</li>
-  <li>buffer:
-Emacs中基本的单位，每打开一个文件或者窗体都将打开一个buffer，通过光标控制可以进入指定buffer进行操作，启动Emacs后会自动运行两个buffer（scratch,Messages)</li>
-  <li>window:
-Emacs中一个的界面可以被任意切分，横向、纵向任意数量，使得不同的buffer同时出现在屏幕上</li>
-  <li>frame：
-Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太常用</li>
-  <li>M-x
-执行一个程序，配置插件后会根据你输入的内容自动补全</li>
-</ul>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
 
 <div class="pagination">
   
@@ -1115,7 +1215,7 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Frank Weapon. </span>
+    <span>&copy; 2016 Frank Weapon. </span>
   </footer>
 </div><!-- /.footer-wrapper -->
 

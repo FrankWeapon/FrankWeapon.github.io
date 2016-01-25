@@ -141,6 +141,106 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" rel="bookmark" title="开始使用emacs" itemprop="url">开始使用emacs</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. 不要从零开始</a></li>
+<li><a href="#sec-2">2. 安装、配置</a></li>
+<li><a href="#sec-3">3. 基本知识</a></li>
+</ul>
+</div>
+</div>
+
+<h1 id="a-idsec-1-namesec-1a">不要从零开始<a id="sec-1" name="sec-1"></a></h1>
+
+<p>现在，功能强大的编辑器层出不穷，比如notepad＋＋，sublime text等，然而，面临这众多的新生代产物，Emacs仍然占有一席地位，因为他是已经超越了编辑器范畴的存在。
+其高度可定制化带来的复杂性和为了便捷操作设定的茫茫多的快捷键，入门难度令人发指。而Emacs又是以拓展能力闻名天下的，很多人在通读help－with－tutorial之后感觉不过尔尔便放弃了。
+陈斌的一篇文章《一年成为Emacs高手》带领很多人走进了Emacs的大门。作为高手，他提供了一个科学的方法论，对于具体的步骤，则需要我们自己步步摸索。本文作为我个人使用emacs过程中的心得总结，希望能帮助到更多的人。
+这里便提出第一个建议，请不要从零开始对emacs进行配置，繁琐的配置可能打消你使用他的积极性。所以采用大神的配置，直接知其然，再试图知其所以然。甚至你不必探寻配置细节，直接感受其魅力所在。</p>
+
+<h1 id="a-idsec-2-namesec-2a">安装、配置<a id="sec-2" name="sec-2"></a></h1>
+
+<ul>
+  <li>
+    <p>平台选择</p>
+
+    <p>优先级如下：Mac &gt; 你熟悉的linux发行版 &gt; windows中cygwin &gt; windows直接使用 &gt; 你不熟悉的Linux</p>
+
+    <ol>
+      <li>Mac作为Unix的分支和Linux相似度很高，保持了类似的目录结构和好用的Terminal的同时有丰富的软件资源，并且在很多地方沿用了Emacs的快捷键。</li>
+      <li>没有Mac的环境下选择一款合适的发行版也是不错的，前提是你熟悉Linux，不然还是有点头大的。</li>
+      <li>Cygwin作为windows下模拟Linux环境Terminal的老牌软件，在他的支持下在windows上使用Emacs也还可以接受。</li>
+      <li>windows的目录与Linux严重不同，安装好的Emacs可能在环境变量等问题上遇到些麻烦，所以…</li>
+      <li>Linux环境还是应该熟悉一下，微软大法好，可是作为一个程序员完全不会Linux感觉不太合适。</li>
+    </ol>
+  </li>
+  <li>安装
+    <ol>
+      <li>Mac用户请到<a href="http://emacsformacosx.com">http://emacsformacosx.com</a> 下载安装即可。还有其他版本，我没有用过</li>
+      <li>Linux会自带一个Emacs，可能是Emacs23，有些插件也许与24不同。 为避免掉坑，还是建议删除之，根据不同发行版的源选择安装。</li>
+      <li>cygwin的话在安装的时候可以选择欲安装的包，可以连同git等常用命令行工具一起下载</li>
+    </ol>
+  </li>
+  <li>
+    <p>配置</p>
+
+    <p>我这里所指的配置并不只是配置文件，而是包括很多插件在内的环境搭建。作为入门者，我听从陈斌大神的建议选择了他的配置文件，他的文章中有链接，是github上的一个文件夹。</p>
+
+    <ol>
+      <li>要是之前没用过emacs可跳过这一步, 删除原有的配置文件，一般来讲在 ~/.emacs.d/，没有的话搜索一下。 直接 rm -r 即可。</li>
+      <li>下载到的emacs.d解压到 ~ 下， 改名前面加 . 隐藏该目录。</li>
+      <li>启动Emacs，不出现意外的话将自动下载文件，然后就可以使用了</li>
+      <li>部分网络可能会出现插件网站被墙的情况，这时候需要安装goagent，代理下载文件。 若使用goagent请在配置好相关内容后，从terminal中输入 http<sub>proxy</sub>=<a href="http://127.0.0.1:8087">http://127.0.0.1:8087</a> emacs 进行插件的下载。</li>
+    </ol>
+  </li>
+</ul>
+
+<h1 id="a-idsec-3-namesec-3a">基本知识<a id="sec-3" name="sec-3"></a></h1>
+
+<ul>
+  <li>快捷键：
+    <ol>
+      <li><strong>C键:</strong> control，可以理解为和语义无关的控制，比如移动一个字符，移动到行尾等。</li>
+      <li><strong>M键:</strong> meta，可以理解为语义相关控制，比如移动到句首，段尾等。</li>
+      <li><strong>S键:</strong> shift，和其他的组合使用。</li>
+      <li><strong>RET:</strong> return，回车。</li>
+      <li><strong>ESC:</strong> escape。</li>
+    </ol>
+  </li>
+  <li>帮助文档：
+官方文档，并不长，介绍了一些基本用法。 M-x help-with-tutorial（在Emacs中按住Alt 按x 然后输入help-with-tutorial 回车） 花时间阅读一下，记住基本的十几个快捷键后开始使用Emacs吧</li>
+  <li>buffer:
+Emacs中基本的单位，每打开一个文件或者窗体都将打开一个buffer，通过光标控制可以进入指定buffer进行操作，启动Emacs后会自动运行两个buffer（scratch,Messages)</li>
+  <li>window:
+Emacs中一个的界面可以被任意切分，横向、纵向任意数量，使得不同的buffer同时出现在屏幕上</li>
+  <li>frame：
+Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太常用</li>
+  <li>M-x
+执行一个程序，配置插件后会根据你输入的内容自动补全</li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -1028,7 +1128,7 @@ description</p>
 
 <div class="footer-wrapper">
   <footer role="contentinfo">
-    <span>&copy; 2015 Frank Weapon. </span>
+    <span>&copy; 2016 Frank Weapon. </span>
   </footer>
 </div><!-- /.footer-wrapper -->
 
