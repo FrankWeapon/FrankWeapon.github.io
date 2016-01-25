@@ -2,6 +2,7 @@
 layout: post
 title: Spacemacs简介
 tags: emacs spacemacs
+comments: true
 ---
 
 <div id="table-of-contents">
