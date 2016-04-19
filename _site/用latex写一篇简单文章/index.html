@@ -1,0 +1,400 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>用latex写一篇简单文章 &#8211; Weapon's Journal</title>
+<meta name="description" content="Personal technical Summary">
+<meta name="keywords" content="latex">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="/images/">
+<meta name="twitter:title" content="用latex写一篇简单文章">
+<meta name="twitter:description" content="Personal technical Summary">
+<meta name="twitter:creator" content="@FrankWeapon">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用latex写一篇简单文章">
+<meta property="og:description" content="Personal technical Summary">
+<meta property="og:url" content="/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/">
+<meta property="og:site_name" content="Weapon's Journal">
+
+
+
+
+
+<link rel="canonical" href="/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Weapon's Journal Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="/images/avatar.jpg" alt="Frank Weapon photo" class="author-photo">
+					<h4>Frank Weapon</h4>
+					<p>A student majoring CS, A person makes living by programming</p>
+				</li>
+				<li><a href="/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:helldarkfire@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				<li>
+					<a href="http://twitter.com/FrankWeapon"><i class="fa fa-fw fa-twitter"></i> Twitter</a>
+				</li>
+				<li>
+					<a href="http://facebook.com/Martin Frank"><i class="fa fa-fw fa-facebook"></i> Facebook</a>
+				</li>
+				<li>
+					<a href="https://google.com/+weapon frank"><i class="fa fa-fw fa-google-plus"></i> Google+</a>
+				</li>
+				
+				<li>
+					<a href="http://github.com/FrankWeapon"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="/posts/">All Posts</a></li>
+				<li><a href="/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	        
+	        
+	    <li><a href="https://github.com/FrankWeapon" target="_blank">GitHub</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" rel="bookmark" title="用latex写一篇简单文章">用latex写一篇简单文章</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2016-04-19T00:00:00+00:00">April 19, 2016</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+          Reading time ~2 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline5">1. 基本元素</a>
+<ul>
+<li><a href="#orgheadline1">1.1. 文章类型——最基本的内容</a></li>
+<li><a href="#orgheadline2">1.2. 作者、标题、日期——制作标题页</a></li>
+<li><a href="#orgheadline3">1.3. 章节、段落——组织文章内容</a></li>
+<li><a href="#orgheadline4">1.4. 目录——整理章节标题</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline9">2. 版面设置</a>
+<ul>
+<li><a href="#orgheadline6">2.1. 页边距——利用好页面</a></li>
+<li><a href="#orgheadline7">2.2. 页眉、页脚——有地方显示页标、作者、日期</a></li>
+<li><a href="#orgheadline8">2.3. 间距——合理调整页面</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline14">3. 插入内容</a>
+<ul>
+<li><a href="#orgheadline10">3.1. 插入图片——自动编号你的图例</a></li>
+<li><a href="#orgheadline11">3.2. 插入表格——用代码画出表格</a></li>
+<li><a href="#orgheadline12">3.3. 插入列表——格式化你的内容</a></li>
+<li><a href="#orgheadline13">3.4. 插入公式——编辑复杂的数学内容</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="a-idorgheadline5a">基本元素<a id="orgheadline5"></a></h1>
+
+<h2 id="a-idorgheadline1a">文章类型——最基本的内容<a id="orgheadline1"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+    <span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+    Hello, world!
+    <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline2a">作者、标题、日期——制作标题页<a id="orgheadline2"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\title</span><span class="nb">{</span>hello，world!<span class="nb">}</span>
+    <span class="k">\author</span><span class="nb">{</span>frank weapon<span class="nb">}</span>
+    <span class="k">\date</span><span class="nb">{</span><span class="k">\today</span><span class="nb">}</span>
+    <span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+    <span class="k">\maketitle</span>
+    hello，world!
+    <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline3a">章节、段落——组织文章内容<a id="orgheadline3"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+    <span class="k">\maketitle</span>
+    <span class="k">\section</span><span class="nb">{</span>hello programming language<span class="nb">}</span>
+    <span class="k">\subsection</span><span class="nb">{</span>hello java<span class="nb">}</span>
+    <span class="k">\paragraph</span><span class="nb">{</span>java<span class="nb">}</span> is a OO language
+    <span class="k">\paragraph</span><span class="nb">{</span>java<span class="nb">}</span> is a powerful language
+    <span class="k">\subsubsection</span><span class="nb">{</span>hello spring<span class="nb">}</span>
+    <span class="k">\subsubsection</span><span class="nb">{</span>hello struts<span class="nb">}</span>
+    <span class="k">\subsection</span><span class="nb">{</span>hello ruby<span class="nb">}</span>
+    <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline4a">目录——整理章节标题<a id="orgheadline4"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+    <span class="k">\maketitle</span>
+    <span class="k">\tableofcontents</span>
+    ...
+    <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span></code></pre></div>
+
+<h1 id="a-idorgheadline9a">版面设置<a id="orgheadline9"></a></h1>
+
+<h2 id="a-idorgheadline6a">页边距——利用好页面<a id="orgheadline6"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+    <span class="k">\usepackage</span><span class="nb">{</span>geometry<span class="nb">}</span>
+    <span class="k">\geometry</span><span class="nb">{</span>papersize=<span class="nb">{</span>20cm,15cm<span class="nb">}}</span>
+    <span class="k">\geometry</span><span class="nb">{</span>left=1cm,right=2cm,top=3cm,bottom=4cm<span class="nb">}</span>
+    <span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+    Hello, world!
+    <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline7a">页眉、页脚——有地方显示页标、作者、日期<a id="orgheadline7"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+    <span class="k">\usepackage</span><span class="nb">{</span>fancyhdr<span class="nb">}</span>
+    <span class="k">\pagestyle</span><span class="nb">{</span>fancy<span class="nb">}</span>
+    <span class="k">\lhead</span><span class="nb">{</span>head left<span class="nb">}</span>
+    <span class="k">\chead</span><span class="nb">{</span>head center<span class="nb">}</span>
+    <span class="k">\rhead</span><span class="nb">{</span>head right<span class="nb">}</span>
+    <span class="k">\lfoot</span><span class="nb">{}</span>
+    <span class="k">\cfoot</span><span class="nb">{</span><span class="k">\thepage</span><span class="nb">}</span>
+    <span class="k">\rfoot</span><span class="nb">{}</span>
+    <span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+    Hello, world!
+    <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline8a">间距——合理调整页面<a id="orgheadline8"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="c">%paragraph indentation</span>
+    <span class="k">\setlength</span><span class="nb">{</span><span class="k">\parindent</span><span class="nb">}{</span>4em<span class="nb">}</span>
+    <span class="c">%paragraph spacing</span>
+    <span class="k">\setlength</span><span class="nb">{</span><span class="k">\parskip</span><span class="nb">}{</span>1em<span class="nb">}</span>
+    <span class="c">%Line spacing</span>
+    <span class="k">\renewcommand</span><span class="nb">{</span><span class="k">\baselinestretch</span><span class="nb">}{</span>1.5<span class="nb">}</span></code></pre></div>
+
+<h1 id="a-idorgheadline14a">插入内容<a id="orgheadline14"></a></h1>
+
+<h2 id="a-idorgheadline10a">插入图片——自动编号你的图例<a id="orgheadline10"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\begin</span><span class="nb">{</span>figure<span class="nb">}</span>[h]
+      <span class="k">\centering</span>
+      <span class="k">\includegraphics</span><span class="na">[width=0.8\textwidth]</span><span class="nb">{</span>figure/fig1<span class="nb">}</span>
+      <span class="k">\caption</span><span class="nb">{</span>demo figure<span class="nb">}</span>
+      <span class="k">\label</span><span class="nb">{</span>figure demo<span class="nb">}</span>
+    <span class="k">\end</span><span class="nb">{</span>figure<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline11a">插入表格——用代码画出表格<a id="orgheadline11"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>[h]
+    <span class="k">\begin</span><span class="nb">{</span>center<span class="nb">}</span>
+    <span class="k">\caption</span><span class="nb">{</span>demo table<span class="nb">}</span>
+    <span class="k">\label</span><span class="nb">{</span>table demo<span class="nb">}</span>
+    <span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}{</span>| l | l | l |<span class="nb">}</span>
+    <span class="k">\hline</span>
+    00 <span class="nb">&amp;</span> 01 <span class="nb">&amp;</span> 02<span class="k">\\</span>
+    <span class="k">\hline</span>
+    10 <span class="nb">&amp;</span> 11 <span class="nb">&amp;</span> 12<span class="k">\\</span>
+    <span class="k">\hline</span>
+    20 <span class="nb">&amp;</span> 21 <span class="nb">&amp;</span> 22<span class="k">\\</span>
+    <span class="k">\hline</span>
+    <span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+    <span class="k">\end</span><span class="nb">{</span>center<span class="nb">}</span>
+    <span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline12a">插入列表——格式化你的内容<a id="orgheadline12"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\begin</span><span class="nb">{</span>itemize<span class="nb">}</span>
+    <span class="k">\item</span> one demo item
+    <span class="k">\item</span> another demo item
+    <span class="k">\end</span><span class="nb">{</span>itemize<span class="nb">}</span></code></pre></div>
+
+<h2 id="a-idorgheadline13a">插入公式——编辑复杂的数学内容<a id="orgheadline13"></a></h2>
+
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+    <span class="k">\usepackage</span><span class="nb">{</span>amsmath<span class="nb">}</span>
+    <span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+    Hello, Math !
+    <span class="s">$</span><span class="nb">...</span><span class="s">$</span> <span class="c">% inline</span>
+    <span class="sb">\[</span><span class="nb"> .. </span><span class="s">\]</span> <span class="c">% between two lines</span>
+    <span class="k">\begin</span><span class="nb">{</span>equation<span class="nb">}</span> <span class="c">% numbered equation between lines</span>
+    …
+    <span class="k">\end</span><span class="nb">{</span>equation<span class="nb">}</span>
+    <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span></code></pre></div>
+
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="/tags/#latex" title="Pages tagged latex" class="tag"><span class="term">latex</span></a></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <section id="disqus_thread">
+    <div id="disqus_thread"></div>
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = '//frankweapon.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </section><!-- /#disqus_thread -->
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="/Spacemacs/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="/Spacemacs/" title="Spacemacs简介">Spacemacs简介</a></h3>
+      <p>Table of Contents1. Why Spacemacs1.1. Compare to Emacs?1.2. Compare to Vim?1.3. Compaire to other IDE?2. Spacemacs introduction2.1. 官网2.2...&hellip; <a href="/Spacemacs/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/" title="OpenStack-组件安装">OpenStack-组件安装</a></h4>
+        <span>Published on November 16, 2015</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="OpenStack-基础环境搭建">OpenStack-基础环境搭建</a></h4>
+        <span>Published on November 15, 2015</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2016 Frank Weapon. </span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="/assets/js/scripts.min.js"></script>
+
+
+
+
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'helldarkfire@gmail.com'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+	        
+    <script id="dsq-count-scr" src="//frankweapon.disqus.com/count.js" async></script>
+</body>
+</html>

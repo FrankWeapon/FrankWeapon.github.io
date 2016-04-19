@@ -4,13 +4,187 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="/feed.xml" />
 <link rel="alternate" type="text/html" href="" />
-<updated>2016-01-25T03:53:07+00:00</updated>
+<updated>2016-04-19T13:25:55+00:00</updated>
 <id>/</id>
 <author>
   <name>Frank Weapon</name>
   <uri>/</uri>
   <email>helldarkfire@gmail.com</email>
 </author>
+
+
+<entry>
+  <title type="html"><![CDATA[用latex写一篇简单文章]]></title>
+ <link rel="alternate" type="text/html" href="/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" />
+  <id>/用latex写一篇简单文章</id>
+  <published>2016-04-19T00:00:00+00:00</published>
+  <updated>2016-04-19T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri></uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;div id=&quot;table-of-contents&quot;&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id=&quot;text-table-of-contents&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline5&quot;&gt;1. 基本元素&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline1&quot;&gt;1.1. 文章类型——最基本的内容&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline2&quot;&gt;1.2. 作者、标题、日期——制作标题页&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline3&quot;&gt;1.3. 章节、段落——组织文章内容&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline4&quot;&gt;1.4. 目录——整理章节标题&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline9&quot;&gt;2. 版面设置&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline6&quot;&gt;2.1. 页边距——利用好页面&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline7&quot;&gt;2.2. 页眉、页脚——有地方显示页标、作者、日期&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline8&quot;&gt;2.3. 间距——合理调整页面&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline14&quot;&gt;3. 插入内容&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline10&quot;&gt;3.1. 插入图片——自动编号你的图例&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline11&quot;&gt;3.2. 插入表格——用代码画出表格&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline12&quot;&gt;3.3. 插入列表——格式化你的内容&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#orgheadline13&quot;&gt;3.4. 插入公式——编辑复杂的数学内容&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idorgheadline5a&quot;&gt;基本元素&lt;a id=&quot;orgheadline5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;a-idorgheadline1a&quot;&gt;文章类型——最基本的内容&lt;a id=&quot;orgheadline1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    Hello, world!
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline2a&quot;&gt;作者、标题、日期——制作标题页&lt;a id=&quot;orgheadline2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\title&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello，world!&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\author&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;frank weapon&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\date&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\today&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
+    hello，world!
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline3a&quot;&gt;章节、段落——组织文章内容&lt;a id=&quot;orgheadline3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello programming language&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\subsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello java&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\paragraph&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;java&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt; is a OO language
+    &lt;span class=&quot;k&quot;&gt;\paragraph&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;java&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt; is a powerful language
+    &lt;span class=&quot;k&quot;&gt;\subsubsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello spring&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\subsubsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello struts&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\subsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello ruby&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline4a&quot;&gt;目录——整理章节标题&lt;a id=&quot;orgheadline4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\tableofcontents&lt;/span&gt;
+    ...
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idorgheadline9a&quot;&gt;版面设置&lt;a id=&quot;orgheadline9&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;a-idorgheadline6a&quot;&gt;页边距——利用好页面&lt;a id=&quot;orgheadline6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;geometry&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\geometry&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;papersize=&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;20cm,15cm&lt;span class=&quot;nb&quot;&gt;}}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\geometry&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;left=1cm,right=2cm,top=3cm,bottom=4cm&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    Hello, world!
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline7a&quot;&gt;页眉、页脚——有地方显示页标、作者、日期&lt;a id=&quot;orgheadline7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;fancyhdr&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\pagestyle&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;fancy&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\lhead&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;head left&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\chead&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;head center&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\rhead&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;head right&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\lfoot&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\cfoot&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\thepage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\rfoot&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    Hello, world!
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline8a&quot;&gt;间距——合理调整页面&lt;a id=&quot;orgheadline8&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;c&quot;&gt;%paragraph indentation&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\setlength&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\parindent&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;4em&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;%paragraph spacing&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\setlength&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\parskip&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;1em&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;%Line spacing&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\renewcommand&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\baselinestretch&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;1.5&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;a-idorgheadline14a&quot;&gt;插入内容&lt;a id=&quot;orgheadline14&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;h2 id=&quot;a-idorgheadline10a&quot;&gt;插入图片——自动编号你的图例&lt;a id=&quot;orgheadline10&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;[h]
+      &lt;span class=&quot;k&quot;&gt;\centering&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;\includegraphics&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[width=0.8\textwidth]&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure/fig1&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;\caption&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;demo figure&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure demo&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline11a&quot;&gt;插入表格——用代码画出表格&lt;a id=&quot;orgheadline11&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;table&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;[h]
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;center&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\caption&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;demo table&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;table demo&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;tabular&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;| l | l | l |&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
+    00 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 01 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 02&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
+    10 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 11 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 12&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
+    20 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 21 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 22&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;tabular&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;center&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;table&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline12a&quot;&gt;插入列表——格式化你的内容&lt;a id=&quot;orgheadline12&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;itemize&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\item&lt;/span&gt; one demo item
+    &lt;span class=&quot;k&quot;&gt;\item&lt;/span&gt; another demo item
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;itemize&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;a-idorgheadline13a&quot;&gt;插入公式——编辑复杂的数学内容&lt;a id=&quot;orgheadline13&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;amsmath&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    Hello, Math !
+    &lt;span class=&quot;s&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;$&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% inline&lt;/span&gt;
+    &lt;span class=&quot;sb&quot;&gt;\[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt; .. &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;\]&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% between two lines&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;equation&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% numbered equation between lines&lt;/span&gt;
+    …
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;equation&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+    &lt;p&gt;&lt;a href=&quot;/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/&quot;&gt;用latex写一篇简单文章&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on April 19, 2016.&lt;/p&gt;
+  </content>
+</entry>
 
 
 <entry>

@@ -141,6 +141,283 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-11-15T00:00:00+00:00"><a href="/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">November 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="bookmark" title="OpenStack-基础环境搭建" itemprop="url">OpenStack-基础环境搭建</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. 网络环境</a>
+<ul>
+<li><a href="#sec-1-1">1.1. 网络概述</a></li>
+<li><a href="#sec-1-2">1.2. 使用配置文件修改网络设置</a></li>
+<li><a href="#sec-1-3">1.3. 路由器设置</a></li>
+<li><a href="#sec-1-4">1.4. 修改hosts</a></li>
+<li><a href="#sec-1-5">1.5. controller</a></li>
+<li><a href="#sec-1-6">1.6. network</a></li>
+<li><a href="#sec-1-7">1.7. compute1</a></li>
+<li><a href="#sec-1-8">1.8. 验证</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2. Network Time Protocal (NTP)</a>
+<ul>
+<li><a href="#sec-2-1">2.1. 问题解决</a></li>
+<li><a href="#sec-2-2">2.2. 注意事项</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. OpenStack packages</a></li>
+<li><a href="#sec-4">4. SQL database</a>
+<ul>
+<li><a href="#sec-4-1">4.1. 注意事项</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Message queue</a>
+<ul>
+<li><a href="#sec-5-1">5.1. 注意事项</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="a-idsec-1-namesec-1a">网络环境<a id="sec-1" name="sec-1"></a></h1>
+
+<p>openstack网络尤其重要，理解各节点组件作用，在正确稳定的网络结构下，可以避免很多不必要的问题。整体结构如图所示
+<img src="/assets/upload/OpenStack-网络拓扑.jpg" alt="网络拓扑" />
+该文章中采centOS7的网卡命名，集成网卡名为eno1、插入的两张PCI网卡分别为enp2s10和enp2s12。</p>
+
+<p>一定要采用命令行下编辑配置文件的方式来进行网络配置，使用GUI可能会导致配置文件的混乱，要是已经弄乱了的话，后面会有解决方案。</p>
+
+<h2 id="a-idsec-1-1-namesec-1-1a">网络概述<a id="sec-1-1" name="sec-1-1"></a></h2>
+
+<ul>
+  <li>10.0.0.0/24
+该网段称作management，用作3台物理机间的数据通信。 需要一个网关（这里使用路由器）接入互联网。</li>
+  <li>10.0.1.0/24
+该网段称作tunnel，用作运行在compute上的实例与network间的数据通信，与controller无关。</li>
+  <li>外网
+只在network上有，不指定IP地址且BOOTPROTO为none，在安装好网络组件之前这块网卡并没有用。 创建网络环境时会将一段IP地址分配到这里，以池的形式提供NAT以及虚拟机的IP地址绑定。</li>
+</ul>
+
+<h2 id="a-idsec-1-2-namesec-1-2a">使用配置文件修改网络设置<a id="sec-1-2" name="sec-1-2"></a></h2>
+
+<p>centOS7 网络配置文件位于</p>
+
+<blockquote>
+  <p><em>etc/sysconfig/network-scripts</em></p>
+</blockquote>
+
+<p>目录下对应3块网卡的配置文件分别为ifcfg-eno1, ifcfg-enp2s10, ifcfg-enp2s12。</p>
+
+<p>环境中所有IP均为静态指定，所以BOOTPROTO=static。network的第三块网卡除外，要设置为 BOOTPROTO=none。</p>
+
+<p>编辑完成后重启网络</p>
+
+<pre><code>systemctl restart network
+</code></pre>
+
+<h2 id="a-idsec-1-3-namesec-1-3a">路由器设置<a id="sec-1-3" name="sec-1-3"></a></h2>
+
+<p>CentOS下无法直接进入路由器设置界面，需要一台windows接入LAN口输入192.168.1.1进入路由器设置。 路由器网段改为10.0.0.0,子网掩码255.255.255.0，路由器地址10.0.0.1，路由器重启后进入指定3台机器eno1的MAC地址和IP地址
+1.  controller
+    10.0.0.11
+2.  network
+    10.0.0.21
+3.  compute1
+    10.0.0.31
+4.  compute2(可选）
+    10.0.0.32（以此类推）</p>
+
+<p>注意，如果你之前在其他连入LAN口的电脑上配置了地址10.0.0.1，会导致无法进入路由器设置页面，记得修改它以避免冲突。</p>
+
+<h2 id="hostsa-idsec-1-4-namesec-1-4a">修改hosts<a id="sec-1-4" name="sec-1-4"></a></h2>
+
+<p>每个节点都需要修改hosts文件，指定各节点的通信地址。配置文件在</p>
+
+<pre><code>&gt; /etc/host
+</code></pre>
+
+<p>#controller
+10.0.0.11 controller</p>
+
+<p>#network
+10.0.0.21 network</p>
+
+<p>#compute1
+10.0.0.31 compute1</p>
+
+<p>#compute2
+10.0.0.32 compute2</p>
+
+<h2 id="controllera-idsec-1-5-namesec-1-5a">controller<a id="sec-1-5" name="sec-1-5"></a></h2>
+
+<ul>
+  <li>
+    <p>ifcfg-eno1</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.0.11
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1</p>
+
+      <p>DNS = 8.8.8.8</p>
+
+      <p>DNS1 = 8.8.4.4</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="networka-idsec-1-6-namesec-1-6a">network<a id="sec-1-6" name="sec-1-6"></a></h2>
+
+<ul>
+  <li>
+    <p>ifcfg-eno1</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.0.21
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1</p>
+
+      <p>DNS = 8.8.8.8</p>
+
+      <p>DNS1 = 8.8.4.4</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>ifcfg-enp2s10</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.1.21
+NETMASK=255.255.255.0</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>ifcfg-enp2s12</p>
+
+    <blockquote>
+      <p>BOOTPROTO=none</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="compute1a-idsec-1-7-namesec-1-7a">compute1<a id="sec-1-7" name="sec-1-7"></a></h2>
+
+<ul>
+  <li>
+    <p>ifcfg-eno1</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.0.31
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1</p>
+
+      <p>DNS = 8.8.8.8</p>
+
+      <p>DNS1 = 8.8.4.4</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>ifcfg-enp2s10</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.1.31
+NETMASK=255.255.255.0</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="a-idsec-1-8-namesec-1-8a">验证<a id="sec-1-8" name="sec-1-8"></a></h2>
+
+<ul>
+  <li>所有主机都能ping通外网</li>
+  <li>所有主机之间使用hosts文件中的名字都能相互ping通</li>
+  <li>compute和network可以ping通对方tunnel地址</li>
+</ul>
+
+<h1 id="network-time-protocal-ntpa-idsec-2-namesec-2a">Network Time Protocal (NTP)<a id="sec-2" name="sec-2"></a></h1>
+
+<h2 id="a-idsec-2-1-namesec-2-1a">问题解决<a id="sec-2-1" name="sec-2-1"></a></h2>
+
+<ul>
+  <li>
+    <p>控制节点上要填一个地址，用于统一时间，许多都不能用，在验证的时候显示.INIT.</p>
+
+    <p>这里给出国家授时中心的域名</p>
+
+    <blockquote>
+      <p>cn.pool.ntp.org
+1.cn.pool.ntp.org</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>防火墙可能会导致NTP的通信异常，可以关闭并禁用防火墙</p>
+
+    <pre><code>systemctl stop firewalld
+systemctl disable firewalld
+</code></pre>
+  </li>
+</ul>
+
+<h2 id="a-idsec-2-2-namesec-2-2a">注意事项<a id="sec-2-2" name="sec-2-2"></a></h2>
+
+<ul>
+  <li>其他节点都以controller作为时间标准。以后安装过程中遇到问题可以先验证NTP是否运行正常，有时网络问题会导致组件功能不正常。</li>
+</ul>
+
+<h1 id="openstack-packagesa-idsec-3-namesec-3a">OpenStack packages<a id="sec-3" name="sec-3"></a></h1>
+
+<p>这里的按照官方文档安装没有问题</p>
+
+<h1 id="sql-databasea-idsec-4-namesec-4a">SQL database<a id="sec-4" name="sec-4"></a></h1>
+
+<h2 id="a-idsec-4-1-namesec-4-1a">注意事项<a id="sec-4-1" name="sec-4-1"></a></h2>
+
+<ul>
+  <li>
+    <p>记得要执行Mysql的安装过程</p>
+
+    <pre><code>mysql_secure_installation
+</code></pre>
+
+    <p>少了这一步可能会导致在之后调用程序方法的时候报服务器500错误</p>
+  </li>
+  <li>
+    <p>数据库出现问题是可以删掉重新安装的，数据会存放在另一个地方，将程序重装后数据还在。</p>
+  </li>
+</ul>
+
+<h1 id="message-queuea-idsec-5-namesec-5a">Message queue<a id="sec-5" name="sec-5"></a></h1>
+
+<h2 id="a-idsec-5-1-namesec-5-1a">注意事项<a id="sec-5-1" name="sec-5-1"></a></h2>
+
+<ul>
+  <li>消息队列是保证物理机之间消息通信的基础，组件出现问题的时候可以查看消息队列的日志观察是否有问题。 有的时候无法正确解析地址会导致消息队列不通使程序出现问题。 消息队列的问题不会报错，查看日志文档(存放在/var/log/rabbit<sub>mq下</sub>)会发现ERROR，根据提示解决问题即可。</li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2015-11-15T00:00:00+00:00"><a href="/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">November 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -417,106 +694,6 @@ task内容归宿，按照tag进行划分
 
 <p>整套流程并不复杂，可能看起来略显繁琐，很多人一定觉得这样折腾并没有价值。我作为刚开始采用GTD的方式的学生，其实觉得一旦着手这样做之后，不断修改状态或checkout子任务带来的成就感会促使你效率的提升。事先的安排更会清空大脑，做事效率有所提高。
 并且，此流程仅仅是我的习惯，针对不同的工作性质，应该更为私人定制一些。希望读到本文的人能花些时间去尝试一下这种个人管理的方法，面对这一个个的TODO变为DONE，感觉是充实的，会更有干劲去面对接下来的工作，愿本分享能够帮到更多的人。</p>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" rel="bookmark" title="开始使用emacs" itemprop="url">开始使用emacs</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. 不要从零开始</a></li>
-<li><a href="#sec-2">2. 安装、配置</a></li>
-<li><a href="#sec-3">3. 基本知识</a></li>
-</ul>
-</div>
-</div>
-
-<h1 id="a-idsec-1-namesec-1a">不要从零开始<a id="sec-1" name="sec-1"></a></h1>
-
-<p>现在，功能强大的编辑器层出不穷，比如notepad＋＋，sublime text等，然而，面临这众多的新生代产物，Emacs仍然占有一席地位，因为他是已经超越了编辑器范畴的存在。
-其高度可定制化带来的复杂性和为了便捷操作设定的茫茫多的快捷键，入门难度令人发指。而Emacs又是以拓展能力闻名天下的，很多人在通读help－with－tutorial之后感觉不过尔尔便放弃了。
-陈斌的一篇文章《一年成为Emacs高手》带领很多人走进了Emacs的大门。作为高手，他提供了一个科学的方法论，对于具体的步骤，则需要我们自己步步摸索。本文作为我个人使用emacs过程中的心得总结，希望能帮助到更多的人。
-这里便提出第一个建议，请不要从零开始对emacs进行配置，繁琐的配置可能打消你使用他的积极性。所以采用大神的配置，直接知其然，再试图知其所以然。甚至你不必探寻配置细节，直接感受其魅力所在。</p>
-
-<h1 id="a-idsec-2-namesec-2a">安装、配置<a id="sec-2" name="sec-2"></a></h1>
-
-<ul>
-  <li>
-    <p>平台选择</p>
-
-    <p>优先级如下：Mac &gt; 你熟悉的linux发行版 &gt; windows中cygwin &gt; windows直接使用 &gt; 你不熟悉的Linux</p>
-
-    <ol>
-      <li>Mac作为Unix的分支和Linux相似度很高，保持了类似的目录结构和好用的Terminal的同时有丰富的软件资源，并且在很多地方沿用了Emacs的快捷键。</li>
-      <li>没有Mac的环境下选择一款合适的发行版也是不错的，前提是你熟悉Linux，不然还是有点头大的。</li>
-      <li>Cygwin作为windows下模拟Linux环境Terminal的老牌软件，在他的支持下在windows上使用Emacs也还可以接受。</li>
-      <li>windows的目录与Linux严重不同，安装好的Emacs可能在环境变量等问题上遇到些麻烦，所以…</li>
-      <li>Linux环境还是应该熟悉一下，微软大法好，可是作为一个程序员完全不会Linux感觉不太合适。</li>
-    </ol>
-  </li>
-  <li>安装
-    <ol>
-      <li>Mac用户请到<a href="http://emacsformacosx.com">http://emacsformacosx.com</a> 下载安装即可。还有其他版本，我没有用过</li>
-      <li>Linux会自带一个Emacs，可能是Emacs23，有些插件也许与24不同。 为避免掉坑，还是建议删除之，根据不同发行版的源选择安装。</li>
-      <li>cygwin的话在安装的时候可以选择欲安装的包，可以连同git等常用命令行工具一起下载</li>
-    </ol>
-  </li>
-  <li>
-    <p>配置</p>
-
-    <p>我这里所指的配置并不只是配置文件，而是包括很多插件在内的环境搭建。作为入门者，我听从陈斌大神的建议选择了他的配置文件，他的文章中有链接，是github上的一个文件夹。</p>
-
-    <ol>
-      <li>要是之前没用过emacs可跳过这一步, 删除原有的配置文件，一般来讲在 ~/.emacs.d/，没有的话搜索一下。 直接 rm -r 即可。</li>
-      <li>下载到的emacs.d解压到 ~ 下， 改名前面加 . 隐藏该目录。</li>
-      <li>启动Emacs，不出现意外的话将自动下载文件，然后就可以使用了</li>
-      <li>部分网络可能会出现插件网站被墙的情况，这时候需要安装goagent，代理下载文件。 若使用goagent请在配置好相关内容后，从terminal中输入 http<sub>proxy</sub>=<a href="http://127.0.0.1:8087">http://127.0.0.1:8087</a> emacs 进行插件的下载。</li>
-    </ol>
-  </li>
-</ul>
-
-<h1 id="a-idsec-3-namesec-3a">基本知识<a id="sec-3" name="sec-3"></a></h1>
-
-<ul>
-  <li>快捷键：
-    <ol>
-      <li><strong>C键:</strong> control，可以理解为和语义无关的控制，比如移动一个字符，移动到行尾等。</li>
-      <li><strong>M键:</strong> meta，可以理解为语义相关控制，比如移动到句首，段尾等。</li>
-      <li><strong>S键:</strong> shift，和其他的组合使用。</li>
-      <li><strong>RET:</strong> return，回车。</li>
-      <li><strong>ESC:</strong> escape。</li>
-    </ol>
-  </li>
-  <li>帮助文档：
-官方文档，并不长，介绍了一些基本用法。 M-x help-with-tutorial（在Emacs中按住Alt 按x 然后输入help-with-tutorial 回车） 花时间阅读一下，记住基本的十几个快捷键后开始使用Emacs吧</li>
-  <li>buffer:
-Emacs中基本的单位，每打开一个文件或者窗体都将打开一个buffer，通过光标控制可以进入指定buffer进行操作，启动Emacs后会自动运行两个buffer（scratch,Messages)</li>
-  <li>window:
-Emacs中一个的界面可以被任意切分，横向、纵向任意数量，使得不同的buffer同时出现在屏幕上</li>
-  <li>frame：
-Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太常用</li>
-  <li>M-x
-执行一个程序，配置插件后会根据你输入的内容自动补全</li>
-</ul>
 
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
