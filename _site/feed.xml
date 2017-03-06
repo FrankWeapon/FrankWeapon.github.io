@@ -2,26 +2,374 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
 <title type="text">Weapon's Journal</title>
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
-<link rel="self" type="application/atom+xml" href="/feed.xml" />
-<link rel="alternate" type="text/html" href="" />
-<updated>2016-04-19T13:25:55+00:00</updated>
-<id>/</id>
+<link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml" />
+<link rel="alternate" type="text/html" href="http://localhost:4000" />
+<updated>2017-03-06T12:53:43+00:00</updated>
+<id>http://localhost:4000/</id>
 <author>
   <name>Frank Weapon</name>
-  <uri>/</uri>
+  <uri>http://localhost:4000/</uri>
   <email>helldarkfire@gmail.com</email>
 </author>
 
 
 <entry>
+  <title type="html"><![CDATA[Hadoop-MapReduce-task流程分析]]></title>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" />
+  <id>http://localhost:4000/Task运行过程分析</id>
+  <published>2017-03-02T00:00:00+00:00</published>
+  <updated>2017-03-02T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri>http://localhost:4000</uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#task-运行概述&quot; id=&quot;markdown-toc-task-运行概述&quot;&gt;Task 运行概述&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#map-task-流程&quot; id=&quot;markdown-toc-map-task-流程&quot;&gt;Map Task 流程:&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#reduce-task-流程&quot; id=&quot;markdown-toc-reduce-task-流程&quot;&gt;Reduce Task 流程:&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#task-抽象类分析&quot; id=&quot;markdown-toc-task-抽象类分析&quot;&gt;Task 抽象类分析&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#task-内部类介绍&quot; id=&quot;markdown-toc-task-内部类介绍&quot;&gt;Task 内部类介绍&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#task-方法介绍&quot; id=&quot;markdown-toc-task-方法介绍&quot;&gt;Task 方法介绍&lt;/a&gt;        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#接口&quot; id=&quot;markdown-toc-接口&quot;&gt;接口&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#任务准备&quot; id=&quot;markdown-toc-任务准备&quot;&gt;任务准备&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#读写&quot; id=&quot;markdown-toc-读写&quot;&gt;读写&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#map-task-内部实现&quot; id=&quot;markdown-toc-map-task-内部实现&quot;&gt;Map Task 内部实现&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#run-方法&quot; id=&quot;markdown-toc-run-方法&quot;&gt;run 方法&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#runoldmapper-方法&quot; id=&quot;markdown-toc-runoldmapper-方法&quot;&gt;runOldMapper 方法&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#reduce-task-内部实现&quot; id=&quot;markdown-toc-reduce-task-内部实现&quot;&gt;Reduce Task 内部实现&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#run-方法-1&quot; id=&quot;markdown-toc-run-方法-1&quot;&gt;run 方法&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#runoldreducer方法&quot; id=&quot;markdown-toc-runoldreducer方法&quot;&gt;runOldReducer方法&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#mapreduce-的数据传递&quot; id=&quot;markdown-toc-mapreduce-的数据传递&quot;&gt;MapReduce 的数据传递&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#inputformat&quot; id=&quot;markdown-toc-inputformat&quot;&gt;InputFormat&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#outputformat&quot; id=&quot;markdown-toc-outputformat&quot;&gt;OutputFormat&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#spill&quot; id=&quot;markdown-toc-spill&quot;&gt;spill&lt;/a&gt;        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;#缓冲区与索引&quot; id=&quot;markdown-toc-缓冲区与索引&quot;&gt;缓冲区与索引&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#shuffle&quot; id=&quot;markdown-toc-shuffle&quot;&gt;shuffle&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;对于一个简单的 MapReduce 作业，用户只需要实现 Map 与 Reduce 两个函数。
+这两个函数由继承 Mapper 与 Reducer 类并重写相关方法得来，
+在 Hadoop2.7.3 源码中可以看到，&lt;code class=&quot;highlighter-rouge&quot;&gt;hadoop-mapreduce-project&lt;/code&gt; module 中的示例程序 &lt;code class=&quot;highlighter-rouge&quot;&gt;WordCount&lt;/code&gt;。
+其中包含两个静态内部类: TokenizerMapper和IntSumReducer。
+分别继承自 Mapper 和 Reducer，并重写了对应的 map 和 reduce 方法。在 Hadoop 中会通过反射将这两个类分别注入到 MapTask 和 ReduceTask 中进行调度运行。
+其中 MapTask 可以细分为Read, Map, Collect, Spill 和 Combine 五个阶段；ReduceTask 可以细分为 Shuffle, Merge, Sort, Reduce 和 Write 五个阶段。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h1 id=&quot;task-运行概述&quot;&gt;Task 运行概述&lt;/h1&gt;
+&lt;p&gt;总体来说，MapReduce 过程分为 Map 阶段以及 Reduce 阶段。
+ 其中每个 Map Task 处理一篇数据（InputSplit，属逻辑分片），而 Reduce Task 从每个 Map Task 的输出中拷贝相应数据，经处理后写入 HDFS 中作为最终结果。
+ 总体上来看，整个过程采用了 pull 模型。也就是说，Map Task 将中间结果保存到本地磁盘中，再由 Reduce Task 从 Map Task 端拷贝拉取(pull)数据进行后续处理。
+ 这两者之间通过 HTTP 协议传输数据。&lt;/p&gt;
+
+&lt;h2 id=&quot;map-task-流程&quot;&gt;Map Task 流程:&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;根据用户指定、编写的 InputFormat 将Split 解析成为  键值对(k1,v1) 的形式&lt;/li&gt;
+  &lt;li&gt;上述(k1,v1) 输入 map 函数，得到(k2,v2)&lt;/li&gt;
+  &lt;li&gt;根据指定的 Partitioner(默认为 Hash Partitioner) 进行数据分片, 以确定每个键值对应该由哪个 Reduce Task 处理&lt;/li&gt;
+  &lt;li&gt;将经过之前处理后的数据通过用户定义的 Combiner(可选项) 进行本地规约&lt;/li&gt;
+  &lt;li&gt;将处理后的结果保存至本地硬盘上&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;reduce-task-流程&quot;&gt;Reduce Task 流程:&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;通过 HTTP 协议从各个已完成的 Map Task 中拷贝相应的数据&lt;/li&gt;
+  &lt;li&gt;数据拷贝完成后根据 key 值进行排序，将 key 相等的记录聚集到一起形成若干分组&lt;/li&gt;
+  &lt;li&gt;将每组数据输入 reduce  函数中&lt;/li&gt;
+  &lt;li&gt;将 reduce 的输出写入 HDFS&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;task-抽象类分析&quot;&gt;Task 抽象类分析&lt;/h1&gt;
+&lt;p&gt;Task 作为一个抽象类，是 MapTask 和 ReduceTask 的父类。
+其中若干内部类作为 Task 运行流程中的工具类：&lt;/p&gt;
+&lt;h2 id=&quot;task-内部类介绍&quot;&gt;Task 内部类介绍&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;del&gt;Counter&lt;/del&gt;&lt;/strong&gt;: 统计 Task 内部各类数据，目前已废弃，使用单独的枚举类&lt;code class=&quot;highlighter-rouge&quot;&gt;TaskCounter&lt;/code&gt; 实现。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;TaskReporter&lt;/strong&gt;: 继承自 &lt;code class=&quot;highlighter-rouge&quot;&gt;StatusReporter&lt;/code&gt; 并实现&lt;code class=&quot;highlighter-rouge&quot;&gt;Reporter&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;Runnable&lt;/code&gt;接口。作为一个独立的线程报告任务的进度、状态以及更新计数器。 若长期未收到该线程的报告，则视为该任务失效，杀死并重新调度。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;GcTimeUpdater&lt;/strong&gt;: 记录并更新该任务在 GC 中所消耗的时间&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;FileSystemStatisticUpdater&lt;/strong&gt;: Hadoop 提供一个 &lt;code class=&quot;highlighter-rouge&quot;&gt;FileSystem&lt;/code&gt; 抽象类，为了保证不同文件系统之间的通用性。其中包含内部类&lt;code class=&quot;highlighter-rouge&quot;&gt;Statistics&lt;/code&gt;，该类中包含用 &lt;em&gt;volatile&lt;/em&gt; 关键字标注的统计用变量。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;FileSystemStatisticUpdater&lt;/code&gt; 在其中迭代上述变量并记录最新状态，并创建各变量对应的 Counter。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;ValuesIterator&lt;/strong&gt;: 以排序后的 &lt;code class=&quot;highlighter-rouge&quot;&gt;RawKeyValueIterator&lt;/code&gt; 为输入，以迭代value 为目的的键值对迭代器。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;CombineValuesIterator&lt;/strong&gt;: 继承自&lt;code class=&quot;highlighter-rouge&quot;&gt;ValuesIterator&lt;/code&gt;， 仅在重写 &lt;em&gt;next()&lt;/em&gt;方法时添加了 combine 计数器。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;CombineRunner&lt;/strong&gt;: 以抽象类的形式对 combinerRunner 的两种API进行一次封装， 实现&lt;em&gt;create()&lt;/em&gt;方法并在其中实例化 &lt;code class=&quot;highlighter-rouge&quot;&gt;OldCombineRunner&lt;/code&gt;或&lt;code class=&quot;highlighter-rouge&quot;&gt;NewCombineRunner&lt;/code&gt;。 规定&lt;em&gt;combine()&lt;/em&gt;接口，以空方法表示，要求子类重写。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;OldCombineRunner&lt;/strong&gt;: 实现了&lt;em&gt;combine()&lt;/em&gt;方法的子类，通过反射实例化 Reducer ，迭代&lt;code class=&quot;highlighter-rouge&quot;&gt;CombineValuesIterator&lt;/code&gt; 将具有相同 key 值的键值对进行 reduce 操作。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;NewCombineRunner&lt;/strong&gt;: 为使用新的 API 实现一个内部类 &lt;code class=&quot;highlighter-rouge&quot;&gt;OutputConverter&amp;lt;K,V&amp;gt;&lt;/code&gt; 并创建 &lt;code class=&quot;highlighter-rouge&quot;&gt;ReduceContext&lt;/code&gt; 作为参数传入 Reducer 的 run 方法中。 新 API 封装性更好，将迭代过程封装到 &lt;code class=&quot;highlighter-rouge&quot;&gt;Reducer&lt;/code&gt; 内部， 通过&lt;code class=&quot;highlighter-rouge&quot;&gt;ReduceContext&lt;/code&gt; 设置参数。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;task-方法介绍&quot;&gt;Task 方法介绍&lt;/h2&gt;
+&lt;p&gt;Task 作为一个抽象类，提供了许多 get/set 方法。包括各类秘钥（JobTokenSecret, ShffleSecret, EntryptedSpillKey)，流程控制方法(partition, phase, FsStatistics, progress, status), 任务相关标示(taskID, isJobSetupTask, isMapOrReduce)。&lt;/p&gt;
+&lt;h3 id=&quot;接口&quot;&gt;接口&lt;/h3&gt;
+&lt;p&gt;作为一个 Task 最重要的 &lt;em&gt;run&lt;/em&gt; 方法， 规定了一个接口，由 &lt;code class=&quot;highlighter-rouge&quot;&gt;MapTask&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;ReduceTask&lt;/code&gt; 分别各自实现。&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;abstract&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;JobConf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TaskUmbilicalProtocol&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;umbilical&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ClassNotFoundException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InterruptedException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;其第一个参数&lt;code class=&quot;highlighter-rouge&quot;&gt;JobConf&lt;/code&gt;是作业从 Client 创建时指定的内容， 第二个参数 &lt;code class=&quot;highlighter-rouge&quot;&gt;TaskUmbilicalProtocol&lt;/code&gt; 是 Hadoop 所有子进程与其父进程通信的协议接口。
+父进程指一个守护进程，它与 Master 进行通信，要求创建 Map 或 Reduce 任务并作为子进程运行。&lt;/p&gt;
+
+&lt;h3 id=&quot;任务准备&quot;&gt;任务准备&lt;/h3&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Task&lt;/code&gt; 的 &lt;em&gt;initilize&lt;/em&gt; 方法进行任务初始化。
+首先，根据&lt;code class=&quot;highlighter-rouge&quot;&gt;JobConf&lt;/code&gt;创建 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;JobContextImpl&lt;/code&gt;:jobContext&lt;/em&gt; 和 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;TaskAttemptContextImpl&lt;/code&gt;:taskContext&lt;/em&gt;，并将任务状态由&lt;em&gt;UNSSIGNED&lt;/em&gt;修改为&lt;em&gt;RUNNING&lt;/em&gt;。
+若使用 new API， 需要通过反射获得 &lt;em&gt;outputFormat&lt;/em&gt;，从 OutputFormat 中获取&lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;OutputCommitter&lt;/code&gt;:committer&lt;/em&gt;，否则直接从&lt;code class=&quot;highlighter-rouge&quot;&gt;JobConf&lt;/code&gt;中取得&lt;em&gt;committer&lt;/em&gt;。
+然后指定输出目录，调用&lt;em&gt;comitter.setupTask()&lt;/em&gt;完成任务创建。
+最后使用到&lt;code class=&quot;highlighter-rouge&quot;&gt;ResourceCalculatorProcessTree&lt;/code&gt;进行一些资源管理方面的处理。&lt;/p&gt;
+&lt;h3 id=&quot;读写&quot;&gt;读写&lt;/h3&gt;
+&lt;p&gt;&lt;em&gt;readFiles(DataInput in)&lt;/em&gt; 和 &lt;em&gt;write(DataOutput out)&lt;/em&gt; 分别负责从（向）I/O 流中读取（写入）数据。 此外还需判断当前热舞是否为 Job clean up 或 Task clean up 任务并进行相关操作。&lt;/p&gt;
+
+&lt;h1 id=&quot;map-task-内部实现&quot;&gt;Map Task 内部实现&lt;/h1&gt;
+&lt;h2 id=&quot;run-方法&quot;&gt;run 方法&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;MapTask&lt;/code&gt;在&lt;em&gt;run()&lt;/em&gt;进行 task 相关设置&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;根据是否包含 Reduce 任务设置进度百分比：
+    &lt;ol&gt;
+      &lt;li&gt;Reduce 任务数量等于0，task 只有 map 阶段，完成时进度显示为100%(1.0f)&lt;/li&gt;
+      &lt;li&gt;Reduce 任务数量大于0， task 分为 map 和 sort 两个阶段，前者完成时进度为66.7%(0.667f)，后者即为剩下的33.3%(0.333f)&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;调用 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;jobConf&lt;/code&gt;:getUseNewMapper()&lt;/em&gt; 判断使用的 API类型并传入父类的 &lt;em&gt;initilize()&lt;/em&gt;方法进行初始化&lt;/li&gt;
+  &lt;li&gt;并判断任务是否为 setup 或 cleanup 操作完成, 若是则执行相关方法并返回，否则进行常规的 map 任务&lt;/li&gt;
+  &lt;li&gt;具体的 Map 操作由 &lt;em&gt;runNewMapper()&lt;/em&gt; 和 &lt;em&gt;runOldMapper()&lt;/em&gt;实现。&lt;/li&gt;
+  &lt;li&gt;map 操作完成后，调用 &lt;em&gt;done()&lt;/em&gt; 方法进行收尾工作。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;runoldmapper-方法&quot;&gt;runOldMapper 方法&lt;/h2&gt;
+&lt;p&gt;对于一个 Map 任务，首先要找到与之对应的 &lt;code class=&quot;highlighter-rouge&quot;&gt;Split&lt;/code&gt; 这里涉及到三个方法&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;n&quot;&gt;InputSplit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inputSplit&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getSplitDetails&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;splitIndex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getSplitLocation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()),&lt;/span&gt;
+           &lt;span class=&quot;n&quot;&gt;splitIndex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getStartOffset&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;updateJobWithSplit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inputSplit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;reporter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setInputSplit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputSplit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;注意到&lt;code class=&quot;highlighter-rouge&quot;&gt;InputSplit&lt;/code&gt; 在这里（&lt;em&gt;runOldMapper&lt;/em&gt;）是一个接口，而与之同名的抽象类用于新的 API（&lt;em&gt;runNewMapper()&lt;/em&gt;) 中。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;FileSplit&lt;/code&gt; 通过实现&lt;code class=&quot;highlighter-rouge&quot;&gt;InputSplitWithLocationInfo&lt;/code&gt;(子接口)并继承&lt;code class=&quot;highlighter-rouge&quot;&gt;InputSplit&lt;/code&gt;以达到在新旧 API 中能够通用的目的。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;InputSplit&lt;/code&gt;表示每个task 需要处理的数据， 一般来说以面向字节的方式呈现，而 &lt;code class=&quot;highlighter-rouge&quot;&gt;RecordReader&lt;/code&gt; 负责以面向记录(record-oriented) 的方式呈现数据。
+另外一个需要指出的是变量&lt;em&gt;splitIndex&lt;/em&gt;，它是类&lt;code class=&quot;highlighter-rouge&quot;&gt;JobSplit&lt;/code&gt;的一个内部静态类&lt;code class=&quot;highlighter-rouge&quot;&gt;TaskSplitIndex&lt;/code&gt;的实例， 用于指定该任务待处理数据在文件中的偏移量。
+之后通过两个方法将 inputSplit 的详细内容更新到 Job 和 reporter 中。 需要了解 Split 的详细内容请点击&lt;a href=&quot;#inputformat&quot;&gt;这里&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;接下来，会判断 skipping mode 实例化 SkippingRecordReader 或 TrackedRecordReader。 在 Map Task 中，读取 Record 出现错误时该 Record 会被标记，
+如果多次出现问题，将会进入 skipping mode，跳过所有被标记的 Record。
+之后根据 Reduce Task 的数量实例化 MapOutputCollector：
+对于不存在 Reduce Task 的作业，将实例化&lt;code class=&quot;highlighter-rouge&quot;&gt;DirectMapOutputCollector&lt;/code&gt;，把结果直接输出。
+而正常存在 Reduce Task 的作业，将调用&lt;em&gt;createSortingCollector()&lt;/em&gt; 从 &lt;code class=&quot;highlighter-rouge&quot;&gt;JobContext&lt;/code&gt; 中读取 Collectors 列表并迭代选择合适的 Collector 进行初始化。
+然后通过&lt;code class=&quot;highlighter-rouge&quot;&gt;MapRunnable&lt;/code&gt;接口创建 &lt;em&gt;runner&lt;/em&gt;，该接口是为了扩展 Map 通用性，使其在多线程或或异步 mapper 中更具可操作性。调用&lt;em&gt;runner.run()&lt;/em&gt;之后 map 阶段完成，
+对于存在 Reduce task 的作业，进入 sort 阶段。 最后更新状态进行资源的释放，本方法结束。&lt;/p&gt;
+
+&lt;p&gt;另外值得一提的是 MapOutPutBuffer 中存在一个默认 Collector : &lt;code class=&quot;highlighter-rouge&quot;&gt;MapOutPutBuffer&lt;/code&gt; 该类是 MapTask 的一个内部类， 涉及到 &lt;strong&gt;Spill&lt;/strong&gt;操作和缓冲区设计的细节，
+需要了解请点击&lt;a href=&quot;#spill&quot;&gt;这里&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;reduce-task-内部实现&quot;&gt;Reduce Task 内部实现&lt;/h1&gt;
+&lt;h2 id=&quot;run-方法-1&quot;&gt;run 方法&lt;/h2&gt;
+&lt;p&gt;与 Map 类似，判断是否为正常的 MapReduce 任务（即非 setup 或 cleanup 任务）。是则通过&lt;code class=&quot;highlighter-rouge&quot;&gt;Progress&lt;/code&gt;类添加三个阶段，分别为 copy, sort和 reduce，否则进行相关特殊任务的操作。
+与 Map 不同的是，这里用到接口&lt;code class=&quot;highlighter-rouge&quot;&gt;ShuffleConsumerPlugin&lt;/code&gt;，Hadoop 提供它的一个实现类&lt;code class=&quot;highlighter-rouge&quot;&gt;Shuffle&lt;/code&gt;。 copy 和 sort 两个阶段均在 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Shuffle&lt;/code&gt;:run()&lt;/em&gt; 中完成。该方法返回值为一个迭代器类&lt;code class=&quot;highlighter-rouge&quot;&gt;RawKeyValueIterator&lt;/code&gt;。关于 shuffle 的详细介绍请点击&lt;a href=&quot;#shuffle&quot;&gt;这里&lt;/a&gt;
+在清理 shuffle 相关数据结构以及标记sort 阶段结束之后，进入reduce 阶段，根据 &lt;em&gt;useNewApi&lt;/em&gt; 选择调用 &lt;em&gt;runNewReducer()&lt;/em&gt; 或 &lt;em&gt;runOldReducer()&lt;/em&gt; 进行 reduce操作，其中 reduce 需要对键值对进行分组，用到&lt;code class=&quot;highlighter-rouge&quot;&gt;RawComparator&lt;/code&gt;类。
+最后关闭释放资源标记任务结束。&lt;/p&gt;
+
+&lt;h2 id=&quot;runoldreducer方法&quot;&gt;runOldReducer方法&lt;/h2&gt;
+&lt;p&gt;首先仍然是通过反射从 &lt;code class=&quot;highlighter-rouge&quot;&gt;JobConf&lt;/code&gt;  中获取到 &lt;code class=&quot;highlighter-rouge&quot;&gt;Reducer&lt;/code&gt;。 键值对的输出使用到&lt;code class=&quot;highlighter-rouge&quot;&gt;RecordWriter&lt;/code&gt;, 在旧 API 中实例化的是 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;OldTrackingRecordWriter&lt;/code&gt;:out&lt;/em&gt;, 并为保证数据不变形用&lt;em&gt;final&lt;/em&gt;修饰变量&lt;em&gt;finalOut&lt;/em&gt;，其值为&lt;em&gt;out&lt;/em&gt;。
+之后创建一个&lt;code class=&quot;highlighter-rouge&quot;&gt;OutputCollector&lt;/code&gt;的实例，重写其&lt;em&gt;collect&lt;/em&gt;方法。在该方法中使用&lt;em&gt;finalOut&lt;/em&gt;输出数据并用&lt;em&gt;reporter&lt;/em&gt;更新任务进度。
+与 Map 相似，Reduce 中也存在 Skip Mode，Hadoop 会根据&lt;em&gt;isSkipping()&lt;/em&gt;实例化一种 &lt;code class=&quot;highlighter-rouge&quot;&gt;ReduceValuesIterator&lt;/code&gt;。 之后会逐 Key 循环进行 reduce 操作。若处于 Skip Mode 还会更新坏记录的数量。
+同样在最后进行清理工作与资源能释放。&lt;/p&gt;
+
+&lt;h1 id=&quot;mapreduce-的数据传递&quot;&gt;MapReduce 的数据传递&lt;/h1&gt;
+&lt;p&gt;Hadoop MapReduce 中涉及以下数据存储单位：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;block&lt;/strong&gt;: HDFS 文件存储的基本单位，在 HDFS 中所有文件都以 block 进行存储，一式三份以保证容错能力。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;split&lt;/strong&gt;: map 任务的输入，是一种逻辑划分，map task 和 split 是一对一关系。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;record&lt;/strong&gt;: map 和 reduce 函数处理的目标， 是一个键值对。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;spill&lt;/strong&gt;: map 函数的输出超出缓冲区大小时写入本地磁盘的文件。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;inputformat&quot;&gt;InputFormat&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;InputFormat&lt;/code&gt; 是一个接口，规定了两个方法，有如下功能：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;验证作业输入是否符合标准&lt;/li&gt;
+  &lt;li&gt;将给定的输入文件（可能是多个)按照给定规则划分为多个部分（Split）作为Map Task的输入&lt;/li&gt;
+  &lt;li&gt;提供将 Spilt 转化为 map 函数能处理的键值对形式的一种实现&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InputFormat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;K&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;V&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;InputSplit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getSplits&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;JobConf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numSplits&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;RecordReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;K&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;V&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getRecordReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;InputSplit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                                     &lt;span class=&quot;n&quot;&gt;JobConf&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;job&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                                     &lt;span class=&quot;n&quot;&gt;Reporter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;reporter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;em&gt;getSplits()&lt;/em&gt;会根据作业信息以及 Hadoop 配置产生出一组 Split。
+要注意，这些 Split 作为逻辑分区并不真实存在于每个 Map 节点上（从其实现类的源码中可以看出）。
+每个 Split 可由一个三元组&lt;em&gt;(input-file-path, start, offset)&lt;/em&gt;表示(此处存疑，但源码中 getSplit 方法的注释如此描述)。
+&lt;em&gt;getRecordReader()&lt;/em&gt; 则由不同的实现类负责划分 record 的界限，为 map 操作做好准备。&lt;/p&gt;
+
+&lt;p&gt;InputFormat的设计通过多级划分，充分考虑了复用性和差异性。其类间关系如下图所示：
+&lt;img src=&quot;../assets/upload/Hadoop_InputFormat_hierarchy.png&quot; alt=&quot;InputFormat继承结构&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;接口&lt;code class=&quot;highlighter-rouge&quot;&gt;InputFormat&lt;/code&gt;最主要的实现是&lt;code class=&quot;highlighter-rouge&quot;&gt;FileInputFormat&lt;/code&gt;而他本身也只是一个抽象类。其中涉及到大量文件操作的方法，包括多文件操作的过滤器，递归访问，路径设置等。
+其中最重要的就是实现了&lt;em&gt;getSplits()&lt;/em&gt;方法，其中涉及到 Split 分割的算法。
+Split 大小由如下公式计算得来
+&lt;script type=&quot;math/tex&quot;&gt;splitSize = \max(minSize, \min(goalSize,blockSize))&lt;/script&gt;
+其中目标大小: &lt;script type=&quot;math/tex&quot;&gt;goalSize = totalSize / numSplits (numSplits \geq 1)&lt;/script&gt;, minSize由配置文件指定，默认为1。
+也就是说通常情况下, Split 的大小与 blockSize 的默认大小（64M)相等。 若想增大 Split 的大小，从配置文件中增大 minSize 即可。
+这里给出 三个文件，大小分别为(1MB, 32MB 和 250MB)各 size 取不同值对应的 Split 数目&lt;sup id=&quot;fnref:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;minsize&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;goalSize&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;splitSize&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;file3 split 数目&lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;split 总数目&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;1 MB&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;totalSize(numSplits=1)&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;64MB&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;4&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;6&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;32 MB&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;totalSize/5&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;50MB&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;5&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;7&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;128MB&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;totalSize/2&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;128MB&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;2&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;4&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;在进行逻辑上的 Split 划分之后，需要确定该 Split 的物理位置。因为 HDFS 中文件以 Block 形式存储且一式三份，也就意味着对于一个 Split，与之对应的 block 会有多个。&lt;em&gt;getSplitHosts()&lt;/em&gt;方法接收网络拓扑和 Split 信息做为参数，将返回一组对当前 split 贡献度最大的 hosts(节点)，一般来说，考虑到数据本地性，同一Rack 的节点贡献度要高于跨 rack 节点。&lt;/p&gt;
+
+&lt;p&gt;InputFormat 的最后一项任务就是 &lt;em&gt;getRecordReader()&lt;/em&gt;, 该方法因输入文件类型以及程序目的的不同又各子类进行实现。&lt;code class=&quot;highlighter-rouge&quot;&gt;RecordReader&lt;/code&gt; 在实现时需要注意两点，第一：记录需要被分解为 Key, value 两部分，因为 map 函数只能接受键值对形式的输入。 第二：记录可能因 Split 的划分被分割成两部分，RecordReader 规定每个 Split 的第一条不完整 Record 为上一个 Split 所有。&lt;/p&gt;
+&lt;h2 id=&quot;outputformat&quot;&gt;OutputFormat&lt;/h2&gt;
+&lt;p&gt;接口&lt;code class=&quot;highlighter-rouge&quot;&gt;OutputFormat&lt;/code&gt; 中规定两个方法，其一是&lt;em&gt;getRecordWriter()&lt;/em&gt;，获取用于写输出文件的 RecordWriter， 同样根据场景子类进行实现。
+另一个方法为&lt;em&gt;checkOutputSpecs()&lt;/em&gt;在抽象类&lt;code class=&quot;highlighter-rouge&quot;&gt;FileOutputFormat&lt;/code&gt;中有实现，用于验证 Job 指定的输出的正确性，出现问题时抛出异常由上层进行处理。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;RecordWriter&lt;/code&gt; 在 &lt;code class=&quot;highlighter-rouge&quot;&gt;ReduceTask&lt;/code&gt; 或 &lt;code class=&quot;highlighter-rouge&quot;&gt;DirectMapOutputCollector&lt;/code&gt;(没有 reduce 任务的作业)中用到，将数据通过输出流一步步写出。&lt;/p&gt;
+
+&lt;h2 id=&quot;spill&quot;&gt;spill&lt;/h2&gt;
+&lt;p&gt;spill 产生于 map 之后，也就是 collect 方法中。经过 map 计算后的中间结果会经由 partitioner 按 key 分成若干组（组数等于 reduce task 的个数），这时(k,v)会变成(k,v,partition)组成的三元组，传递给 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;MapOutputBuffer&lt;/code&gt;.collect()&lt;/em&gt; 做进一步处理。
+在&lt;code class=&quot;highlighter-rouge&quot;&gt;MapOutputBuffer&lt;/code&gt;中使用一个缓存区收集中间结果，在使用率到达一定阈值后排序并进行一次flush操作。这个过程由 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;MapOutputBuffer&lt;/code&gt;.sortAndSpill()&lt;/em&gt; 方法完成，每一个 spill 都是内部有序的，而且如果存在 combiner，在 spill 之前会执行 combine 操作进行数据压缩。
+中间结果的产生和写入磁盘可以看成生产者-消费者模型，&lt;em&gt;collect()&lt;/em&gt;方法是生产者，而&lt;em&gt;write()&lt;/em&gt;为消费者。二者通过可重入互斥锁 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ReentrantLock&lt;/code&gt;:spillLock&lt;/em&gt; 同步。
+类&lt;code class=&quot;highlighter-rouge&quot;&gt;SpillThread&lt;/code&gt;继承Thread 实现 &lt;em&gt;run()&lt;/em&gt; 方法&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;      &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;spillLock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;spillThreadRunning&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;spillDone&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;signal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;spillInProgress&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;spillReady&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;await&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;spillLock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;unlock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;sortAndSpill&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Throwable&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;sortSpillException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;spillLock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;lock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+              &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bufend&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bufstart&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;bufvoid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kvbuffer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+              &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;kvstart&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kvend&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;bufstart&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bufend&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;spillInProgress&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;InterruptedException&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;currentThread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;interrupt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;finally&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;spillLock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;unlock&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;spillThreadRunning&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;从源码中可以看出，配合&lt;em&gt;spillLock&lt;/em&gt;控制同步信号的还有两个&lt;code class=&quot;highlighter-rouge&quot;&gt;Condition&lt;/code&gt;:&lt;em&gt;spillDone&lt;/em&gt; 和 &lt;em&gt;spillReady&lt;/em&gt; 以及两个&lt;code class=&quot;highlighter-rouge&quot;&gt;boolean&lt;/code&gt;:&lt;em&gt;spillInProgress&lt;/em&gt; 和 &lt;em&gt;volatile spillThreadRunning&lt;/em&gt;。
+该线程在 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;MapOutputBuffer&lt;/code&gt;.init()&lt;/em&gt; 方法中被启动进入等待状态，每当collect执行的时候，都需要判断缓冲区是否达到阈值且 spill 线程是否正在运行，然后执行相关操作。
+另外源码中还设计两组标志位(kvstart,kvend)和(bufstart,bufend)，分别对应索引和缓冲区(详见下节)，每次 spill 都会将 start 和 end 之间的内容写入磁盘。&lt;/p&gt;
+
+&lt;h3 id=&quot;缓冲区与索引&quot;&gt;缓冲区与索引&lt;/h3&gt;
+&lt;p&gt;为保证读写操作的并行性，Hadoop 在这里设计了一种环形缓冲区。
+如果采取读写公用的单向缓冲区，锁将使得读写操作中总有一个处于等待状态。另外一种做法是设置两个缓冲区，交替读写，这一定程度上缓解了并行问题，但还是会存在等待问题。所以 Hadoop 选择了环形缓冲区，不断向剩余空间内循环的写入数据。
+另外，Hadoop 考虑到效率问题，设计了二级索引结构。所以如上的环形缓冲区共有三个，分别为 kvoffsets, kvindices 和 kvbuffer，共占用空间为 io.sort.mb(默认值100MB)。其关系如下图所示&lt;sup id=&quot;fnref:1:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../assets/upload/Hadoop_two_level_indices.png&quot; alt=&quot;buffer 二级索引&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;kvoffsets: 偏移量索引数组，保存 key,value 的位置索引在 kvindices 中的偏移量&lt;/li&gt;
+  &lt;li&gt;kvindices: 位置索引数组，保存 key,value 在 kvbuffer 中的起始位置&lt;/li&gt;
+  &lt;li&gt;kvbuffer: 数据缓冲区，保存实际的 key,value 值&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;因为缓冲区共享100MB 内存，一个合理的比例成为一个问题。在 Hadoop 0.21中，为避免设置比例的不合理带来的性能问题，将这三个缓冲区进行了合并。通过一个指针 equator 标明索引和数据共同的起始位置，索引和数据分别沿相反方向增长使用内存空间，如下图所示&lt;sup id=&quot;fnref:1:2&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../assets/upload/Hadoop_merged_buffer.png&quot; alt=&quot;buffer 合并环形缓冲区&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;shuffle&quot;&gt;shuffle&lt;/h2&gt;
+&lt;p&gt;shuffle 过程是将 map task 的最终结果拷贝到 reduce task 所在的节点上的过程，在拷贝数据量达到一定阈值后出发合并线程对本地数据进行合并操作为 reduce 的运行做准备。
+在&lt;code class=&quot;highlighter-rouge&quot;&gt;ReduceTask&lt;/code&gt;我们提到接口&lt;code class=&quot;highlighter-rouge&quot;&gt;ShuffleConsumerPlugin&lt;/code&gt;规定了 shuffle 过程中必要的方法，Hadoop 给出了他的一个实现类&lt;code class=&quot;highlighter-rouge&quot;&gt;Shuffle&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Shuffle&lt;/code&gt;类中最重要的方法&lt;em&gt;run()&lt;/em&gt;返回一个&lt;code class=&quot;highlighter-rouge&quot;&gt;RawKeyValueIterator&lt;/code&gt;，由后续操作再次封装后作为 reduce 操作的对象。
+在&lt;em&gt;run()&lt;/em&gt;方法中，首先实例化一个&lt;code class=&quot;highlighter-rouge&quot;&gt;EventFetcher&lt;/code&gt;来处理 map-completion 事件，然后根据配置实例化若干 &lt;code class=&quot;highlighter-rouge&quot;&gt;Fetcher&lt;/code&gt;并启动线程，对于 map 结果在本地磁盘中的任务，会实例化&lt;code class=&quot;highlighter-rouge&quot;&gt;LocalFetcher&lt;/code&gt;。
+最后不断通过&lt;code class=&quot;highlighter-rouge&quot;&gt;Reporter&lt;/code&gt;输出进度，直到 &lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ShuffleScheduler&lt;/code&gt;waitUntilDone()&lt;/em&gt; 判定 shuffle 完成，copy 阶段结束。&lt;/p&gt;
+
+&lt;p&gt;具体 copy 的步骤在&lt;code class=&quot;highlighter-rouge&quot;&gt;Fetcher&lt;/code&gt;类中实现，&lt;em&gt;copyFromHost()&lt;/em&gt; 从指定&lt;code class=&quot;highlighter-rouge&quot;&gt;MapHost&lt;/code&gt;中 shuffle 可用的 map 结果，将该 Host 中的可用结果拼接返回一个 URL并打开输入流。
+之后开始执行 &lt;em&gt;copyMapOutput()&lt;/em&gt; 函数拷贝数据。 对于拷贝失败或没有响应的任务，通过异常做重新调度等处理。&lt;em&gt;copyMapOutput()&lt;/em&gt; 方法将通过各种工具类实施 copy 过程，并进行 merge 操作。&lt;/p&gt;
+
+&lt;script src=&quot;https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+
+&lt;div class=&quot;footnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot;&gt;
+      &lt;p&gt;参考自《Hadoop 技术内幕：深入解析 MapReduce架构设计与实现原理》 董西成 著&amp;nbsp;&lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&amp;nbsp;&lt;a href=&quot;#fnref:1:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;sup&gt;2&lt;/sup&gt;&lt;/a&gt;&amp;nbsp;&lt;a href=&quot;#fnref:1:2&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;sup&gt;3&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/&quot;&gt;Hadoop-MapReduce-task流程分析&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on March 02, 2017.&lt;/p&gt;
+  </content>
+</entry>
+
+
+<entry>
   <title type="html"><![CDATA[用latex写一篇简单文章]]></title>
- <link rel="alternate" type="text/html" href="/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" />
-  <id>/用latex写一篇简单文章</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" />
+  <id>http://localhost:4000/用latex写一篇简单文章</id>
   <published>2016-04-19T00:00:00+00:00</published>
   <updated>2016-04-19T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -56,146 +404,146 @@
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;h1 id=&quot;a-idorgheadline5a&quot;&gt;基本元素&lt;a id=&quot;orgheadline5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;基本元素&quot;&gt;基本元素&lt;a id=&quot;orgheadline5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idorgheadline1a&quot;&gt;文章类型——最基本的内容&lt;a id=&quot;orgheadline1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;文章类型最基本的内容&quot;&gt;文章类型——最基本的内容&lt;a id=&quot;orgheadline1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
     Hello, world!
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline2a&quot;&gt;作者、标题、日期——制作标题页&lt;a id=&quot;orgheadline2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;作者标题日期制作标题页&quot;&gt;作者、标题、日期——制作标题页&lt;a id=&quot;orgheadline2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\title&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello，world!&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\author&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;frank weapon&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\date&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\today&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;k&quot;&gt;\title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;hello，world!&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\author&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;frank weapon&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\today&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
     hello，world!
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline3a&quot;&gt;章节、段落——组织文章内容&lt;a id=&quot;orgheadline3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;章节段落组织文章内容&quot;&gt;章节、段落——组织文章内容&lt;a id=&quot;orgheadline3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello programming language&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\subsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello java&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\paragraph&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;java&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt; is a OO language
-    &lt;span class=&quot;k&quot;&gt;\paragraph&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;java&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt; is a powerful language
-    &lt;span class=&quot;k&quot;&gt;\subsubsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello spring&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\subsubsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello struts&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\subsection&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;hello ruby&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;hello programming language&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\subsection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;hello java&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\paragraph&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;java&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; is a OO language
+    &lt;span class=&quot;k&quot;&gt;\paragraph&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;java&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; is a powerful language
+    &lt;span class=&quot;k&quot;&gt;\subsubsection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;hello spring&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\subsubsection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;hello struts&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\subsection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;hello ruby&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline4a&quot;&gt;目录——整理章节标题&lt;a id=&quot;orgheadline4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;目录整理章节标题&quot;&gt;目录——整理章节标题&lt;a id=&quot;orgheadline4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\tableofcontents&lt;/span&gt;
     ...
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h1 id=&quot;a-idorgheadline9a&quot;&gt;版面设置&lt;a id=&quot;orgheadline9&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;版面设置&quot;&gt;版面设置&lt;a id=&quot;orgheadline9&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idorgheadline6a&quot;&gt;页边距——利用好页面&lt;a id=&quot;orgheadline6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;页边距利用好页面&quot;&gt;页边距——利用好页面&lt;a id=&quot;orgheadline6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;geometry&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\geometry&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;papersize=&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;20cm,15cm&lt;span class=&quot;nb&quot;&gt;}}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\geometry&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;left=1cm,right=2cm,top=3cm,bottom=4cm&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;geometry&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\geometry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;papersize=&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;20cm,15cm&lt;span class=&quot;p&quot;&gt;}}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\geometry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;left=1cm,right=2cm,top=3cm,bottom=4cm&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
     Hello, world!
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline7a&quot;&gt;页眉、页脚——有地方显示页标、作者、日期&lt;a id=&quot;orgheadline7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;页眉页脚有地方显示页标作者日期&quot;&gt;页眉、页脚——有地方显示页标、作者、日期&lt;a id=&quot;orgheadline7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;fancyhdr&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\pagestyle&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;fancy&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\lhead&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;head left&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\chead&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;head center&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\rhead&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;head right&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\lfoot&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\cfoot&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\thepage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\rfoot&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;fancyhdr&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\pagestyle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;fancy&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\lhead&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;head left&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\chead&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;head center&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\rhead&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;head right&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\lfoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\cfoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\thepage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\rfoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
     Hello, world!
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline8a&quot;&gt;间距——合理调整页面&lt;a id=&quot;orgheadline8&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;间距合理调整页面&quot;&gt;间距——合理调整页面&lt;a id=&quot;orgheadline8&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;c&quot;&gt;%paragraph indentation&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\setlength&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\parindent&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;4em&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;c&quot;&gt;%paragraph indentation&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\setlength&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\parindent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}{&lt;/span&gt;4em&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;c&quot;&gt;%paragraph spacing&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\setlength&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\parskip&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;1em&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\setlength&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\parskip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}{&lt;/span&gt;1em&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;c&quot;&gt;%Line spacing&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\renewcommand&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\baselinestretch&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;1.5&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;k&quot;&gt;\renewcommand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\baselinestretch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}{&lt;/span&gt;1.5&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h1 id=&quot;a-idorgheadline14a&quot;&gt;插入内容&lt;a id=&quot;orgheadline14&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;插入内容&quot;&gt;插入内容&lt;a id=&quot;orgheadline14&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idorgheadline10a&quot;&gt;插入图片——自动编号你的图例&lt;a id=&quot;orgheadline10&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;插入图片自动编号你的图例&quot;&gt;插入图片——自动编号你的图例&lt;a id=&quot;orgheadline10&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;[h]
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;\begin{figure}&lt;/span&gt;[h]
       &lt;span class=&quot;k&quot;&gt;\centering&lt;/span&gt;
-      &lt;span class=&quot;k&quot;&gt;\includegraphics&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[width=0.8\textwidth]&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure/fig1&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-      &lt;span class=&quot;k&quot;&gt;\caption&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;demo figure&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-      &lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure demo&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;figure&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+      &lt;span class=&quot;k&quot;&gt;\includegraphics&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[width=0.8\textwidth]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;figure/fig1&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;\caption&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;demo figure&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;figure demo&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{figure}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline11a&quot;&gt;插入表格——用代码画出表格&lt;a id=&quot;orgheadline11&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;插入表格用代码画出表格&quot;&gt;插入表格——用代码画出表格&lt;a id=&quot;orgheadline11&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;table&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;[h]
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;center&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\caption&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;demo table&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;table demo&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;tabular&lt;span class=&quot;nb&quot;&gt;}{&lt;/span&gt;| l | l | l |&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;\begin{table}&lt;/span&gt;[h]
+    &lt;span class=&quot;nt&quot;&gt;\begin{center}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\caption&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;demo table&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;table demo&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\begin{tabular}&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;| l | l | l |&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
-    00 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 01 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 02&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
+    00 &lt;span class=&quot;p&quot;&gt;&amp;amp;&lt;/span&gt; 01 &lt;span class=&quot;p&quot;&gt;&amp;amp;&lt;/span&gt; 02&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
-    10 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 11 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 12&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
+    10 &lt;span class=&quot;p&quot;&gt;&amp;amp;&lt;/span&gt; 11 &lt;span class=&quot;p&quot;&gt;&amp;amp;&lt;/span&gt; 12&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
-    20 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 21 &lt;span class=&quot;nb&quot;&gt;&amp;amp;&lt;/span&gt; 22&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
+    20 &lt;span class=&quot;p&quot;&gt;&amp;amp;&lt;/span&gt; 21 &lt;span class=&quot;p&quot;&gt;&amp;amp;&lt;/span&gt; 22&lt;span class=&quot;k&quot;&gt;\\&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\hline&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;tabular&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;center&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;table&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{tabular}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{center}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{table}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline12a&quot;&gt;插入列表——格式化你的内容&lt;a id=&quot;orgheadline12&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;插入列表格式化你的内容&quot;&gt;插入列表——格式化你的内容&lt;a id=&quot;orgheadline12&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;itemize&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;nt&quot;&gt;\begin{itemize}&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;\item&lt;/span&gt; one demo item
     &lt;span class=&quot;k&quot;&gt;\item&lt;/span&gt; another demo item
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;itemize&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{itemize}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;a-idorgheadline13a&quot;&gt;插入公式——编辑复杂的数学内容&lt;a id=&quot;orgheadline13&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;插入公式编辑复杂的数学内容&quot;&gt;插入公式——编辑复杂的数学内容&lt;a id=&quot;orgheadline13&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;amsmath&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-latex&quot; data-lang=&quot;latex&quot;&gt;    &lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;amsmath&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
     Hello, Math !
-    &lt;span class=&quot;s&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;$&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% inline&lt;/span&gt;
-    &lt;span class=&quot;sb&quot;&gt;\[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt; .. &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;\]&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% between two lines&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\begin&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;equation&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% numbered equation between lines&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;$&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% inline&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;\[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt; .. &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;\]&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% between two lines&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\begin{equation}&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;% numbered equation between lines&lt;/span&gt;
     …
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;equation&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;\end&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;{&lt;/span&gt;document&lt;span class=&quot;nb&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{equation}&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 
-    &lt;p&gt;&lt;a href=&quot;/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/&quot;&gt;用latex写一篇简单文章&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on April 19, 2016.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/&quot;&gt;用latex写一篇简单文章&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on April 19, 2016.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[Spacemacs简介]]></title>
- <link rel="alternate" type="text/html" href="/Spacemacs/" />
-  <id>/Spacemacs</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Spacemacs/" />
+  <id>http://localhost:4000/Spacemacs</id>
   <published>2016-01-25T00:00:00+00:00</published>
   <updated>2016-01-25T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -228,32 +576,32 @@
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;h1 id=&quot;why-spacemacsa-idorgheadline4a&quot;&gt;Why Spacemacs&lt;a id=&quot;orgheadline4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;why-spacemacs&quot;&gt;Why Spacemacs&lt;a id=&quot;orgheadline4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;compare-to-emacsa-idorgheadline1a&quot;&gt;Compare to Emacs?&lt;a id=&quot;orgheadline1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compare-to-emacs&quot;&gt;Compare to Emacs?&lt;a id=&quot;orgheadline1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;Spacemacs作为Emacs的一个扩展,Spacemacs相对于其他的Emacs配置来说，文档的详细程度绝对完胜其他配置。从头开始折腾Emacs是不太明智的行为，而采用各路大神的配置又会有些摸不清头脑不知道如何入手。
 这时候，Spacemacs详细的文档和清晰的分层可以作为想转向Emacs的人入门非常好的版本。&lt;/p&gt;
 
-&lt;h2 id=&quot;compare-to-vima-idorgheadline2a&quot;&gt;Compare to Vim?&lt;a id=&quot;orgheadline2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compare-to-vim&quot;&gt;Compare to Vim?&lt;a id=&quot;orgheadline2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;Spacemacs最突出的特点就是与Vim极高的相似性，以空格键作为leader键，甚至文档中专门为有兴趣转入Emacs的Vim党提供了专门的内容。安装过程中选择Vim布局，可以完全采用Vim的编辑方式享受Emacs的各种优势。&lt;/p&gt;
 
-&lt;h2 id=&quot;compaire-to-other-idea-idorgheadline3a&quot;&gt;Compaire to other IDE?&lt;a id=&quot;orgheadline3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compaire-to-other-ide&quot;&gt;Compaire to other IDE?&lt;a id=&quot;orgheadline3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;如果写Java，目前可能没有工具能超过Intellij Idea，但是做轻量级一些的编码工作，一个庞大的IDE可能有些太过重量级。而且Emacs高度的可扩展性给了Geek们无限的空间，其写文档、Latex的能力也是其他IDE不能相比的。&lt;/p&gt;
 
-&lt;h1 id=&quot;spacemacs-introductiona-idorgheadline8a&quot;&gt;Spacemacs introduction&lt;a id=&quot;orgheadline8&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;spacemacs-introduction&quot;&gt;Spacemacs introduction&lt;a id=&quot;orgheadline8&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idorgheadline5a&quot;&gt;官网&lt;a id=&quot;orgheadline5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;官网&quot;&gt;官网&lt;a id=&quot;orgheadline5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&quot;http://spacemacs.org&quot;&gt;Spacemacs.org&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;a-idorgheadline6a&quot;&gt;项目结构&lt;a id=&quot;orgheadline6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;项目结构&quot;&gt;项目结构&lt;a id=&quot;orgheadline6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;Spacemacs 以layer来进行功能的分割，通过.spacemacs文件来进行配置管理，具体内容在仍然在.emacs.d目录下。某个layer的具体配置可以到layer目录下查看文档。&lt;/p&gt;
 
-&lt;h2 id=&quot;a-idorgheadline7a&quot;&gt;目录结构&lt;a id=&quot;orgheadline7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;目录结构&quot;&gt;目录结构&lt;a id=&quot;orgheadline7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;assets: 图标等内容,不需要关注。&lt;/li&gt;
@@ -264,46 +612,49 @@
   &lt;li&gt;tests: 测试目录，不需要关注。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;using-spacemacsa-idorgheadline12a&quot;&gt;Using spacemacs&lt;a id=&quot;orgheadline12&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;using-spacemacs&quot;&gt;Using spacemacs&lt;a id=&quot;orgheadline12&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;mac-os-xa-idorgheadline9a&quot;&gt;安装(Mac OS X)&lt;a id=&quot;orgheadline9&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;安装mac-os-x&quot;&gt;安装(Mac OS X)&lt;a id=&quot;orgheadline9&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
     &lt;p&gt;安装Emacs24.4以上的版本&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;brew tap railwaycat/homebrew-emacsmacport
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;brew tap railwaycat/homebrew-emacsmacport
 brew install emacs-mac --with-spacemacs-icon
 brew linkapps
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;下载配置文件&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;以非安全模式启动emacs以保证成功下载插件&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;emacs --insecure
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;emacs --insecure
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;选择编辑模式、待安装完成后重启&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;spacemacsa-idorgheadline10a&quot;&gt;配置.spacemacs&lt;a id=&quot;orgheadline10&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;配置spacemacs&quot;&gt;配置.spacemacs&lt;a id=&quot;orgheadline10&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;打开 &lt;em&gt;~.spacemacs&lt;/em&gt;&lt;/li&gt;
   &lt;li&gt;在layers中打开需要用的注释掉的layer，并添加osx以使emacs能正常使用Max OS x的快捷键。&lt;/li&gt;
-  &lt;li&gt;最下面 &lt;code&gt;(defun dotspacemacs/user-config ()&lt;/code&gt; 中添加自己的配置。(若配置有明显分类，应参考官方文档创建自己的layer并进行引用管理）&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;SPC f e R&lt;/code&gt; 刷新配置&lt;/li&gt;
+  &lt;li&gt;最下面 &lt;code class=&quot;highlighter-rouge&quot;&gt;(defun dotspacemacs/user-config ()&lt;/code&gt; 中添加自己的配置。(若配置有明显分类，应参考官方文档创建自己的layer并进行引用管理）&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SPC f e R&lt;/code&gt; 刷新配置&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idorgheadline11a&quot;&gt;开始使用&lt;a id=&quot;orgheadline11&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;开始使用&quot;&gt;开始使用&lt;a id=&quot;orgheadline11&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -378,20 +729,20 @@ brew linkapps
   &lt;/li&gt;
 &lt;/ul&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/Spacemacs/&quot;&gt;Spacemacs简介&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on January 25, 2016.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Spacemacs/&quot;&gt;Spacemacs简介&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on January 25, 2016.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[OpenStack-组件安装]]></title>
- <link rel="alternate" type="text/html" href="/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/" />
-  <id>/Openstack-组件安装</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/" />
+  <id>http://localhost:4000/Openstack-组件安装</id>
   <published>2015-11-16T00:00:00+00:00</published>
   <updated>2015-11-16T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -426,16 +777,16 @@ brew linkapps
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;h1 id=&quot;controllera-idsec-1-namesec-1a&quot;&gt;controller&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;controller&quot;&gt;controller&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idsec-1-1-namesec-1-1a&quot;&gt;注意事项&lt;a id=&quot;sec-1-1&quot; name=&quot;sec-1-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;注意事项&quot;&gt;注意事项&lt;a id=&quot;sec-1-1&quot; name=&quot;sec-1-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;安装好组件后使用API执行命令可能会报错Server Internal Error 500。 这多数是由于数据库服务配置不正确导致的。 请检查上一节中提到的数据库安装&lt;/li&gt;
   &lt;li&gt;控制节点的Endpoint可能会由于不正当操作导致异常， 这时其他节点相关服务的日志中会有关于地址解析的日志记录。 可以直接进入数据库相关服务查看endpoints表，若发现其中有localhost.localdomain相关内容可试着改为controller。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;identity-servicea-idsec-1-2-namesec-1-2a&quot;&gt;Identity Service&lt;a id=&quot;sec-1-2&quot; name=&quot;sec-1-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;identity-service&quot;&gt;Identity Service&lt;a id=&quot;sec-1-2&quot; name=&quot;sec-1-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;依照官方提供的安装过程并未出现问题&lt;/li&gt;
@@ -448,14 +799,15 @@ brew linkapps
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;image-servicea-idsec-1-3-namesec-1-3a&quot;&gt;Image Service&lt;a id=&quot;sec-1-3&quot; name=&quot;sec-1-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;image-service&quot;&gt;Image Service&lt;a id=&quot;sec-1-3&quot; name=&quot;sec-1-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
     &lt;p&gt;执行镜像创建语句&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;glance image-create --name &quot;cirros-0.3.4-x86_64&quot; --file /tmp/images/ cirros-0.3.4-x86_64-disk.img   --disk-format qcow2 --container-format bare --visibility public --progress
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;glance image-create --name &quot;cirros-0.3.4-x86_64&quot; --file /tmp/images/ cirros-0.3.4-x86_64-disk.img   --disk-format qcow2 --container-format bare --visibility public --progress
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
 
     &lt;p&gt;可能出现Bad Argument错误，搜索相关问题可能会找到关于Endpoint API版本的问题，而实际上问题可能不在这里。 我曾遇到这个问题始终找不到原因所在， 而重装后问题消失。 所以这个问题八成是配置文件的错误引起的，请仔细检查或重装该节点。&lt;/p&gt;
   &lt;/li&gt;
@@ -464,14 +816,15 @@ brew linkapps
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;compute-servicea-idsec-1-4-namesec-1-4a&quot;&gt;Compute Service&lt;a id=&quot;sec-1-4&quot; name=&quot;sec-1-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compute-service&quot;&gt;Compute Service&lt;a id=&quot;sec-1-4&quot; name=&quot;sec-1-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
     &lt;p&gt;控制节点上安装完Compute节点是没有验证的，在配置完计算节点后进行验证操作。&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;nova service-list
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;nova service-list
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
 
     &lt;p&gt;结果应至少包含以下几个：&lt;/p&gt;
 
@@ -551,20 +904,21 @@ brew linkapps
   &lt;li&gt;
     &lt;p&gt;执行Endpoint验证操作&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;nova endpoints
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;nova endpoints
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
 
     &lt;p&gt;结果可能包含Warning，不影响使用。&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;network-servicea-idsec-1-5-namesec-1-5a&quot;&gt;Network Service&lt;a id=&quot;sec-1-5&quot; name=&quot;sec-1-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;network-service&quot;&gt;Network Service&lt;a id=&quot;sec-1-5&quot; name=&quot;sec-1-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;控制节点上的网络组件比较简单，保证验证结果包含文档中给出的内容即可。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;dashboarda-idsec-1-6-namesec-1-6a&quot;&gt;DashBoard&lt;a id=&quot;sec-1-6&quot; name=&quot;sec-1-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;dashboard&quot;&gt;DashBoard&lt;a id=&quot;sec-1-6&quot; name=&quot;sec-1-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Dashboard需要用到Apache，请确保其正确性。&lt;/li&gt;
@@ -573,11 +927,11 @@ brew linkapps
   &lt;li&gt;安装完Dashboard之后很多操作就可以不用命令去执行了，要熟悉其功能。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;networka-idsec-2-namesec-2a&quot;&gt;network&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;network&quot;&gt;network&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;除基础环境外，网络节点只配置了Network Service&lt;/p&gt;
 
-&lt;h2 id=&quot;a-idsec-2-1-namesec-2-1a&quot;&gt;组件介绍&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;组件介绍&quot;&gt;组件介绍&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Modular Layer 2 (ML2) plug-in
@@ -590,14 +944,14 @@ brew linkapps
 为实例提供配置信息，比如身份验证等&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;network-servicea-idsec-2-2-namesec-2-2a&quot;&gt;Network Service&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;network-service-1&quot;&gt;Network Service&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;4个组件有四个配置文件，同时还要将ml2的相关内容添加到neutron.conf中。 要确保这5个文件的正确性，分别查看日志排除错误信息。&lt;/li&gt;
   &lt;li&gt;这里需要一个网桥，ex-br与enp2s12（之前没设置IP地址的网卡）绑定，在创建网络之后所有的虚拟机都将由这条通路出去。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idsec-2-3-namesec-2-3a&quot;&gt;创建网络&lt;a id=&quot;sec-2-3&quot; name=&quot;sec-2-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;创建网络&quot;&gt;创建网络&lt;a id=&quot;sec-2-3&quot; name=&quot;sec-2-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;需要一些基本的网络概念，IP地址、子网掩码、子网划分。&lt;/li&gt;
@@ -619,11 +973,11 @@ brew linkapps
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;computea-idsec-3-namesec-3a&quot;&gt;compute&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;compute&quot;&gt;compute&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;计算节点配置基础环境后只需要安装计算和网络组件&lt;/p&gt;
 
-&lt;h2 id=&quot;compute-servicea-idsec-3-1-namesec-3-1a&quot;&gt;Compute Service&lt;a id=&quot;sec-3-1&quot; name=&quot;sec-3-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compute-service-1&quot;&gt;Compute Service&lt;a id=&quot;sec-3-1&quot; name=&quot;sec-3-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -639,15 +993,17 @@ brew linkapps
       &lt;li&gt;
         &lt;p&gt;在控制节点上执行&lt;/p&gt;
 
-        &lt;pre&gt;&lt;code&gt;tcpdump -nni eno1 port 5900
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tcpdump -nni eno1 port 5900
 &lt;/code&gt;&lt;/pre&gt;
+        &lt;/div&gt;
       &lt;/li&gt;
       &lt;li&gt;使用浏览器访问，应该在能看到相关输出，若没有请检查网络。&lt;/li&gt;
       &lt;li&gt;
         &lt;p&gt;在计算节点上执行&lt;/p&gt;
 
-        &lt;pre&gt;&lt;code&gt;iptables -F
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;iptables -F
 &lt;/code&gt;&lt;/pre&gt;
+        &lt;/div&gt;
       &lt;/li&gt;
       &lt;li&gt;这时应该正常了&lt;/li&gt;
       &lt;li&gt;参考内容 &lt;a href=&quot;https://ask.openstack.org/en/question/46158/vnc-console-failed-to-connect-to-server-code-1006/&quot;&gt;https://ask.openstack.org/en/question/46158/vnc-console-failed-to-connect-to-server-code-1006/&lt;/a&gt;&lt;/li&gt;
@@ -658,26 +1014,26 @@ brew linkapps
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;network-servicea-idsec-3-2-namesec-3-2a&quot;&gt;Network Service&lt;a id=&quot;sec-3-2&quot; name=&quot;sec-3-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;network-service-2&quot;&gt;Network Service&lt;a id=&quot;sec-3-2&quot; name=&quot;sec-3-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;计算节点只安装了openvswitch服务（ML2），提供了实例的虚拟网络建立。&lt;/li&gt;
 &lt;/ul&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/&quot;&gt;OpenStack-组件安装&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on November 16, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/&quot;&gt;OpenStack-组件安装&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on November 16, 2015.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[OpenStack-基础环境搭建]]></title>
- <link rel="alternate" type="text/html" href="/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" />
-  <id>/Openstack-基础环境搭建</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" />
+  <id>http://localhost:4000/Openstack-基础环境搭建</id>
   <published>2015-11-15T00:00:00+00:00</published>
   <updated>2015-11-15T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -718,7 +1074,7 @@ brew linkapps
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;网络环境&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;网络环境&quot;&gt;网络环境&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;openstack网络尤其重要，理解各节点组件作用，在正确稳定的网络结构下，可以避免很多不必要的问题。整体结构如图所示
 &lt;img src=&quot;/assets/upload/OpenStack-网络拓扑.jpg&quot; alt=&quot;网络拓扑&quot; /&gt;
@@ -726,7 +1082,7 @@ brew linkapps
 
 &lt;p&gt;一定要采用命令行下编辑配置文件的方式来进行网络配置，使用GUI可能会导致配置文件的混乱，要是已经弄乱了的话，后面会有解决方案。&lt;/p&gt;
 
-&lt;h2 id=&quot;a-idsec-1-1-namesec-1-1a&quot;&gt;网络概述&lt;a id=&quot;sec-1-1&quot; name=&quot;sec-1-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;网络概述&quot;&gt;网络概述&lt;a id=&quot;sec-1-1&quot; name=&quot;sec-1-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;10.0.0.0/24
@@ -737,7 +1093,7 @@ brew linkapps
 只在network上有，不指定IP地址且BOOTPROTO为none，在安装好网络组件之前这块网卡并没有用。 创建网络环境时会将一段IP地址分配到这里，以池的形式提供NAT以及虚拟机的IP地址绑定。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idsec-1-2-namesec-1-2a&quot;&gt;使用配置文件修改网络设置&lt;a id=&quot;sec-1-2&quot; name=&quot;sec-1-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;使用配置文件修改网络设置&quot;&gt;使用配置文件修改网络设置&lt;a id=&quot;sec-1-2&quot; name=&quot;sec-1-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;centOS7 网络配置文件位于&lt;/p&gt;
 
@@ -751,29 +1107,33 @@ brew linkapps
 
 &lt;p&gt;编辑完成后重启网络&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;systemctl restart network
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;systemctl restart network
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
-&lt;h2 id=&quot;a-idsec-1-3-namesec-1-3a&quot;&gt;路由器设置&lt;a id=&quot;sec-1-3&quot; name=&quot;sec-1-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;路由器设置&quot;&gt;路由器设置&lt;a id=&quot;sec-1-3&quot; name=&quot;sec-1-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
-&lt;p&gt;CentOS下无法直接进入路由器设置界面，需要一台windows接入LAN口输入192.168.1.1进入路由器设置。 路由器网段改为10.0.0.0,子网掩码255.255.255.0，路由器地址10.0.0.1，路由器重启后进入指定3台机器eno1的MAC地址和IP地址
-1.  controller
-    10.0.0.11
-2.  network
-    10.0.0.21
-3.  compute1
-    10.0.0.31
-4.  compute2(可选）
-    10.0.0.32（以此类推）&lt;/p&gt;
+&lt;p&gt;CentOS下无法直接进入路由器设置界面，需要一台windows接入LAN口输入192.168.1.1进入路由器设置。 路由器网段改为10.0.0.0,子网掩码255.255.255.0，路由器地址10.0.0.1，路由器重启后进入指定3台机器eno1的MAC地址和IP地址&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;controller
+10.0.0.11&lt;/li&gt;
+  &lt;li&gt;network
+10.0.0.21&lt;/li&gt;
+  &lt;li&gt;compute1
+10.0.0.31&lt;/li&gt;
+  &lt;li&gt;compute2(可选）
+10.0.0.32（以此类推）&lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;p&gt;注意，如果你之前在其他连入LAN口的电脑上配置了地址10.0.0.1，会导致无法进入路由器设置页面，记得修改它以避免冲突。&lt;/p&gt;
 
-&lt;h2 id=&quot;hostsa-idsec-1-4-namesec-1-4a&quot;&gt;修改hosts&lt;a id=&quot;sec-1-4&quot; name=&quot;sec-1-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;修改hosts&quot;&gt;修改hosts&lt;a id=&quot;sec-1-4&quot; name=&quot;sec-1-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;每个节点都需要修改hosts文件，指定各节点的通信地址。配置文件在&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;gt; /etc/host
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;gt; /etc/host
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;#controller
 10.0.0.11 controller&lt;/p&gt;
@@ -787,7 +1147,7 @@ brew linkapps
 &lt;p&gt;#compute2
 10.0.0.32 compute2&lt;/p&gt;
 
-&lt;h2 id=&quot;controllera-idsec-1-5-namesec-1-5a&quot;&gt;controller&lt;a id=&quot;sec-1-5&quot; name=&quot;sec-1-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;controller&quot;&gt;controller&lt;a id=&quot;sec-1-5&quot; name=&quot;sec-1-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -806,7 +1166,7 @@ GATEWAY=10.0.0.1&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;networka-idsec-1-6-namesec-1-6a&quot;&gt;network&lt;a id=&quot;sec-1-6&quot; name=&quot;sec-1-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;network&quot;&gt;network&lt;a id=&quot;sec-1-6&quot; name=&quot;sec-1-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -841,7 +1201,7 @@ NETMASK=255.255.255.0&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;compute1a-idsec-1-7-namesec-1-7a&quot;&gt;compute1&lt;a id=&quot;sec-1-7&quot; name=&quot;sec-1-7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compute1&quot;&gt;compute1&lt;a id=&quot;sec-1-7&quot; name=&quot;sec-1-7&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -869,7 +1229,7 @@ NETMASK=255.255.255.0&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idsec-1-8-namesec-1-8a&quot;&gt;验证&lt;a id=&quot;sec-1-8&quot; name=&quot;sec-1-8&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;验证&quot;&gt;验证&lt;a id=&quot;sec-1-8&quot; name=&quot;sec-1-8&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;所有主机都能ping通外网&lt;/li&gt;
@@ -877,9 +1237,9 @@ NETMASK=255.255.255.0&lt;/p&gt;
   &lt;li&gt;compute和network可以ping通对方tunnel地址&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;network-time-protocal-ntpa-idsec-2-namesec-2a&quot;&gt;Network Time Protocal (NTP)&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;network-time-protocal-ntp&quot;&gt;Network Time Protocal (NTP)&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idsec-2-1-namesec-2-1a&quot;&gt;问题解决&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;问题解决&quot;&gt;问题解决&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -895,32 +1255,34 @@ NETMASK=255.255.255.0&lt;/p&gt;
   &lt;li&gt;
     &lt;p&gt;防火墙可能会导致NTP的通信异常，可以关闭并禁用防火墙&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;systemctl stop firewalld
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;systemctl stop firewalld
 systemctl disable firewalld
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idsec-2-2-namesec-2-2a&quot;&gt;注意事项&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;注意事项&quot;&gt;注意事项&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;其他节点都以controller作为时间标准。以后安装过程中遇到问题可以先验证NTP是否运行正常，有时网络问题会导致组件功能不正常。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;openstack-packagesa-idsec-3-namesec-3a&quot;&gt;OpenStack packages&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;openstack-packages&quot;&gt;OpenStack packages&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;这里的按照官方文档安装没有问题&lt;/p&gt;
 
-&lt;h1 id=&quot;sql-databasea-idsec-4-namesec-4a&quot;&gt;SQL database&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;sql-database&quot;&gt;SQL database&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idsec-4-1-namesec-4-1a&quot;&gt;注意事项&lt;a id=&quot;sec-4-1&quot; name=&quot;sec-4-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;注意事项-1&quot;&gt;注意事项&lt;a id=&quot;sec-4-1&quot; name=&quot;sec-4-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
     &lt;p&gt;记得要执行Mysql的安装过程&lt;/p&gt;
 
-    &lt;pre&gt;&lt;code&gt;mysql_secure_installation
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql_secure_installation
 &lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
 
     &lt;p&gt;少了这一步可能会导致在之后调用程序方法的时候报服务器500错误&lt;/p&gt;
   &lt;/li&gt;
@@ -929,28 +1291,28 @@ systemctl disable firewalld
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;message-queuea-idsec-5-namesec-5a&quot;&gt;Message queue&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;message-queue&quot;&gt;Message queue&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
-&lt;h2 id=&quot;a-idsec-5-1-namesec-5-1a&quot;&gt;注意事项&lt;a id=&quot;sec-5-1&quot; name=&quot;sec-5-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;注意事项-2&quot;&gt;注意事项&lt;a id=&quot;sec-5-1&quot; name=&quot;sec-5-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;消息队列是保证物理机之间消息通信的基础，组件出现问题的时候可以查看消息队列的日志观察是否有问题。 有的时候无法正确解析地址会导致消息队列不通使程序出现问题。 消息队列的问题不会报错，查看日志文档(存放在/var/log/rabbit&lt;sub&gt;mq下&lt;/sub&gt;)会发现ERROR，根据提示解决问题即可。&lt;/li&gt;
 &lt;/ul&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/&quot;&gt;OpenStack-基础环境搭建&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on November 15, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/&quot;&gt;OpenStack-基础环境搭建&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on November 15, 2015.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[Openstack-功能介绍]]></title>
- <link rel="alternate" type="text/html" href="/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" />
-  <id>/Openstack-功能介绍</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" />
+  <id>http://localhost:4000/Openstack-功能介绍</id>
   <published>2015-11-15T00:00:00+00:00</published>
   <updated>2015-11-15T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -981,7 +1343,7 @@ systemctl disable firewalld
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;写在前面&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;写在前面&quot;&gt;写在前面&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;openstack作为一个开源项目，每隔一段时间都会发布一个版本而且有两种部署方式，在不同平台上有不同的安装方式。 这里介绍的为kilo版本采用neutron布局，在centOS7下，3台物理机上部署安装。 在官方网站提供了详尽的部署文档（英文版），应该以该文档为主，这里记录一些问题的补充说明作为辅助。&lt;/li&gt;
@@ -990,35 +1352,35 @@ systemctl disable firewalld
   &lt;li&gt;注意验证工作，不要轻易跳过验证不通过的部分，除非你对该部分的原理相当了解，能弄明白验证不通过的原因所在。 否则请认真进行每一步验证工作，这样在问题出现时才有相当于检查点的存在。 不至于找不到问题所在而彻底重新安装。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;a-idsec-2-namesec-2a&quot;&gt;节点功能&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;节点功能&quot;&gt;节点功能&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;节点指一台计算机，若采用neutron布局，则最少需要3台计算机。 包括一台计算节点（controller)需要1张网卡，一台网络节点（network)需要3张网卡，一台计算节点（compute1)需要两张网卡。 若需要加入存储节点请参照官网配置。&lt;/p&gt;
 
-&lt;h2 id=&quot;controllera-idsec-2-1-namesec-2-1a&quot;&gt;controller&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;controller&quot;&gt;controller&lt;a id=&quot;sec-2-1&quot; name=&quot;sec-2-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;该节点相当于项目经理，大部分的组件都需要安装在该节点上，任务的分配也都在这里进行，但该节点并不承担虚拟机的运行负载，也不承担网络负载。数据库只运行在该节点上，Dashboard也部署在这台机器的Apache上，所以如果想要外网访问Dashboard就需要给它额外一张网卡并提供公网地址。&lt;/p&gt;
 
-&lt;h2 id=&quot;networka-idsec-2-2-namesec-2-2a&quot;&gt;network&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;network&quot;&gt;network&lt;a id=&quot;sec-2-2&quot; name=&quot;sec-2-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;该节点承担所有实例（运行在openstack上的虚拟机）的网络访问职责，注意这里只负责实例的网络访问，和物理机无关。每个物理机通过自己的网线上网。除基本环境外只需要安装网络组件。&lt;/p&gt;
 
-&lt;h2 id=&quot;computea-idsec-2-3-namesec-2-3a&quot;&gt;compute&lt;a id=&quot;sec-2-3&quot; name=&quot;sec-2-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compute&quot;&gt;compute&lt;a id=&quot;sec-2-3&quot; name=&quot;sec-2-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;所有的实例都运行在该节点上，虚拟机所占用的资源均为该节点的硬件资源，可在环境中添加多个compute节点。&lt;/p&gt;
 
-&lt;h2 id=&quot;block-storage-a-idsec-2-4-namesec-2-4a&quot;&gt;block storage (可选）&lt;a id=&quot;sec-2-4&quot; name=&quot;sec-2-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;block-storage-可选&quot;&gt;block storage (可选）&lt;a id=&quot;sec-2-4&quot; name=&quot;sec-2-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;简单来说相当于硬盘，以块存储序列化后的内容，添加该节点后需要额外网卡进行存储通信。&lt;/p&gt;
 
-&lt;h2 id=&quot;object-storage-a-idsec-2-5-namesec-2-5a&quot;&gt;object storage (可选）&lt;a id=&quot;sec-2-5&quot; name=&quot;sec-2-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;object-storage-可选&quot;&gt;object storage (可选）&lt;a id=&quot;sec-2-5&quot; name=&quot;sec-2-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;简单来说相当于内存，以对象的形式存储数据，添加该节点后需要额外网卡进行存储通信。&lt;/p&gt;
 
-&lt;h1 id=&quot;a-idsec-3-namesec-3a&quot;&gt;组件功能&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;组件功能&quot;&gt;组件功能&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;组件指安装在各节点上的软件，在不同节点上需要的组件有所不同，安装时注意选择。&lt;/p&gt;
 
-&lt;h2 id=&quot;identity-service--keystonea-idsec-3-1-namesec-3-1a&quot;&gt;Identity Service 身份验证服务 （Keystone)&lt;a id=&quot;sec-3-1&quot; name=&quot;sec-3-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;identity-service-身份验证服务-keystone&quot;&gt;Identity Service 身份验证服务 （Keystone)&lt;a id=&quot;sec-3-1&quot; name=&quot;sec-3-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;功能：
@@ -1029,48 +1391,48 @@ systemctl disable firewalld
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;image-service--glancea-idsec-3-2-namesec-3-2a&quot;&gt;Image Service 镜像服务 （Glance)&lt;a id=&quot;sec-3-2&quot; name=&quot;sec-3-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;image-service-镜像服务-glance&quot;&gt;Image Service 镜像服务 （Glance)&lt;a id=&quot;sec-3-2&quot; name=&quot;sec-3-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;功能：
 提供对包括制作在内的镜像管理。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;compute-service--novaa-idsec-3-3-namesec-3-3a&quot;&gt;Compute Service 计算服务 (Nova)&lt;a id=&quot;sec-3-3&quot; name=&quot;sec-3-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;compute-service-计算服务-nova&quot;&gt;Compute Service 计算服务 (Nova)&lt;a id=&quot;sec-3-3&quot; name=&quot;sec-3-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;功能：
 作为IaaS最主要的组成部分，计算服务负责云操作系统的运行。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;networking-service--neutrona-idsec-3-4-namesec-3-4a&quot;&gt;Networking Service 网络服务 (Neutron)&lt;a id=&quot;sec-3-4&quot; name=&quot;sec-3-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;networking-service-网络服务-neutron&quot;&gt;Networking Service 网络服务 (Neutron)&lt;a id=&quot;sec-3-4&quot; name=&quot;sec-3-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;功能：
 提供所有虚拟机的网络功能，包括基础网络设施的搭建以及网络访问控制。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;dashboard--horizona-idsec-3-5-namesec-3-5a&quot;&gt;DashBoard 图形化管理界面 (Horizon)&lt;a id=&quot;sec-3-5&quot; name=&quot;sec-3-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;dashboard-图形化管理界面-horizon&quot;&gt;DashBoard 图形化管理界面 (Horizon)&lt;a id=&quot;sec-3-5&quot; name=&quot;sec-3-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;功能：
 通过浏览器打开网页操作Openstack，否则只能记住大量API通过控制台控制。&lt;/li&gt;
 &lt;/ul&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/&quot;&gt;Openstack-功能介绍&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on November 15, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/&quot;&gt;Openstack-功能介绍&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on November 15, 2015.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[用Emacs实现GTD]]></title>
- <link rel="alternate" type="text/html" href="/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" />
-  <id>/用Emacs实现GTD</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" />
+  <id>http://localhost:4000/用Emacs实现GTD</id>
   <published>2015-08-14T00:00:00+00:00</published>
   <updated>2015-08-14T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -1089,12 +1451,12 @@ systemctl disable firewalld
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;整体流程图&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;整体流程图&quot;&gt;整体流程图&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;整体内容的文字叙述比较难懂，给一张思维导图放在前面，请将后续表述与图中内容做对应以了解流程，针对各处操作未做太详尽描述，相信各位查阅资料能够解决问题，有问题的朋友可以联系我。
 &lt;img src=&quot;/assets/upload/gtd_guide.png&quot; alt=&quot;GTD流程&quot; /&gt;&lt;/p&gt;
 
-&lt;h1 id=&quot;emacsa-idsec-2-namesec-2a&quot;&gt;Emacs相关模式介绍&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;emacs相关模式介绍&quot;&gt;Emacs相关模式介绍&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;org-mode
@@ -1106,7 +1468,7 @@ systemctl disable firewalld
 agenda作为Emacs的一种模式，并不是用于编辑，而是用于审阅。 在配置文件中可以对agenda所包含的文件进行关联。在设置完成后，agenda将会对所包含的文件内容进行整理，以日历、列表、标签等形式将所有的TODO内容整体呈现到你面前，并可对其直接进行操作而不用手动打开某个文件进行修改。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;gtda-idsec-3-namesec-3a&quot;&gt;gtd&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;gtd&quot;&gt;gtd&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;什么是GTD
@@ -1118,7 +1480,7 @@ GTD的核心很简单，就是要清空大脑，按照事先设定好的路线�
 GTD本身是不需要工具的，一个本子一支笔就可以清空大脑开始工作了， 而Emacs提供的是更快捷的操作方式和高效率的组织回顾手段，市面上的GTD类软件也非常之多，很多人直接败在了Emacs相对较高的入门门槛上，我在这里将把我学习使用的过程以自顶向下的方式表述，我想，在文章最后你就应该可以放手去做了。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;a-idsec-4-namesec-4a&quot;&gt;所需文件&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;所需文件&quot;&gt;所需文件&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;inbox.org
@@ -1153,43 +1515,43 @@ task内容归宿，按照tag进行划分
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;a-idsec-5-namesec-5a&quot;&gt;配置项&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;配置项&quot;&gt;配置项&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;emacs.d&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;&lt;span class=&quot;c1&quot;&gt;;;TODO项状态切换&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;setq&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;org-todo-keywords&lt;/span&gt;
-                  &lt;span class=&quot;o&quot;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;sequence&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;TODO(t!)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;NEXT(n)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;WAITTING(w)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;SOMEDAY(s)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;|&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;DONE(d@/!)&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;ABORT(a@/!)&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-                         &lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;;;关联agenda-mode的文件&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;setq&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;org-agenda-files&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/inbox.org&amp;quot;&lt;/span&gt;
-            &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/project.org&amp;quot;&lt;/span&gt;
-            &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/task.org&amp;quot;&lt;/span&gt;
-            &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/finished.org&amp;quot;&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;;;绑定快捷键&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;define-key&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;global-map&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;\C-cc&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;org-capture&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;define-key&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;global-map&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;\C-ca&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;org-agenda&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;;;capture的template&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;setq&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;org-capture-templates&lt;/span&gt;
-                    &lt;span class=&quot;o&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;t&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Todo&amp;quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;entry&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;file+headline&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/inbox.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Tasks&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-                                &lt;span class=&quot;s&quot;&gt;&amp;quot;* TODO %?\n%U  %i&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:prepend&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-                        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;j&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Journal&amp;quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;entry&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;file+datetree&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/finished.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Journals&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-                                &lt;span class=&quot;s&quot;&gt;&amp;quot;* %?\n %T  %i&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-                      &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;n&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Note&amp;quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;entry&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;file+headline&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/notes.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Notes&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-                                        &lt;span class=&quot;s&quot;&gt;&amp;quot;* %U %?\n\n  %i&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:prepend&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:empty-lines&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-                     &lt;span class=&quot;p&quot;&gt;)))&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;;;org-mode下跨文件移动标题设置&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;org-refile-targets&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;quote&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;~/Document/gtd/inbox.org&amp;quot;&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:maxlevel&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;~/Document/gtd/task.org&amp;quot;&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;level&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;.2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))))&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;;;定义快速打开task.org文件的方法并绑定以快捷键&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;defun&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;gtd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-          &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;interactive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-          &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;find-file&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;~/Documents/gtd/task.org&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;global-set-key&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;\C-cz&amp;quot;&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;&amp;#39;gtd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;        ;;TODO项状态切换
+        (setq org-todo-keywords
+                  '((sequence &quot;TODO(t!)&quot; &quot;NEXT(n)&quot; &quot;WAITTING(w)&quot; &quot;SOMEDAY(s)&quot; &quot;|&quot; &quot;DONE(d@/!)&quot; &quot;ABORT(a@/!)&quot;)
+                         ))
+        ;;关联agenda-mode的文件
+        (setq org-agenda-files(list &quot;~/Documents/gtd/inbox.org&quot;
+            &quot;~/Documents/gtd/project.org&quot;
+            &quot;~/Documents/gtd/task.org&quot;
+            &quot;~/Documents/gtd/finished.org&quot;
+        ))
+        ;;绑定快捷键
+        (define-key global-map &quot;\C-cc&quot; 'org-capture)
+        (define-key global-map &quot;\C-ca&quot; 'org-agenda)
+        ;;capture的template
+        (setq org-capture-templates
+                    `((&quot;t&quot; &quot;Todo&quot; entry (file+headline &quot;~/Documents/gtd/inbox.org&quot; &quot;Tasks&quot;)
+                                &quot;* TODO %?\n%U  %i&quot; :prepend t)
+                        (&quot;j&quot; &quot;Journal&quot; entry (file+datetree &quot;~/Documents/gtd/finished.org&quot; &quot;Journals&quot;)
+                                &quot;* %?\n %T  %i&quot;)
+                      (&quot;n&quot; &quot;Note&quot; entry (file+headline &quot;~/Documents/gtd/notes.org&quot; &quot;Notes&quot;)
+                                        &quot;* %U %?\n\n  %i&quot; :prepend t :empty-lines 1
+                     )))
+        ;;org-mode下跨文件移动标题设置
+        '(org-refile-targets (quote ((&quot;~/Document/gtd/inbox.org&quot;:maxlevel . 1) (&quot;~/Document/gtd/task.org&quot; : level .2))))
+        ;;定义快速打开task.org文件的方法并绑定以快捷键
+        (defun gtd()
+          (interactive)
+          (find-file &quot;~/Documents/gtd/task.org&quot;))
+        (global-set-key &quot;\C-cz&quot; 'gtd)&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h1 id=&quot;a-idsec-6-namesec-6a&quot;&gt;流程叙述&lt;a id=&quot;sec-6&quot; name=&quot;sec-6&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;流程叙述&quot;&gt;流程叙述&lt;a id=&quot;sec-6&quot; name=&quot;sec-6&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;可规划任务：
@@ -1208,25 +1570,25 @@ task内容归宿，按照tag进行划分
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;a-idsec-7-namesec-7a&quot;&gt;心得&lt;a id=&quot;sec-7&quot; name=&quot;sec-7&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;心得&quot;&gt;心得&lt;a id=&quot;sec-7&quot; name=&quot;sec-7&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;整套流程并不复杂，可能看起来略显繁琐，很多人一定觉得这样折腾并没有价值。我作为刚开始采用GTD的方式的学生，其实觉得一旦着手这样做之后，不断修改状态或checkout子任务带来的成就感会促使你效率的提升。事先的安排更会清空大脑，做事效率有所提高。
 并且，此流程仅仅是我的习惯，针对不同的工作性质，应该更为私人定制一些。希望读到本文的人能花些时间去尝试一下这种个人管理的方法，面对这一个个的TODO变为DONE，感觉是充实的，会更有干劲去面对接下来的工作，愿本分享能够帮到更多的人。&lt;/p&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/&quot;&gt;用Emacs实现GTD&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/&quot;&gt;用Emacs实现GTD&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[开始使用emacs]]></title>
- <link rel="alternate" type="text/html" href="/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" />
-  <id>/开始使用emacs</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" />
+  <id>http://localhost:4000/开始使用emacs</id>
   <published>2015-08-14T00:00:00+00:00</published>
   <updated>2015-08-14T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -1241,14 +1603,14 @@ task内容归宿，按照tag进行划分
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;h1 id=&quot;a-idsec-1-namesec-1a&quot;&gt;不要从零开始&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;不要从零开始&quot;&gt;不要从零开始&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;现在，功能强大的编辑器层出不穷，比如notepad＋＋，sublime text等，然而，面临这众多的新生代产物，Emacs仍然占有一席地位，因为他是已经超越了编辑器范畴的存在。
 其高度可定制化带来的复杂性和为了便捷操作设定的茫茫多的快捷键，入门难度令人发指。而Emacs又是以拓展能力闻名天下的，很多人在通读help－with－tutorial之后感觉不过尔尔便放弃了。
 陈斌的一篇文章《一年成为Emacs高手》带领很多人走进了Emacs的大门。作为高手，他提供了一个科学的方法论，对于具体的步骤，则需要我们自己步步摸索。本文作为我个人使用emacs过程中的心得总结，希望能帮助到更多的人。
 这里便提出第一个建议，请不要从零开始对emacs进行配置，繁琐的配置可能打消你使用他的积极性。所以采用大神的配置，直接知其然，再试图知其所以然。甚至你不必探寻配置细节，直接感受其魅力所在。&lt;/p&gt;
 
-&lt;h1 id=&quot;a-idsec-2-namesec-2a&quot;&gt;安装、配置&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;安装配置&quot;&gt;安装、配置&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -1285,7 +1647,7 @@ task内容归宿，按照tag进行划分
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;a-idsec-3-namesec-3a&quot;&gt;基本知识&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;基本知识&quot;&gt;基本知识&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;快捷键：
@@ -1309,20 +1671,20 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 执行一个程序，配置插件后会根据你输入的内容自动补全&lt;/li&gt;
 &lt;/ul&gt;
 
-    &lt;p&gt;&lt;a href=&quot;/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/&quot;&gt;开始使用emacs&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/&quot;&gt;开始使用emacs&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
   </content>
 </entry>
 
 
 <entry>
   <title type="html"><![CDATA[Emacs基本操作]]></title>
- <link rel="alternate" type="text/html" href="/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" />
-  <id>/Emacs基本操作</id>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" />
+  <id>http://localhost:4000/Emacs基本操作</id>
   <published>2015-08-14T00:00:00+00:00</published>
   <updated>2015-08-14T00:00:00+00:00</updated>
   <author>
     <name>Frank Weapon</name>
-    <uri></uri>
+    <uri>http://localhost:4000</uri>
     <email>helldarkfire@gmail.com</email>
   </author>
   <content type="html">
@@ -1350,7 +1712,7 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 
 &lt;p&gt;Emacs功能与Vim有重叠部分，如果激活了Evil的话，可以用Vim的方式进行很多操作，而不必再次记忆Emacs快捷键&lt;/p&gt;
 
-&lt;h1 id=&quot;bufferwindowa-idsec-1-namesec-1a&quot;&gt;文件、buffer、window操作&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;文件bufferwindow操作&quot;&gt;文件、buffer、window操作&lt;a id=&quot;sec-1&quot; name=&quot;sec-1&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;以下快捷键均以 C-x 开始&lt;/p&gt;
 
@@ -1460,7 +1822,7 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h1 id=&quot;a-idsec-2-namesec-2a&quot;&gt;光标的移动&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;光标的移动&quot;&gt;光标的移动&lt;a id=&quot;sec-2&quot; name=&quot;sec-2&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;Evil很强大，会覆盖掉部分默认的移动方式，若开启Evil请熟悉Vim&lt;/p&gt;
 
@@ -1576,7 +1938,7 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h1 id=&quot;a-idsec-3-namesec-3a&quot;&gt;文本编辑&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;文本编辑&quot;&gt;文本编辑&lt;a id=&quot;sec-3&quot; name=&quot;sec-3&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
 
@@ -1678,7 +2040,7 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h1 id=&quot;a-idsec-4-namesec-4a&quot;&gt;帮助&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;帮助&quot;&gt;帮助&lt;a id=&quot;sec-4&quot; name=&quot;sec-4&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;以下命令均以C-h开始&lt;/p&gt;
 
@@ -1728,11 +2090,11 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h1 id=&quot;org-modea-idsec-5-namesec-5a&quot;&gt;org-mode&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+&lt;h1 id=&quot;org-mode&quot;&gt;org-mode&lt;a id=&quot;sec-5&quot; name=&quot;sec-5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
 
 &lt;p&gt;org-mode功能很强大，这里仅介绍快捷键以备查看&lt;/p&gt;
 
-&lt;h2 id=&quot;a-idsec-5-1-namesec-5-1a&quot;&gt;大纲&lt;a id=&quot;sec-5-1&quot; name=&quot;sec-5-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;大纲&quot;&gt;大纲&lt;a id=&quot;sec-5-1&quot; name=&quot;sec-5-1&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -1884,7 +2246,7 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idsec-5-2-namesec-5-2a&quot;&gt;文本&lt;a id=&quot;sec-5-2&quot; name=&quot;sec-5-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;文本&quot;&gt;文本&lt;a id=&quot;sec-5-2&quot; name=&quot;sec-5-2&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -1940,12 +2302,12 @@ description&lt;/p&gt;
       &lt;li&gt;&lt;span class=&quot;underline&quot;&gt;下划线&lt;/span&gt;&lt;/li&gt;
       &lt;li&gt;下标： H&lt;sub&gt;2&lt;/sub&gt; O&lt;/li&gt;
       &lt;li&gt;上标： E=mc&lt;sup&gt;2&lt;/sup&gt;&lt;/li&gt;
-      &lt;li&gt;等宽： &lt;code&gt;GIT&lt;/code&gt; 或 &lt;code&gt;GIT&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;等宽： &lt;code class=&quot;highlighter-rouge&quot;&gt;GIT&lt;/code&gt; 或 &lt;code class=&quot;highlighter-rouge&quot;&gt;GIT&lt;/code&gt;&lt;/li&gt;
     &lt;/ol&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idsec-5-3-namesec-5-3a&quot;&gt;表格&lt;a id=&quot;sec-5-3&quot; name=&quot;sec-5-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;表格&quot;&gt;表格&lt;a id=&quot;sec-5-3&quot; name=&quot;sec-5-3&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
   &lt;li&gt;
@@ -2042,7 +2404,7 @@ description&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;a-idsec-5-4-namesec-5-4a&quot;&gt;列表&lt;a id=&quot;sec-5-4&quot; name=&quot;sec-5-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;列表&quot;&gt;列表&lt;a id=&quot;sec-5-4&quot; name=&quot;sec-5-4&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
 
@@ -2114,7 +2476,7 @@ description&lt;/p&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h2 id=&quot;a-idsec-5-5-namesec-5-5a&quot;&gt;标记&lt;a id=&quot;sec-5-5&quot; name=&quot;sec-5-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;标记&quot;&gt;标记&lt;a id=&quot;sec-5-5&quot; name=&quot;sec-5-5&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;table border=&quot;2&quot; cellspacing=&quot;0&quot; cellpadding=&quot;6&quot; rules=&quot;groups&quot; frame=&quot;hsides&quot;&gt;
 
@@ -2150,24 +2512,24 @@ description&lt;/p&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;h2 id=&quot;a-idsec-5-6-namesec-5-6a&quot;&gt;内容原数据&lt;a id=&quot;sec-5-6&quot; name=&quot;sec-5-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;内容原数据&quot;&gt;内容原数据&lt;a id=&quot;sec-5-6&quot; name=&quot;sec-5-6&quot;&gt;&lt;/a&gt;&lt;/h2&gt;
 
 &lt;p&gt;以 #+ 开始，标记文档内容。&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;&lt;span class=&quot;err&quot;&gt;#切换正常分行&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_VERSE&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-lisp&quot; data-lang=&quot;lisp&quot;&gt;    #切换正常分行
+    #+BEGIN_VERSE
 
-    &lt;span class=&quot;err&quot;&gt;#引用、左右均有部分缩进&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_QUOTE&lt;/span&gt;
+    #引用、左右均有部分缩进
+    #+BEGIN_QUOTE
 
-    &lt;span class=&quot;err&quot;&gt;#居中&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_CENTER&lt;/span&gt;
+    #居中
+    #+BEGIN_CENTER
 
-    &lt;span class=&quot;err&quot;&gt;#代码&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;#+&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;BEGIN_SRC&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;java&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    #代码
+    #+BEGIN_SRC java&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 
-    &lt;p&gt;&lt;a href=&quot;/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/&quot;&gt;Emacs基本操作&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/&quot;&gt;Emacs基本操作&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on August 14, 2015.&lt;/p&gt;
   </content>
 </entry>
 
