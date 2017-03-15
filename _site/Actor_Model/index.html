@@ -1,0 +1,475 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Actor Model (参与者模式)思想与实例 &#8211; Weapon's Journal</title>
+<meta name="description" content="Personal technical Summary">
+<meta name="keywords" content="concurrency">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://localhost:4000/images/">
+<meta name="twitter:title" content="Actor Model (参与者模式)思想与实例">
+<meta name="twitter:description" content="Personal technical Summary">
+<meta name="twitter:creator" content="@FrankWeapon">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Actor Model (参与者模式)思想与实例">
+<meta property="og:description" content="Personal technical Summary">
+<meta property="og:url" content="http://localhost:4000/Actor_Model/">
+<meta property="og:site_name" content="Weapon's Journal">
+
+
+
+
+
+<link rel="canonical" href="http://localhost:4000/Actor_Model/">
+<link href="http://localhost:4000/feed.xml" type="application/atom+xml" rel="alternate" title="Weapon's Journal Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://localhost:4000/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="http://localhost:4000/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://localhost:4000/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://localhost:4000/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://localhost:4000/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://localhost:4000/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="http://localhost:4000/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="http://localhost:4000/images/avatar.jpg" alt="Frank Weapon photo" class="author-photo">
+					<h4>Frank Weapon</h4>
+					<p>A student majoring CS, A person makes living by programming</p>
+				</li>
+				<li><a href="http://localhost:4000/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:helldarkfire@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				<li>
+					<a href="http://twitter.com/FrankWeapon"><i class="fa fa-fw fa-twitter"></i> Twitter</a>
+				</li>
+				<li>
+					<a href="http://facebook.com/Martin Frank"><i class="fa fa-fw fa-facebook"></i> Facebook</a>
+				</li>
+				<li>
+					<a href="https://google.com/+weapon frank"><i class="fa fa-fw fa-google-plus"></i> Google+</a>
+				</li>
+				
+				<li>
+					<a href="http://github.com/FrankWeapon"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="http://localhost:4000/posts/">All Posts</a></li>
+				<li><a href="http://localhost:4000/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="https://github.com/FrankWeapon" target="_blank">GitHub</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="http://localhost:4000/Actor_Model/" rel="bookmark" title="Actor Model (参与者模式)思想与实例">Actor Model (参与者模式)思想与实例</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-03-15T00:00:00+00:00">March 15, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+          Reading time ~5 minutes
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <ul id="markdown-toc">
+  <li><a href="#actor-model-设计思想" id="markdown-toc-actor-model-设计思想">Actor Model 设计思想</a></li>
+  <li><a href="#同步问题编程实例哲学家就餐问题" id="markdown-toc-同步问题编程实例哲学家就餐问题">同步问题编程实例(哲学家就餐问题)</a>    <ul>
+      <li><a href="#哲学家就餐问题描述" id="markdown-toc-哲学家就餐问题描述">哲学家就餐问题描述</a></li>
+      <li><a href="#locks" id="markdown-toc-locks">Locks</a></li>
+      <li><a href="#actors" id="markdown-toc-actors">Actors</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="actor-model-设计思想">Actor Model 设计思想</h1>
+<p>Actor Model（参与者模型）简化并发而产生，它将系统中的所有组件都视为 Actor（参与者），参与者之间通过发送消息来实现交互。每个 Actor 同时只能处理一个消息，也可以发送消息给其他参与者，而大量的参与者同时存在则构成了并行化。
+Actor Model 中的消息为异步非阻塞式的消息传递，也就是说消息发送之后可以进行其他操作，当接收到接收方发送的返回消息时可以进行后续操作。因为 Actor 之间只能通过消息进行交互，也就是说不存在共享内存空间，这就省去了锁的操作。
+Actor 通过隔离控制和计算实体来实现封装，相比使用锁来进行同步控制而言，简化了并行的实现难度。
+参与者模式在1973年由 Carl Hewitt 等人发表的论文中提出<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>，后来这种思想被应用于面向对象的并发编程语言中，其中最有名的当属 Erlang 以及 Scala。Apache 的 Akka 是实现了 Actor Model 的 library，支持 Java 以及 Scala。
+在 Hadoop MapReduce v2 之后的版本中，Actor Model 就被用于其各个松耦合组件之间的通信。每个组件都维护其自己的状态机，由事件驱动状态机的变迁，在变迁发生时执行相关逻辑操作。
+在通常的思路中，我们用线程来实现并发，用锁来控制共享内存中的同步互斥问题。然而，线程本身属于相对昂贵的资源，对于程序员的水平要求相对较高。对线程的不当使用将容易导致死锁问题的产生，而且大量线程的等待也对系统资源是一种浪费。
+在 Actor Model 中使用基于事件驱动的编程模型，这种异步非阻塞的变成方式天生支持并发。且不需要涉及到对线程和锁的控制，可以使程序员关注于逻辑本身，降低了实现并发的难度。
+不过，使用 Actor Model 进行编程需要思路上的转变，从顺序执行的程序转为事件驱动的模型可能会在一定程度上让程序本身更难以理解。
+必须提到的是，对并行的控制（也就是同步）一定存在局部串行化。Actor Model 本身是一种抽象模型，对于使用者而言可以做到不使用锁，而锁将存在于更底层的位置来保证对并发的控制。
+比如 Erlang 和 akka 对上层提供的 API 并不需要锁，而其复杂的并发控制分别将锁实现在编程语言级别和框架级别。也就是说 Actor Model 和线程不是同一个抽象级别的问题，Actor Model 提供了更高的抽象级别。</p>
+
+<h1 id="同步问题编程实例哲学家就餐问题">同步问题编程实例(哲学家就餐问题)</h1>
+<p>这里对哲学家就餐问题分别使用锁的机制以及 Actor Model 进行实现，以此表现 Actor Model 的抽象能力。
+这里参考文章 <em>Locks, Actors, And Stm In Pictures</em><sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>，原文中详细介绍了Lock, Actor 再加上 Transaction 共三种方案在思想上的不同，并用卡通图进行辅助说明，在这里不做翻译只进行关键部分的转述。
+Actor Model 的实现使用框架celluloid<sup id="fnref:3"><a href="#fn:3" class="footnote">3</a></sup>，算法采用 Ruby 实现。</p>
+<h2 id="哲学家就餐问题描述">哲学家就餐问题描述</h2>
+<p>1965年，Dijkstra提出并解决了一个他称之为哲学家就餐的同步问题。该问题可简单描述为：5个哲学家围坐在一个圆桌上，每两个哲学家之间都有一只筷子，哲学家平时进行思考，只有当他们饥饿时，才拿起筷子吃饭。只有同时获得左右两只筷子他们才可以开始吃饭，吃饭后放下筷子继续思考。
+关键问题是，是否可以给出一段描述其行为的程序且保证不会发生死锁。 这里使用带有 Waiter 的算法。</p>
+<h2 id="locks">Locks</h2>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'thread'</span>
+
+<span class="k">class</span> <span class="nc">Waiter</span>
+  <span class="k">def</span> <span class="nf">initialize</span>
+    <span class="vi">@mutex</span> <span class="o">=</span> <span class="no">Mutex</span><span class="p">.</span><span class="nf">new</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">can_eat?</span> <span class="n">philosopher</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">philosopher</span><span class="p">.</span><span class="nf">left_fork</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">philosopher</span><span class="p">.</span><span class="nf">right_fork</span>
+    <span class="vi">@mutex</span><span class="p">.</span><span class="nf">synchronize</span> <span class="k">do</span>
+      <span class="k">if</span> <span class="o">!</span><span class="n">left</span><span class="p">.</span><span class="nf">used</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">right</span><span class="p">.</span><span class="nf">used</span>
+        <span class="n">left</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">true</span>
+        <span class="n">right</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">true</span>
+        <span class="k">return</span> <span class="kp">true</span>
+      <span class="k">else</span>
+        <span class="k">return</span> <span class="kp">false</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">stop_eating</span> <span class="n">philosopher</span>
+    <span class="vi">@mutex</span><span class="p">.</span><span class="nf">synchronize</span> <span class="k">do</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">left_fork</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">false</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">right_fork</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Philosopher</span>
+  <span class="kp">attr_accessor</span> <span class="ss">:left_fork</span><span class="p">,</span> <span class="ss">:right_fork</span>
+
+  <span class="c1"># 创建哲学家时指定其对应左右筷子，开始为思考状态</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">left_fork</span><span class="p">,</span> <span class="n">right_fork</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)</span>
+    <span class="vi">@name</span> <span class="o">=</span> <span class="nb">name</span>
+    <span class="vi">@left_fork</span> <span class="o">=</span> <span class="n">left_fork</span>
+    <span class="vi">@right_fork</span> <span class="o">=</span> <span class="n">right_fork</span>
+    <span class="vi">@waiter</span> <span class="o">=</span> <span class="n">waiter</span>
+    <span class="n">think</span>
+  <span class="k">end</span>
+
+  <span class="c1"># 思考一定时间后处于饥饿状态，试图进食</span>
+  <span class="k">def</span> <span class="nf">think</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> is thinking..."</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">())</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> is hungry..."</span>
+    <span class="n">dine</span>
+  <span class="k">end</span>
+
+  <span class="c1"># 等待判断是否可以进食，进食完成后继续思考</span>
+  <span class="k">def</span> <span class="nf">dine</span>
+    <span class="k">while</span> <span class="o">!</span><span class="vi">@waiter</span><span class="p">.</span><span class="nf">can_eat?</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+      <span class="n">think</span>
+    <span class="k">end</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> eats..."</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">())</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> belches"</span>
+    <span class="vi">@waiter</span><span class="p">.</span><span class="nf">stop_eating</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="n">think</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">forks</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">class</span> <span class="nc">Fork</span>
+  <span class="kp">attr_accessor</span> <span class="ss">:used</span>
+  <span class="k">def</span> <span class="nf">initialize</span>
+    <span class="vi">@used</span> <span class="o">=</span> <span class="kp">false</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="nf">.</span><span class="n">n</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+  <span class="n">forks</span> <span class="o">&lt;&lt;</span> <span class="no">Fork</span><span class="p">.</span><span class="nf">new</span>
+<span class="k">end</span>
+
+<span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">waiter</span> <span class="o">=</span> <span class="no">Waiter</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="c1"># 为每个哲学家创建线程，为其分配筷子（圆桌)</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="nf">.</span><span class="n">n</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+  <span class="n">threads</span> <span class="o">&lt;&lt;</span> <span class="no">Thread</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span>
+      <span class="n">left_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">right_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span>
+      <span class="c1"># special case for philosopher #5 because he gets forks #5 and #1</span>
+      <span class="c1"># and the left fork is always the lower id because that's the one we try first.</span>
+      <span class="n">left_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">right_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="k">end</span>
+    <span class="no">Philosopher</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">left_fork</span><span class="p">,</span> <span class="n">right_fork</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># 迭代启动线程</span>
+<span class="n">threads</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span><span class="o">|</span><span class="n">thread</span><span class="o">|</span> <span class="n">thread</span><span class="p">.</span><span class="nf">join</span><span class="p">}</span>
+</code></pre>
+</div>
+<h2 id="actors">Actors</h2>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'rubygems'</span>
+<span class="nb">require</span> <span class="s1">'celluloid'</span>
+
+<span class="k">class</span> <span class="nc">Waiter</span>
+  <span class="kp">include</span> <span class="no">Celluloid</span>
+  <span class="c1"># 设置标记表示筷子可用状态</span>
+  <span class="no">FORK_FREE</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="no">FORK_USED</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="kp">attr_reader</span> <span class="ss">:philosophers</span>
+  <span class="kp">attr_reader</span> <span class="ss">:forks</span>
+  <span class="kp">attr_reader</span> <span class="ss">:eating</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">forks</span><span class="p">)</span>
+    <span class="vi">@philosophers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="vi">@eating</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="vi">@forks</span> <span class="o">=</span> <span class="no">Array</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">forks</span><span class="p">,</span> <span class="no">FORK_FREE</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">welcome</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="vi">@philosophers</span> <span class="o">&lt;&lt;</span> <span class="n">philosopher</span>
+    <span class="c1"># 异步发送事件，使哲学家开始思考</span>
+    <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">think</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">hungry</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="vi">@philosophers</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+
+    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">pos</span>
+    <span class="n">right_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="vi">@forks</span><span class="p">.</span><span class="nf">size</span>
+    <span class="c1"># 判断哲学家左右两侧筷子是否可用</span>
+    <span class="k">if</span> <span class="vi">@forks</span><span class="p">[</span><span class="n">left_pos</span><span class="p">]</span> <span class="o">==</span> <span class="no">FORK_FREE</span> <span class="o">&amp;&amp;</span> <span class="vi">@forks</span><span class="p">[</span><span class="n">right_pos</span><span class="p">]</span> <span class="o">==</span> <span class="no">FORK_FREE</span>
+      <span class="vi">@forks</span><span class="p">[</span><span class="n">left_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_USED</span>
+      <span class="vi">@forks</span><span class="p">[</span><span class="n">right_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_USED</span>
+      <span class="c1"># 当前哲学家加入进食队列并发送事件</span>
+      <span class="vi">@eating</span> <span class="o">&lt;&lt;</span> <span class="n">philosopher</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">eat</span>
+    <span class="k">else</span>
+      <span class="c1"># 暂时不能进食，继续思考</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">think</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c1"># 使某哲学家进食后释放筷子资源</span>
+  <span class="k">def</span> <span class="nf">drop_forks</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="vi">@philosophers</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">pos</span>
+    <span class="n">right_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="vi">@forks</span><span class="p">.</span><span class="nf">size</span>
+    <span class="vi">@forks</span><span class="p">[</span><span class="n">left_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_FREE</span>
+    <span class="vi">@forks</span><span class="p">[</span><span class="n">right_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_FREE</span>
+    <span class="vi">@eating</span> <span class="o">-=</span> <span class="p">[</span><span class="n">philosopher</span><span class="p">]</span>
+    <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">think</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Philosopher</span>
+  <span class="kp">include</span> <span class="no">Celluloid</span>
+  <span class="kp">attr_reader</span> <span class="ss">:name</span>
+  <span class="kp">attr_reader</span> <span class="ss">:waiter</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)</span>
+    <span class="vi">@name</span> <span class="o">=</span> <span class="nb">name</span>
+    <span class="vi">@waiter</span> <span class="o">=</span> <span class="n">waiter</span>
+    <span class="c1"># 向 Waiter 注册自身</span>
+    <span class="n">waiter</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">welcome</span><span class="p">(</span><span class="no">Actor</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">think</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> is thinking"</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">)</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> gets hungry"</span>
+    <span class="n">waiter</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">hungry</span><span class="p">(</span><span class="no">Actor</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">eat</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> is eating"</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">)</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> burps"</span>
+    <span class="n">waiter</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">drop_forks</span><span class="p">(</span><span class="no">Actor</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">names</span> <span class="o">=</span> <span class="sx">%w{Heraclitus Aristotle Epictetus Schopenhauer Popper}</span>
+<span class="n">waiter</span> <span class="o">=</span> <span class="no">Waiter</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">names</span><span class="p">.</span><span class="nf">size</span><span class="p">)</span>
+<span class="c1"># 实例化所有哲学家，initialize方法中发送事件, 整个程序将被驱动开始运行</span>
+<span class="n">philosophers</span> <span class="o">=</span> <span class="n">names</span><span class="p">.</span><span class="nf">map</span> <span class="p">{</span><span class="o">|</span><span class="nb">name</span><span class="o">|</span> <span class="no">Philosopher</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)}</span>
+<span class="c1"># 程序运行结束，进程休眠</span>
+<span class="nb">sleep</span>
+</code></pre>
+</div>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>Carl Hewitt; Peter Bishop and Richard Steiger. A Universal Modular Actor Formalism for Artificial Intelligence. IJCAI. 1973&nbsp;<a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>http://adit.io/posts/2013-05-15-Locks,-Actors,-And-STM-In-Pictures.html&nbsp;<a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>https://github.com/celluloid/celluloid&nbsp;<a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="http://localhost:4000/tags/#concurrency" title="Pages tagged concurrency" class="tag"><span class="term">concurrency</span></a></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:4000/Actor_Model/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=http://localhost:4000/Actor_Model/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=http://localhost:4000/Actor_Model/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div id="disqus_thread"></div>
+
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://http-frankweapon-github-io.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-YARN 流程分析">Hadoop-YARN 流程分析</a></h3>
+      <p>  MR v1 与 MR v2  Apache YARN          YARN 组成结构      YARN 通信协议      YARN 工作流程      YARN 编程模型        MRAppMaster 分析MR v1 与 MR v2MapReduce ...&hellip; <a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-MapReduce-task流程分析">Hadoop-MapReduce-task流程分析</a></h4>
+        <span>Published on March 02, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="http://localhost:4000/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BANFS/" title="Ubuntu 下搭建 NFS">Ubuntu 下搭建 NFS</a></h4>
+        <span>Published on June 06, 2016</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+    
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 Frank Weapon. </span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://localhost:4000/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://localhost:4000/assets/js/scripts.min.js"></script>
+
+
+
+
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'helldarkfire@gmail.com'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+<script id="dsq-count-scr" src="//http-frankweapon-github-io.disqus.com/count.js" async></script>
+</body>
+</html>

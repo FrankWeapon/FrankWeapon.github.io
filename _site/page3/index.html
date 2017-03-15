@@ -139,17 +139,17 @@
   <header>
     
     <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="http://localhost:4000/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      <span class="entry-date date published updated"><time datetime="2015-11-16T00:00:00+00:00"><a href="http://localhost:4000/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/">November 16, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
         <i class="fa fa-clock-o"></i>
         
-        Reading time ~1 minute
+        Reading time ~2 minutes
       </span><!-- /.entry-reading-time -->
       
     </div><!-- /.entry-meta -->
     
-      <h1 class="entry-title"><a href="http://localhost:4000/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/" rel="bookmark" title="用Emacs实现GTD" itemprop="url">用Emacs实现GTD</a></h1>
+      <h1 class="entry-title"><a href="http://localhost:4000/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/" rel="bookmark" title="OpenStack-组件安装" itemprop="url">OpenStack-组件安装</a></h1>
     
   </header>
   <div class="entry-content">
@@ -157,1102 +157,682 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1. 整体流程图</a></li>
-<li><a href="#sec-2">2. Emacs相关模式介绍</a></li>
-<li><a href="#sec-3">3. gtd</a></li>
-<li><a href="#sec-4">4. 所需文件</a></li>
-<li><a href="#sec-5">5. 配置项</a></li>
-<li><a href="#sec-6">6. 流程叙述</a></li>
-<li><a href="#sec-7">7. 心得</a></li>
+<li><a href="#sec-1">1. controller</a>
+<ul>
+<li><a href="#sec-1-1">1.1. 注意事项</a></li>
+<li><a href="#sec-1-2">1.2. Identity Service</a></li>
+<li><a href="#sec-1-3">1.3. Image Service</a></li>
+<li><a href="#sec-1-4">1.4. Compute Service</a></li>
+<li><a href="#sec-1-5">1.5. Network Service</a></li>
+<li><a href="#sec-1-6">1.6. DashBoard</a></li>
 </ul>
-</div>
-</div>
-
-<h1 id="整体流程图">整体流程图<a id="sec-1" name="sec-1"></a></h1>
-
-<p>整体内容的文字叙述比较难懂，给一张思维导图放在前面，请将后续表述与图中内容做对应以了解流程，针对各处操作未做太详尽描述，相信各位查阅资料能够解决问题，有问题的朋友可以联系我。
-<img src="/assets/upload/gtd_guide.png" alt="GTD流程" /></p>
-
-<h1 id="emacs相关模式介绍">Emacs相关模式介绍<a id="sec-2" name="sec-2"></a></h1>
-
+</li>
+<li><a href="#sec-2">2. network</a>
 <ul>
-  <li>org-mode
-关于该模式，网络上相关介绍非常之多，大概说来就是一个Mark-Down语法来编辑内容，并且通过Emacs内置功能可以极其方便的对内容格式进行组织操作，在阅读网上相关例程后参考上文中快捷键介绍，相信你可以很快熟悉该模式。</li>
-  <li>capture-mode
-在Emacs的以前版本，还有一个叫remember-mode的东西，两者功能非常相近，若是使用最新版本的Emacs，可以不管remember－mode，直接使用capture-mode进行内容的抓取。
-该模式支持模版化操作，使用快捷键呼出capture-mode之后，将通过快捷键选择你预先设定好的模板，并随后输入内容保存到指定位置。</li>
-  <li>agenda-mode
-agenda作为Emacs的一种模式，并不是用于编辑，而是用于审阅。 在配置文件中可以对agenda所包含的文件进行关联。在设置完成后，agenda将会对所包含的文件内容进行整理，以日历、列表、标签等形式将所有的TODO内容整体呈现到你面前，并可对其直接进行操作而不用手动打开某个文件进行修改。</li>
+<li><a href="#sec-2-1">2.1. 组件介绍</a></li>
+<li><a href="#sec-2-2">2.2. Network Service</a></li>
+<li><a href="#sec-2-3">2.3. 创建网络</a></li>
 </ul>
-
-<h1 id="gtd">gtd<a id="sec-3" name="sec-3"></a></h1>
-
+</li>
+<li><a href="#sec-3">3. compute</a>
 <ul>
-  <li>什么是GTD
-GTD的核心很简单，就是要清空大脑，按照事先设定好的路线一步步将工作做完。关于这方面的书籍有很多，最出名的莫过于《Getting things done 尽管去做——无压工作的艺术》。
-作为我的个人管理方式，主要就是收集－&gt;整理-&gt;组织－&gt;行动－&gt;回顾 这五步进行循环，首先把需要做的事情都记录在案，然后将整体内容进行分化不同类别，再针对每一个任务进行细化，接下来一步步去执行，最后将结果进行回顾。
-个人管理也是一门学问，想要深入了解恐怕需要认真阅读以下相关书籍，这里不再详述</li>
-  <li>GTD与Emacs
-我想关于GTD，每个人都有自己不同的理解，更是有适合自己的一套工作流，而诸多关于利用Emacs进行GTD的博客文章介绍的并非十分详实，这里我想把我个人的流程分享出来。我作为初学者仅仅是刚掌握了一些理论，在很多细节问题上仍然需要不断的完善和改进，在这过程中我会不断维护此文章。
-GTD本身是不需要工具的，一个本子一支笔就可以清空大脑开始工作了， 而Emacs提供的是更快捷的操作方式和高效率的组织回顾手段，市面上的GTD类软件也非常之多，很多人直接败在了Emacs相对较高的入门门槛上，我在这里将把我学习使用的过程以自顶向下的方式表述，我想，在文章最后你就应该可以放手去做了。</li>
-</ul>
-
-<h1 id="所需文件">所需文件<a id="sec-4" name="sec-4"></a></h1>
-
-<ul>
-  <li>inbox.org
-作为第一步的落脚点，周围所有杂事将在这里驻足
-    <ol>
-      <li>使用Capture-mode将目前所能想到的事情进行收集，保存到inbox.org中</li>
-      <li>在每天早上对inbox进行填充，分解，清理，把插入的内容分配到project.org以及task.org两个文件中去</li>
-      <li>工作中遇到突发事件，两分钟以内能解决的就马上办，否则Capture到inbox中</li>
-    </ol>
-  </li>
-  <li>task.org
-一次性或短期任务将从inbox中细化至此
-    <ol>
-      <li>早上对当天任务的预先规划，包括打上相关标签、设定子任务（使用checkbox）等</li>
-      <li>在工作过程中逐步将子任务打勾完成，将TODO状态转移至其他状态</li>
-      <li>晚上将task内容迁移到finish.org中</li>
-    </ol>
-  </li>
-  <li>project.org
-长远计划或项目计划
-    <ol>
-      <li>从inbox中抽象出project的内容，并做大致规划，不一定成为TODO项，但经常检阅</li>
-      <li>随着项目推进，可以对项目完成度进行审核，计时</li>
-    </ol>
-  </li>
-  <li>finished.org
-task内容归宿，按照tag进行划分
-    <ol>
-      <li>capture-mode添加datetree模板，每日添加记录，进行总结</li>
-      <li>task内容移入每日记录下并打标签</li>
-    </ol>
-  </li>
-</ul>
-
-<h1 id="配置项">配置项<a id="sec-5" name="sec-5"></a></h1>
-
-<ul>
-  <li>emacs.d</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-lisp" data-lang="lisp">        ;;TODO项状态切换
-        (setq org-todo-keywords
-                  '((sequence "TODO(t!)" "NEXT(n)" "WAITTING(w)" "SOMEDAY(s)" "|" "DONE(d@/!)" "ABORT(a@/!)")
-                         ))
-        ;;关联agenda-mode的文件
-        (setq org-agenda-files(list "~/Documents/gtd/inbox.org"
-            "~/Documents/gtd/project.org"
-            "~/Documents/gtd/task.org"
-            "~/Documents/gtd/finished.org"
-        ))
-        ;;绑定快捷键
-        (define-key global-map "\C-cc" 'org-capture)
-        (define-key global-map "\C-ca" 'org-agenda)
-        ;;capture的template
-        (setq org-capture-templates
-                    `(("t" "Todo" entry (file+headline "~/Documents/gtd/inbox.org" "Tasks")
-                                "* TODO %?\n%U  %i" :prepend t)
-                        ("j" "Journal" entry (file+datetree "~/Documents/gtd/finished.org" "Journals")
-                                "* %?\n %T  %i")
-                      ("n" "Note" entry (file+headline "~/Documents/gtd/notes.org" "Notes")
-                                        "* %U %?\n\n  %i" :prepend t :empty-lines 1
-                     )))
-        ;;org-mode下跨文件移动标题设置
-        '(org-refile-targets (quote (("~/Document/gtd/inbox.org":maxlevel . 1) ("~/Document/gtd/task.org" : level .2))))
-        ;;定义快速打开task.org文件的方法并绑定以快捷键
-        (defun gtd()
-          (interactive)
-          (find-file "~/Documents/gtd/task.org"))
-        (global-set-key "\C-cz" 'gtd)</code></pre></figure>
-
-<h1 id="流程叙述">流程叙述<a id="sec-6" name="sec-6"></a></h1>
-
-<ul>
-  <li>可规划任务：
-    <ol>
-      <li>早晨开始工作前进行内容整理，清空inbox，将任务分配至task,project中，并视情况标记deadline和优先级</li>
-      <li>一天的工作中以agenda作为里程碑，逐步干掉所有任务(包括task以及project)</li>
-      <li>晚上通过capture建立finished中对应日期树，写总结并将完成的任务打标记移入finished中</li>
-    </ol>
-  </li>
-  <li>临时事件：
-    <ol>
-      <li>预估事件处理事件，2分钟内立即着手解决</li>
-      <li>超过两分钟的事件capture到inbox中，待下一番茄钟进行规划</li>
-      <li>未能及时处理或特殊情况的事件待第二天早上整理清空inbox</li>
-    </ol>
-  </li>
-</ul>
-
-<h1 id="心得">心得<a id="sec-7" name="sec-7"></a></h1>
-
-<p>整套流程并不复杂，可能看起来略显繁琐，很多人一定觉得这样折腾并没有价值。我作为刚开始采用GTD的方式的学生，其实觉得一旦着手这样做之后，不断修改状态或checkout子任务带来的成就感会促使你效率的提升。事先的安排更会清空大脑，做事效率有所提高。
-并且，此流程仅仅是我的习惯，针对不同的工作性质，应该更为私人定制一些。希望读到本文的人能花些时间去尝试一下这种个人管理的方法，面对这一个个的TODO变为DONE，感觉是充实的，会更有干劲去面对接下来的工作，愿本分享能够帮到更多的人。</p>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="http://localhost:4000/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/%E5%BC%80%E5%A7%8B%E4%BD%BF%E7%94%A8emacs/" rel="bookmark" title="开始使用emacs" itemprop="url">开始使用emacs</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. 不要从零开始</a></li>
-<li><a href="#sec-2">2. 安装、配置</a></li>
-<li><a href="#sec-3">3. 基本知识</a></li>
-</ul>
-</div>
-</div>
-
-<h1 id="不要从零开始">不要从零开始<a id="sec-1" name="sec-1"></a></h1>
-
-<p>现在，功能强大的编辑器层出不穷，比如notepad＋＋，sublime text等，然而，面临这众多的新生代产物，Emacs仍然占有一席地位，因为他是已经超越了编辑器范畴的存在。
-其高度可定制化带来的复杂性和为了便捷操作设定的茫茫多的快捷键，入门难度令人发指。而Emacs又是以拓展能力闻名天下的，很多人在通读help－with－tutorial之后感觉不过尔尔便放弃了。
-陈斌的一篇文章《一年成为Emacs高手》带领很多人走进了Emacs的大门。作为高手，他提供了一个科学的方法论，对于具体的步骤，则需要我们自己步步摸索。本文作为我个人使用emacs过程中的心得总结，希望能帮助到更多的人。
-这里便提出第一个建议，请不要从零开始对emacs进行配置，繁琐的配置可能打消你使用他的积极性。所以采用大神的配置，直接知其然，再试图知其所以然。甚至你不必探寻配置细节，直接感受其魅力所在。</p>
-
-<h1 id="安装配置">安装、配置<a id="sec-2" name="sec-2"></a></h1>
-
-<ul>
-  <li>
-    <p>平台选择</p>
-
-    <p>优先级如下：Mac &gt; 你熟悉的linux发行版 &gt; windows中cygwin &gt; windows直接使用 &gt; 你不熟悉的Linux</p>
-
-    <ol>
-      <li>Mac作为Unix的分支和Linux相似度很高，保持了类似的目录结构和好用的Terminal的同时有丰富的软件资源，并且在很多地方沿用了Emacs的快捷键。</li>
-      <li>没有Mac的环境下选择一款合适的发行版也是不错的，前提是你熟悉Linux，不然还是有点头大的。</li>
-      <li>Cygwin作为windows下模拟Linux环境Terminal的老牌软件，在他的支持下在windows上使用Emacs也还可以接受。</li>
-      <li>windows的目录与Linux严重不同，安装好的Emacs可能在环境变量等问题上遇到些麻烦，所以…</li>
-      <li>Linux环境还是应该熟悉一下，微软大法好，可是作为一个程序员完全不会Linux感觉不太合适。</li>
-    </ol>
-  </li>
-  <li>安装
-    <ol>
-      <li>Mac用户请到<a href="http://emacsformacosx.com">http://emacsformacosx.com</a> 下载安装即可。还有其他版本，我没有用过</li>
-      <li>Linux会自带一个Emacs，可能是Emacs23，有些插件也许与24不同。 为避免掉坑，还是建议删除之，根据不同发行版的源选择安装。</li>
-      <li>cygwin的话在安装的时候可以选择欲安装的包，可以连同git等常用命令行工具一起下载</li>
-    </ol>
-  </li>
-  <li>
-    <p>配置</p>
-
-    <p>我这里所指的配置并不只是配置文件，而是包括很多插件在内的环境搭建。作为入门者，我听从陈斌大神的建议选择了他的配置文件，他的文章中有链接，是github上的一个文件夹。</p>
-
-    <ol>
-      <li>要是之前没用过emacs可跳过这一步, 删除原有的配置文件，一般来讲在 ~/.emacs.d/，没有的话搜索一下。 直接 rm -r 即可。</li>
-      <li>下载到的emacs.d解压到 ~ 下， 改名前面加 . 隐藏该目录。</li>
-      <li>启动Emacs，不出现意外的话将自动下载文件，然后就可以使用了</li>
-      <li>部分网络可能会出现插件网站被墙的情况，这时候需要安装goagent，代理下载文件。 若使用goagent请在配置好相关内容后，从terminal中输入 http<sub>proxy</sub>=<a href="http://127.0.0.1:8087">http://127.0.0.1:8087</a> emacs 进行插件的下载。</li>
-    </ol>
-  </li>
-</ul>
-
-<h1 id="基本知识">基本知识<a id="sec-3" name="sec-3"></a></h1>
-
-<ul>
-  <li>快捷键：
-    <ol>
-      <li><strong>C键:</strong> control，可以理解为和语义无关的控制，比如移动一个字符，移动到行尾等。</li>
-      <li><strong>M键:</strong> meta，可以理解为语义相关控制，比如移动到句首，段尾等。</li>
-      <li><strong>S键:</strong> shift，和其他的组合使用。</li>
-      <li><strong>RET:</strong> return，回车。</li>
-      <li><strong>ESC:</strong> escape。</li>
-    </ol>
-  </li>
-  <li>帮助文档：
-官方文档，并不长，介绍了一些基本用法。 M-x help-with-tutorial（在Emacs中按住Alt 按x 然后输入help-with-tutorial 回车） 花时间阅读一下，记住基本的十几个快捷键后开始使用Emacs吧</li>
-  <li>buffer:
-Emacs中基本的单位，每打开一个文件或者窗体都将打开一个buffer，通过光标控制可以进入指定buffer进行操作，启动Emacs后会自动运行两个buffer（scratch,Messages)</li>
-  <li>window:
-Emacs中一个的界面可以被任意切分，横向、纵向任意数量，使得不同的buffer同时出现在屏幕上</li>
-  <li>frame：
-Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太常用</li>
-  <li>M-x
-执行一个程序，配置插件后会根据你输入的内容自动补全</li>
-</ul>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="http://localhost:4000/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~5 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" rel="bookmark" title="Emacs基本操作" itemprop="url">Emacs基本操作</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. 文件、buffer、window操作</a></li>
-<li><a href="#sec-2">2. 光标的移动</a></li>
-<li><a href="#sec-3">3. 文本编辑</a></li>
-<li><a href="#sec-4">4. 帮助</a></li>
-<li><a href="#sec-5">5. org-mode</a>
-<ul>
-<li><a href="#sec-5-1">5.1. 大纲</a></li>
-<li><a href="#sec-5-2">5.2. 文本</a></li>
-<li><a href="#sec-5-3">5.3. 表格</a></li>
-<li><a href="#sec-5-4">5.4. 列表</a></li>
-<li><a href="#sec-5-5">5.5. 标记</a></li>
-<li><a href="#sec-5-6">5.6. 内容原数据</a></li>
+<li><a href="#sec-3-1">3.1. Compute Service</a></li>
+<li><a href="#sec-3-2">3.2. Network Service</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<p>Emacs功能与Vim有重叠部分，如果激活了Evil的话，可以用Vim的方式进行很多操作，而不必再次记忆Emacs快捷键</p>
+<h1 id="controller">controller<a id="sec-1" name="sec-1"></a></h1>
 
-<h1 id="文件bufferwindow操作">文件、buffer、window操作<a id="sec-1" name="sec-1"></a></h1>
-
-<p>以下快捷键均以 C-x 开始</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">key</td>
-<td class="left">funciton</td>
-</tr>
-
-
-<tr>
-<td class="left">C-f</td>
-<td class="left">打开一个文件</td>
-</tr>
-
-
-<tr>
-<td class="left">C-s</td>
-<td class="left">保存</td>
-</tr>
-
-
-<tr>
-<td class="left">C-w</td>
-<td class="left">另存为</td>
-</tr>
-
-
-<tr>
-<td class="left">C-v</td>
-<td class="left">关闭当前buffer并打开新文件</td>
-</tr>
-
-
-<tr>
-<td class="left">i</td>
-<td class="left">在当前光标处插入内容</td>
-</tr>
-
-
-<tr>
-<td class="left">b</td>
-<td class="left">切换、新建buffer</td>
-</tr>
-
-
-<tr>
-<td class="left">C-b</td>
-<td class="left">显示当前所有buffer列表</td>
-</tr>
-
-
-<tr>
-<td class="left">k</td>
-<td class="left">关闭当前buffer</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c</td>
-<td class="left">退出emacs</td>
-</tr>
-
-
-<tr>
-<td class="left">C-q</td>
-<td class="left">只读、读写模式的切换</td>
-</tr>
-
-
-<tr>
-<td class="left">0</td>
-<td class="left">关闭当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">1</td>
-<td class="left">只保留当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">2</td>
-<td class="left">上下分割当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">3</td>
-<td class="left">左右分割当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">o</td>
-<td class="left">切换到下一个窗口</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="光标的移动">光标的移动<a id="sec-2" name="sec-2"></a></h1>
-
-<p>Evil很强大，会覆盖掉部分默认的移动方式，若开启Evil请熟悉Vim</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-f</td>
-<td class="left">后一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">C-b</td>
-<td class="left">前一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">C-p</td>
-<td class="left">上一行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-n</td>
-<td class="left">下一行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-a</td>
-<td class="left">行首</td>
-</tr>
-
-
-<tr>
-<td class="left">C-e</td>
-<td class="left">行尾</td>
-</tr>
-
-
-<tr>
-<td class="left">M-b</td>
-<td class="left">上一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">M-f</td>
-<td class="left">下一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">M-a</td>
-<td class="left">句首</td>
-</tr>
-
-
-<tr>
-<td class="left">C-e</td>
-<td class="left">句尾</td>
-</tr>
-
-
-<tr>
-<td class="left">M-&lt;</td>
-<td class="left">文件开头</td>
-</tr>
-
-
-<tr>
-<td class="left">M-&gt;</td>
-<td class="left">文件末尾</td>
-</tr>
-
-
-<tr>
-<td class="left">M-g g</td>
-<td class="left">跳到指定行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-v</td>
-<td class="left">向下翻页</td>
-</tr>
-
-
-<tr>
-<td class="left">M-v</td>
-<td class="left">向上翻页</td>
-</tr>
-
-
-<tr>
-<td class="left">C-M-f</td>
-<td class="left">向前匹配括号</td>
-</tr>
-
-
-<tr>
-<td class="left">C-M-b</td>
-<td class="left">向后匹配括号</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="文本编辑">文本编辑<a id="sec-3" name="sec-3"></a></h1>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-@</td>
-<td class="left">设置标记位</td>
-</tr>
-
-
-<tr>
-<td class="left">C-d</td>
-<td class="left">删除后一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">M-d</td>
-<td class="left">删除后一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">C-Del</td>
-<td class="left">删除前一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">M-Del</td>
-<td class="left">删除前一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">C-k</td>
-<td class="left">删除一行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-w</td>
-<td class="left">删除标记区域内容</td>
-</tr>
-
-
-<tr>
-<td class="left">M-w</td>
-<td class="left">复制标记区域内容</td>
-</tr>
-
-
-<tr>
-<td class="left">C-y</td>
-<td class="left">粘贴</td>
-</tr>
-
-
-<tr>
-<td class="left">M-y</td>
-<td class="left">粘贴其他（循环缓冲区)</td>
-</tr>
-
-
-<tr>
-<td class="left">C-t</td>
-<td class="left">交换两个字符位置</td>
-</tr>
-
-
-<tr>
-<td class="left">C-t</td>
-<td class="left">交换两个单词位置</td>
-</tr>
-
-
-<tr>
-<td class="left">M-u n</td>
-<td class="left">重复上个命令n次</td>
-</tr>
-
-
-<tr>
-<td class="left">C-s</td>
-<td class="left">向后搜索</td>
-</tr>
-
-
-<tr>
-<td class="left">C-r</td>
-<td class="left">向前搜索</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="帮助">帮助<a id="sec-4" name="sec-4"></a></h1>
-
-<p>以下命令均以C-h开始</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">m</td>
-<td class="left">查看当前模式</td>
-</tr>
-
-
-<tr>
-<td class="left">c</td>
-<td class="left">查看快捷键绑定的命令</td>
-</tr>
-
-
-<tr>
-<td class="left">k</td>
-<td class="left">显示快捷键绑定的命令的作用</td>
-</tr>
-
-
-<tr>
-<td class="left">f</td>
-<td class="left">显示函数功能</td>
-</tr>
-
-
-<tr>
-<td class="left">b</td>
-<td class="left">查看当前缓冲区的可用快捷键</td>
-</tr>
-
-
-<tr>
-<td class="left">t</td>
-<td class="left">Emacs教程</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="org-mode">org-mode<a id="sec-5" name="sec-5"></a></h1>
-
-<p>org-mode功能很强大，这里仅介绍快捷键以备查看</p>
-
-<h2 id="大纲">大纲<a id="sec-5-1" name="sec-5-1"></a></h2>
+<h2 id="注意事项">注意事项<a id="sec-1-1" name="sec-1-1"></a></h2>
 
 <ul>
-  <li>
-    <p>折叠:</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">S-TAB</td>
-<td class="left">循环整个文档的折叠方式</td>
-</tr>
-    
-    
-<tr>
-<td class="left">TAB</td>
-<td class="left">循环光标所在处折叠方式</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>移动:</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c C-n/p</td>
-<td class="left">上、下一个标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-f/b</td>
-<td class="left">同级标题间上、下移动</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-u</td>
-<td class="left">跳到上级标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-j</td>
-<td class="left">切换大纲浏览状态</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>编辑:</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">M-RET</td>
-<td class="left">插入同级标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-RET</td>
-<td class="left">插入TODO标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-LEFT/RIGHT</td>
-<td class="left">标题升、降级</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-UP/DOWN</td>
-<td class="left">标题上、下移</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-LEFT/RIGHT</td>
-<td class="left">子树升、降级</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-UP/DONW</td>
-<td class="left">子树上、下移</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c \*</td>
-<td class="left">本行切换为标题、正文</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-w</td>
-<td class="left">跨缓冲区移动标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c /</td>
-<td class="left">搜索</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-t</td>
-<td class="left">设定TODO/DONE&#x2026;</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-s</td>
-<td class="left">规划时间</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-d</td>
-<td class="left">设置Deadline</td>
-</tr>
-</tbody>
-</table>
-  </li>
+  <li>安装好组件后使用API执行命令可能会报错Server Internal Error 500。 这多数是由于数据库服务配置不正确导致的。 请检查上一节中提到的数据库安装</li>
+  <li>控制节点的Endpoint可能会由于不正当操作导致异常， 这时其他节点相关服务的日志中会有关于地址解析的日志记录。 可以直接进入数据库相关服务查看endpoints表，若发现其中有localhost.localdomain相关内容可试着改为controller。</li>
 </ul>
 
-<h2 id="文本">文本<a id="sec-5-2" name="sec-5-2"></a></h2>
+<h2 id="identity-service">Identity Service<a id="sec-1-2" name="sec-1-2"></a></h2>
 
 <ul>
-  <li>
-    <p>链接：
-description</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c l</td>
-<td class="left">保存链接</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-l</td>
-<td class="left">创建或修改链接</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-o</td>
-<td class="left">打开链接</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c %</td>
-<td class="left">记录内部链接地址</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c &amp;</td>
-<td class="left">跳转到已记录的内部链接</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>字体：</p>
+  <li>依照官方提供的安装过程并未出现问题</li>
+  <li>请注意安装过程中的几个概念
     <ol>
-      <li><strong>粗体</strong></li>
-      <li><em>斜体</em></li>
-      <li><del>删除线</del></li>
-      <li><span class="underline">下划线</span></li>
-      <li>下标： H<sub>2</sub> O</li>
-      <li>上标： E=mc<sup>2</sup></li>
-      <li>等宽： <code class="highlighter-rouge">GIT</code> 或 <code class="highlighter-rouge">GIT</code></li>
+      <li>Project：一个Project中有自己的quotas（配额，包括该项目中有多少资源权限，可以创建多少虚拟机等）</li>
+      <li>User：可以属于一个或多个Project，包含用户名密码，作为个人登录的凭证。</li>
+      <li>Role：定义了一组操作的权限集合，可赋予User。</li>
     </ol>
   </li>
 </ul>
 
-<h2 id="表格">表格<a id="sec-5-3" name="sec-5-3"></a></h2>
+<h2 id="image-service">Image Service<a id="sec-1-3" name="sec-1-3"></a></h2>
 
 <ul>
   <li>
-    <p>移动</p>
+    <p>执行镜像创建语句</p>
 
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c C-c</td>
-<td class="left">调整表格，不移动光标</td>
-</tr>
-    
-    
-<tr>
-<td class="left">TAB</td>
-<td class="left">移动到下一区域</td>
-</tr>
-    
-    
-<tr>
-<td class="left">S-TAB</td>
-<td class="left">移动到上一区域</td>
-</tr>
-    
-    
-<tr>
-<td class="left">RET</td>
-<td class="left">移动到下一行</td>
-</tr>
-</tbody>
-</table>
+    <div class="highlighter-rouge"><pre class="highlight"><code>glance image-create --name "cirros-0.3.4-x86_64" --file /tmp/images/ cirros-0.3.4-x86_64-disk.img   --disk-format qcow2 --container-format bare --visibility public --progress
+</code></pre>
+    </div>
+
+    <p>可能出现Bad Argument错误，搜索相关问题可能会找到关于Endpoint API版本的问题，而实际上问题可能不在这里。 我曾遇到这个问题始终找不到原因所在， 而重装后问题消失。 所以这个问题八成是配置文件的错误引起的，请仔细检查或重装该节点。</p>
   </li>
   <li>
-    <p>编辑</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">M-LEFT/RIGHT</td>
-<td class="left">移动列</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-UP/DOWN</td>
-<td class="left">移动行</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-LEFT/RIGHT</td>
-<td class="left">删除、插入列</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-UP/DOWN</td>
-<td class="left">删除、插入行</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c -</td>
-<td class="left">插入水平分割线</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c RET</td>
-<td class="left">插入水平分割线并进入下一行</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c ^</td>
-<td class="left">根据当前列排序</td>
-</tr>
-</tbody>
-</table>
+    <p>这里的镜像是不带GUI的，测试环境足够了。关于创建带有GUI的镜像在以后的章节中介绍。</p>
   </li>
 </ul>
 
-<h2 id="列表">列表<a id="sec-5-4" name="sec-5-4"></a></h2>
+<h2 id="compute-service">Compute Service<a id="sec-1-4" name="sec-1-4"></a></h2>
 
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<ul>
+  <li>
+    <p>控制节点上安装完Compute节点是没有验证的，在配置完计算节点后进行验证操作。</p>
 
+    <div class="highlighter-rouge"><pre class="highlight"><code>nova service-list
+</code></pre>
+    </div>
 
+    <p>结果应至少包含以下几个：</p>
+
+    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    
+    
 <colgroup>
 <col class="left" />
-
+    
+<col class="left" />
+    
+<col class="left" />
+    
+<col class="left" />
+    
 <col class="left" />
 </colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Binary</th>
+<th scope="col" class="left">Host</th>
+<th scope="col" class="left">Zone</th>
+<th scope="col" class="left">Status</th>
+<th scope="col" class="left">State</th>
+</tr>
+</thead>
+    
 <tbody>
 <tr>
-<td class="left">TAB</td>
-<td class="left">折叠</td>
+<td class="left">nova-conductor</td>
+<td class="left">controller</td>
+<td class="left">internal</td>
+<td class="left">enabled</td>
+<td class="left">up</td>
 </tr>
-
-
+    
+    
 <tr>
-<td class="left">M-RET</td>
-<td class="left">插入列表项</td>
+<td class="left">nova-cert</td>
+<td class="left">controller</td>
+<td class="left">internal</td>
+<td class="left">enabled</td>
+<td class="left">up</td>
 </tr>
-
-
+    
+    
 <tr>
-<td class="left">M-S-RET</td>
-<td class="left">插入复选框列表项</td>
+<td class="left">nova-scheduler</td>
+<td class="left">controller</td>
+<td class="left">internal</td>
+<td class="left">enabled</td>
+<td class="left">up</td>
 </tr>
-
-
+    
+    
 <tr>
-<td class="left">C-RET</td>
-<td class="left">插入标题项</td>
+<td class="left">nova-consoleauth</td>
+<td class="left">controller</td>
+<td class="left">internal</td>
+<td class="left">enabled</td>
+<td class="left">up</td>
 </tr>
-
-
+    
+    
 <tr>
-<td class="left">M-S-UP/DOWN</td>
-<td class="left">移动列表项</td>
-</tr>
-
-
-<tr>
-<td class="left">M-LEFT/RIGHT</td>
-<td class="left">升、降级列表项</td>
-</tr>
-
-
-<tr>
-<td class="left">M-S-LEFT/RIGHT</td>
-<td class="left">升、降级列表项及其子项</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c C-c</td>
-<td class="left">改变复选框状态</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c -</td>
-<td class="left">更换列表标记</td>
-</tr>
-
-
-<tr>
-<td class="left">S-LEFT/RIGHT</td>
-<td class="left">更换列表标记</td>
+<td class="left">nova-compute</td>
+<td class="left">compute1</td>
+<td class="left">nova</td>
+<td class="left">enabled</td>
+<td class="left">up</td>
 </tr>
 </tbody>
 </table>
 
-<h2 id="标记">标记<a id="sec-5-5" name="sec-5-5"></a></h2>
+    <p>可能包含其他项（应该是不启动状态），但这几项一定要正常。若有问题请检查控制、计算节点的NTP服务和消息队列日志。</p>
+  </li>
+  <li>
+    <p>执行Endpoint验证操作</p>
 
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    <div class="highlighter-rouge"><pre class="highlight"><code>nova endpoints
+</code></pre>
+    </div>
 
+    <p>结果可能包含Warning，不影响使用。</p>
+  </li>
+</ul>
 
-<colgroup>
-<col class="left" />
+<h2 id="network-service">Network Service<a id="sec-1-5" name="sec-1-5"></a></h2>
 
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c C-q</td>
-<td class="left">设置tag</td>
-</tr>
+<ul>
+  <li>控制节点上的网络组件比较简单，保证验证结果包含文档中给出的内容即可。</li>
+</ul>
 
+<h2 id="dashboard">DashBoard<a id="sec-1-6" name="sec-1-6"></a></h2>
 
-<tr>
-<td class="left">C-c \\</td>
-<td class="left">按照tag搜索标题</td>
-</tr>
+<ul>
+  <li>Dashboard需要用到Apache，请确保其正确性。</li>
+  <li>安装后可能出现404，400错误。这种错误一般是由于配置不正确导致的，找不出错误的话重新安装。</li>
+  <li>登陆session超时之后就没法再登陆了（至少在FireFox上如此），没有详细错误信息，只提示请联系管理员。 这时候需要清理保存的session和cookie，重新打开主页即可。</li>
+  <li>安装完Dashboard之后很多操作就可以不用命令去执行了，要熟悉其功能。</li>
+</ul>
 
+<h1 id="network">network<a id="sec-2" name="sec-2"></a></h1>
 
-<tr>
-<td class="left">C-c / m</td>
-<td class="left">搜索并以树显示</td>
-</tr>
+<p>除基础环境外，网络节点只配置了Network Service</p>
 
+<h2 id="组件介绍">组件介绍<a id="sec-2-1" name="sec-2-1"></a></h2>
 
-<tr>
-<td class="left">C-c a m</td>
-<td class="left">按tag搜索多文件</td>
-</tr>
-</tbody>
-</table>
+<ul>
+  <li>Modular Layer 2 (ML2) plug-in
+为实例提供虚拟网络的建立</li>
+  <li>Layer-3 (L3) agent
+为实例提供路由服务</li>
+  <li>DHCP agent
+在虚拟网络使用动态地址分配</li>
+  <li>metadata agent
+为实例提供配置信息，比如身份验证等</li>
+</ul>
 
-<h2 id="内容原数据">内容原数据<a id="sec-5-6" name="sec-5-6"></a></h2>
+<h2 id="network-service-1">Network Service<a id="sec-2-2" name="sec-2-2"></a></h2>
 
-<p>以 #+ 开始，标记文档内容。</p>
+<ul>
+  <li>4个组件有四个配置文件，同时还要将ml2的相关内容添加到neutron.conf中。 要确保这5个文件的正确性，分别查看日志排除错误信息。</li>
+  <li>这里需要一个网桥，ex-br与enp2s12（之前没设置IP地址的网卡）绑定，在创建网络之后所有的虚拟机都将由这条通路出去。</li>
+</ul>
 
-<figure class="highlight"><pre><code class="language-lisp" data-lang="lisp">    #切换正常分行
-    #+BEGIN_VERSE
+<h2 id="创建网络">创建网络<a id="sec-2-3" name="sec-2-3"></a></h2>
 
-    #引用、左右均有部分缩进
-    #+BEGIN_QUOTE
+<ul>
+  <li>需要一些基本的网络概念，IP地址、子网掩码、子网划分。</li>
+  <li>内部图解
+<img src="/assets/upload/OpenStack-网络节点.jpg" alt="网络节点内部" /></li>
+  <li>External network
+    <ol>
+      <li>外部网络设置时的IP浮动范围，子网掩码等取决于enp2s12网卡的网络环境。</li>
+      <li>范围内的地址可作为租户网络的网关，绑定给租户路由，为实例提供网络访问。</li>
+      <li>范围内的地址可申请并绑定给某实例，这时该实例可以由ssh或windows远程桌面访问到。其可见性与enp2s12网段相同， 即若外部网络浮动范围内的IP地址为公网地址，则所有人都可以访问；若为内网地址则内网同一网段的人可以访问。</li>
+    </ol>
+  </li>
+  <li>Tenant network
+    <ol>
+      <li>租户网络不唯一，可将虚拟机分配到不同的网络下方便管理。</li>
+      <li>每一个租户网络要对应一个租户路由，该路由器要绑定一个外部网络的IP地址作为网关，使该租户网络可获得网络连接。</li>
+      <li>分配给租户网络的虚拟机将由DHCP agent分配到一个该租户网络下的IP地址。</li>
+    </ol>
+  </li>
+</ul>
 
-    #居中
-    #+BEGIN_CENTER
+<h1 id="compute">compute<a id="sec-3" name="sec-3"></a></h1>
 
-    #代码
-    #+BEGIN_SRC java</code></pre></figure>
+<p>计算节点配置基础环境后只需要安装计算和网络组件</p>
 
+<h2 id="compute-service-1">Compute Service<a id="sec-3-1" name="sec-3-1"></a></h2>
+
+<ul>
+  <li>
+    <p>在配置完后访问</p>
+
+    <blockquote>
+      <p><a href="http://controller:6080/vnc_auto.html">http://controller:6080/vnc_auto.html</a></p>
+    </blockquote>
+
+    <p>可能会报错could not connect to server (1006)。 这里可以先不解决，在*网络节点配置完成后，访问实例*仍然报错的话，在确保网络通畅的情况下清除iptables表项即可。</p>
+
+    <ol>
+      <li>
+        <p>在控制节点上执行</p>
+
+        <div class="highlighter-rouge"><pre class="highlight"><code>tcpdump -nni eno1 port 5900
+</code></pre>
+        </div>
+      </li>
+      <li>使用浏览器访问，应该在能看到相关输出，若没有请检查网络。</li>
+      <li>
+        <p>在计算节点上执行</p>
+
+        <div class="highlighter-rouge"><pre class="highlight"><code>iptables -F
+</code></pre>
+        </div>
+      </li>
+      <li>这时应该正常了</li>
+      <li>参考内容 <a href="https://ask.openstack.org/en/question/46158/vnc-console-failed-to-connect-to-server-code-1006/">https://ask.openstack.org/en/question/46158/vnc-console-failed-to-connect-to-server-code-1006/</a></li>
+    </ol>
+  </li>
+  <li>
+    <p>计算节点要保证硬件支持虚拟化，在BIOS中CPU的BIOS CPU virtualization 要启用。</p>
+  </li>
+</ul>
+
+<h2 id="network-service-2">Network Service<a id="sec-3-2" name="sec-3-2"></a></h2>
+
+<ul>
+  <li>计算节点只安装了openvswitch服务（ML2），提供了实例的虚拟网络建立。</li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-11-15T00:00:00+00:00"><a href="http://localhost:4000/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">November 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="bookmark" title="OpenStack-基础环境搭建" itemprop="url">OpenStack-基础环境搭建</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. 网络环境</a>
+<ul>
+<li><a href="#sec-1-1">1.1. 网络概述</a></li>
+<li><a href="#sec-1-2">1.2. 使用配置文件修改网络设置</a></li>
+<li><a href="#sec-1-3">1.3. 路由器设置</a></li>
+<li><a href="#sec-1-4">1.4. 修改hosts</a></li>
+<li><a href="#sec-1-5">1.5. controller</a></li>
+<li><a href="#sec-1-6">1.6. network</a></li>
+<li><a href="#sec-1-7">1.7. compute1</a></li>
+<li><a href="#sec-1-8">1.8. 验证</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2. Network Time Protocal (NTP)</a>
+<ul>
+<li><a href="#sec-2-1">2.1. 问题解决</a></li>
+<li><a href="#sec-2-2">2.2. 注意事项</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. OpenStack packages</a></li>
+<li><a href="#sec-4">4. SQL database</a>
+<ul>
+<li><a href="#sec-4-1">4.1. 注意事项</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Message queue</a>
+<ul>
+<li><a href="#sec-5-1">5.1. 注意事项</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="网络环境">网络环境<a id="sec-1" name="sec-1"></a></h1>
+
+<p>openstack网络尤其重要，理解各节点组件作用，在正确稳定的网络结构下，可以避免很多不必要的问题。整体结构如图所示
+<img src="/assets/upload/OpenStack-网络拓扑.jpg" alt="网络拓扑" />
+该文章中采centOS7的网卡命名，集成网卡名为eno1、插入的两张PCI网卡分别为enp2s10和enp2s12。</p>
+
+<p>一定要采用命令行下编辑配置文件的方式来进行网络配置，使用GUI可能会导致配置文件的混乱，要是已经弄乱了的话，后面会有解决方案。</p>
+
+<h2 id="网络概述">网络概述<a id="sec-1-1" name="sec-1-1"></a></h2>
+
+<ul>
+  <li>10.0.0.0/24
+该网段称作management，用作3台物理机间的数据通信。 需要一个网关（这里使用路由器）接入互联网。</li>
+  <li>10.0.1.0/24
+该网段称作tunnel，用作运行在compute上的实例与network间的数据通信，与controller无关。</li>
+  <li>外网
+只在network上有，不指定IP地址且BOOTPROTO为none，在安装好网络组件之前这块网卡并没有用。 创建网络环境时会将一段IP地址分配到这里，以池的形式提供NAT以及虚拟机的IP地址绑定。</li>
+</ul>
+
+<h2 id="使用配置文件修改网络设置">使用配置文件修改网络设置<a id="sec-1-2" name="sec-1-2"></a></h2>
+
+<p>centOS7 网络配置文件位于</p>
+
+<blockquote>
+  <p><em>etc/sysconfig/network-scripts</em></p>
+</blockquote>
+
+<p>目录下对应3块网卡的配置文件分别为ifcfg-eno1, ifcfg-enp2s10, ifcfg-enp2s12。</p>
+
+<p>环境中所有IP均为静态指定，所以BOOTPROTO=static。network的第三块网卡除外，要设置为 BOOTPROTO=none。</p>
+
+<p>编辑完成后重启网络</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>systemctl restart network
+</code></pre>
+</div>
+
+<h2 id="路由器设置">路由器设置<a id="sec-1-3" name="sec-1-3"></a></h2>
+
+<p>CentOS下无法直接进入路由器设置界面，需要一台windows接入LAN口输入192.168.1.1进入路由器设置。 路由器网段改为10.0.0.0,子网掩码255.255.255.0，路由器地址10.0.0.1，路由器重启后进入指定3台机器eno1的MAC地址和IP地址</p>
+<ol>
+  <li>controller
+10.0.0.11</li>
+  <li>network
+10.0.0.21</li>
+  <li>compute1
+10.0.0.31</li>
+  <li>compute2(可选）
+10.0.0.32（以此类推）</li>
+</ol>
+
+<p>注意，如果你之前在其他连入LAN口的电脑上配置了地址10.0.0.1，会导致无法进入路由器设置页面，记得修改它以避免冲突。</p>
+
+<h2 id="修改hosts">修改hosts<a id="sec-1-4" name="sec-1-4"></a></h2>
+
+<p>每个节点都需要修改hosts文件，指定各节点的通信地址。配置文件在</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt; /etc/host
+</code></pre>
+</div>
+
+<p>#controller
+10.0.0.11 controller</p>
+
+<p>#network
+10.0.0.21 network</p>
+
+<p>#compute1
+10.0.0.31 compute1</p>
+
+<p>#compute2
+10.0.0.32 compute2</p>
+
+<h2 id="controller">controller<a id="sec-1-5" name="sec-1-5"></a></h2>
+
+<ul>
+  <li>
+    <p>ifcfg-eno1</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.0.11
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1</p>
+
+      <p>DNS = 8.8.8.8</p>
+
+      <p>DNS1 = 8.8.4.4</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="network">network<a id="sec-1-6" name="sec-1-6"></a></h2>
+
+<ul>
+  <li>
+    <p>ifcfg-eno1</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.0.21
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1</p>
+
+      <p>DNS = 8.8.8.8</p>
+
+      <p>DNS1 = 8.8.4.4</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>ifcfg-enp2s10</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.1.21
+NETMASK=255.255.255.0</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>ifcfg-enp2s12</p>
+
+    <blockquote>
+      <p>BOOTPROTO=none</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="compute1">compute1<a id="sec-1-7" name="sec-1-7"></a></h2>
+
+<ul>
+  <li>
+    <p>ifcfg-eno1</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.0.31
+NETMASK=255.255.255.0
+GATEWAY=10.0.0.1</p>
+
+      <p>DNS = 8.8.8.8</p>
+
+      <p>DNS1 = 8.8.4.4</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>ifcfg-enp2s10</p>
+
+    <blockquote>
+      <p>BOOTPROTO=static
+IPADDR=10.0.1.31
+NETMASK=255.255.255.0</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h2 id="验证">验证<a id="sec-1-8" name="sec-1-8"></a></h2>
+
+<ul>
+  <li>所有主机都能ping通外网</li>
+  <li>所有主机之间使用hosts文件中的名字都能相互ping通</li>
+  <li>compute和network可以ping通对方tunnel地址</li>
+</ul>
+
+<h1 id="network-time-protocal-ntp">Network Time Protocal (NTP)<a id="sec-2" name="sec-2"></a></h1>
+
+<h2 id="问题解决">问题解决<a id="sec-2-1" name="sec-2-1"></a></h2>
+
+<ul>
+  <li>
+    <p>控制节点上要填一个地址，用于统一时间，许多都不能用，在验证的时候显示.INIT.</p>
+
+    <p>这里给出国家授时中心的域名</p>
+
+    <blockquote>
+      <p>cn.pool.ntp.org
+1.cn.pool.ntp.org</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>防火墙可能会导致NTP的通信异常，可以关闭并禁用防火墙</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>systemctl stop firewalld
+systemctl disable firewalld
+</code></pre>
+    </div>
+  </li>
+</ul>
+
+<h2 id="注意事项">注意事项<a id="sec-2-2" name="sec-2-2"></a></h2>
+
+<ul>
+  <li>其他节点都以controller作为时间标准。以后安装过程中遇到问题可以先验证NTP是否运行正常，有时网络问题会导致组件功能不正常。</li>
+</ul>
+
+<h1 id="openstack-packages">OpenStack packages<a id="sec-3" name="sec-3"></a></h1>
+
+<p>这里的按照官方文档安装没有问题</p>
+
+<h1 id="sql-database">SQL database<a id="sec-4" name="sec-4"></a></h1>
+
+<h2 id="注意事项-1">注意事项<a id="sec-4-1" name="sec-4-1"></a></h2>
+
+<ul>
+  <li>
+    <p>记得要执行Mysql的安装过程</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>mysql_secure_installation
+</code></pre>
+    </div>
+
+    <p>少了这一步可能会导致在之后调用程序方法的时候报服务器500错误</p>
+  </li>
+  <li>
+    <p>数据库出现问题是可以删掉重新安装的，数据会存放在另一个地方，将程序重装后数据还在。</p>
+  </li>
+</ul>
+
+<h1 id="message-queue">Message queue<a id="sec-5" name="sec-5"></a></h1>
+
+<h2 id="注意事项-2">注意事项<a id="sec-5-1" name="sec-5-1"></a></h2>
+
+<ul>
+  <li>消息队列是保证物理机之间消息通信的基础，组件出现问题的时候可以查看消息队列的日志观察是否有问题。 有的时候无法正确解析地址会导致消息队列不通使程序出现问题。 消息队列的问题不会报错，查看日志文档(存放在/var/log/rabbit<sub>mq下</sub>)会发现ERROR，根据提示解决问题即可。</li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-11-15T00:00:00+00:00"><a href="http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">November 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" rel="bookmark" title="Openstack-功能介绍" itemprop="url">Openstack-功能介绍</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. 写在前面</a></li>
+<li><a href="#sec-2">2. 节点功能</a>
+<ul>
+<li><a href="#sec-2-1">2.1. controller</a></li>
+<li><a href="#sec-2-2">2.2. network</a></li>
+<li><a href="#sec-2-3">2.3. compute</a></li>
+<li><a href="#sec-2-4">2.4. block storage (可选）</a></li>
+<li><a href="#sec-2-5">2.5. object storage (可选）</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. 组件功能</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Identity Service 身份验证服务 （Keystone)</a></li>
+<li><a href="#sec-3-2">3.2. Image Service 镜像服务 （Glance)</a></li>
+<li><a href="#sec-3-3">3.3. Compute Service 计算服务 (Nova)</a></li>
+<li><a href="#sec-3-4">3.4. Networking Service 网络服务 (Neutron)</a></li>
+<li><a href="#sec-3-5">3.5. DashBoard 图形化管理界面 (Horizon)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="写在前面">写在前面<a id="sec-1" name="sec-1"></a></h1>
+
+<ul>
+  <li>openstack作为一个开源项目，每隔一段时间都会发布一个版本而且有两种部署方式，在不同平台上有不同的安装方式。 这里介绍的为kilo版本采用neutron布局，在centOS7下，3台物理机上部署安装。 在官方网站提供了详尽的部署文档（英文版），应该以该文档为主，这里记录一些问题的补充说明作为辅助。</li>
+  <li>根据个人经验，总体上对openstack有个概念性的了解，明白组件功能所在对部署时问题的解决有很大帮助，否则面对问题会有些无从下手。 请花些时间耐心阅读组件功能介绍。</li>
+  <li>有些问题源于配置文件的错误，可能是在复制过程中无意发生差错，这种问题在查找过程中不太容易发现。 若出现解决不掉的问题可以考虑将问题组件的配置文件备份后删除，然后重新安装该组件，再次配置问题可能就不复存在了。</li>
+  <li>注意验证工作，不要轻易跳过验证不通过的部分，除非你对该部分的原理相当了解，能弄明白验证不通过的原因所在。 否则请认真进行每一步验证工作，这样在问题出现时才有相当于检查点的存在。 不至于找不到问题所在而彻底重新安装。</li>
+</ul>
+
+<h1 id="节点功能">节点功能<a id="sec-2" name="sec-2"></a></h1>
+
+<p>节点指一台计算机，若采用neutron布局，则最少需要3台计算机。 包括一台计算节点（controller)需要1张网卡，一台网络节点（network)需要3张网卡，一台计算节点（compute1)需要两张网卡。 若需要加入存储节点请参照官网配置。</p>
+
+<h2 id="controller">controller<a id="sec-2-1" name="sec-2-1"></a></h2>
+
+<p>该节点相当于项目经理，大部分的组件都需要安装在该节点上，任务的分配也都在这里进行，但该节点并不承担虚拟机的运行负载，也不承担网络负载。数据库只运行在该节点上，Dashboard也部署在这台机器的Apache上，所以如果想要外网访问Dashboard就需要给它额外一张网卡并提供公网地址。</p>
+
+<h2 id="network">network<a id="sec-2-2" name="sec-2-2"></a></h2>
+
+<p>该节点承担所有实例（运行在openstack上的虚拟机）的网络访问职责，注意这里只负责实例的网络访问，和物理机无关。每个物理机通过自己的网线上网。除基本环境外只需要安装网络组件。</p>
+
+<h2 id="compute">compute<a id="sec-2-3" name="sec-2-3"></a></h2>
+
+<p>所有的实例都运行在该节点上，虚拟机所占用的资源均为该节点的硬件资源，可在环境中添加多个compute节点。</p>
+
+<h2 id="block-storage-可选">block storage (可选）<a id="sec-2-4" name="sec-2-4"></a></h2>
+
+<p>简单来说相当于硬盘，以块存储序列化后的内容，添加该节点后需要额外网卡进行存储通信。</p>
+
+<h2 id="object-storage-可选">object storage (可选）<a id="sec-2-5" name="sec-2-5"></a></h2>
+
+<p>简单来说相当于内存，以对象的形式存储数据，添加该节点后需要额外网卡进行存储通信。</p>
+
+<h1 id="组件功能">组件功能<a id="sec-3" name="sec-3"></a></h1>
+
+<p>组件指安装在各节点上的软件，在不同节点上需要的组件有所不同，安装时注意选择。</p>
+
+<h2 id="identity-service-身份验证服务-keystone">Identity Service 身份验证服务 （Keystone)<a id="sec-3-1" name="sec-3-1"></a></h2>
+
+<ul>
+  <li>功能：
+    <ol>
+      <li>记录用户以及其权限</li>
+      <li>提供了每个用户的可用服务列表</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="image-service-镜像服务-glance">Image Service 镜像服务 （Glance)<a id="sec-3-2" name="sec-3-2"></a></h2>
+
+<ul>
+  <li>功能：
+提供对包括制作在内的镜像管理。</li>
+</ul>
+
+<h2 id="compute-service-计算服务-nova">Compute Service 计算服务 (Nova)<a id="sec-3-3" name="sec-3-3"></a></h2>
+
+<ul>
+  <li>功能：
+作为IaaS最主要的组成部分，计算服务负责云操作系统的运行。</li>
+</ul>
+
+<h2 id="networking-service-网络服务-neutron">Networking Service 网络服务 (Neutron)<a id="sec-3-4" name="sec-3-4"></a></h2>
+
+<ul>
+  <li>功能：
+提供所有虚拟机的网络功能，包括基础网络设施的搭建以及网络访问控制。</li>
+</ul>
+
+<h2 id="dashboard-图形化管理界面-horizon">DashBoard 图形化管理界面 (Horizon)<a id="sec-3-5" name="sec-3-5"></a></h2>
+
+<ul>
+  <li>功能：
+通过浏览器打开网页操作Openstack，否则只能记住大量API通过控制台控制。</li>
+</ul>
 
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
@@ -1283,9 +863,15 @@ description</p>
         
       </li>
     
+      <li>
+        
+          <a href="http://localhost:4000/page4">4</a>
+        
+      </li>
+    
   </ul>
   
-    Next
+    <a href="http://localhost:4000/page4" class="btn">Next</a>
   
 </div><!-- /.pagination -->
 </div><!-- /#main -->

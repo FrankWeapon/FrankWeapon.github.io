@@ -4,13 +4,394 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml" />
 <link rel="alternate" type="text/html" href="http://localhost:4000" />
-<updated>2017-03-06T12:53:43+00:00</updated>
+<updated>2017-03-15T01:04:24+00:00</updated>
 <id>http://localhost:4000/</id>
 <author>
   <name>Frank Weapon</name>
   <uri>http://localhost:4000/</uri>
   <email>helldarkfire@gmail.com</email>
 </author>
+
+
+<entry>
+  <title type="html"><![CDATA[Actor Model (参与者模式)思想与实例]]></title>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Actor_Model/" />
+  <id>http://localhost:4000/Actor_Model</id>
+  <published>2017-03-15T00:00:00+00:00</published>
+  <updated>2017-03-15T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri>http://localhost:4000</uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#actor-model-设计思想&quot; id=&quot;markdown-toc-actor-model-设计思想&quot;&gt;Actor Model 设计思想&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#同步问题编程实例哲学家就餐问题&quot; id=&quot;markdown-toc-同步问题编程实例哲学家就餐问题&quot;&gt;同步问题编程实例(哲学家就餐问题)&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#哲学家就餐问题描述&quot; id=&quot;markdown-toc-哲学家就餐问题描述&quot;&gt;哲学家就餐问题描述&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#locks&quot; id=&quot;markdown-toc-locks&quot;&gt;Locks&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#actors&quot; id=&quot;markdown-toc-actors&quot;&gt;Actors&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;actor-model-设计思想&quot;&gt;Actor Model 设计思想&lt;/h1&gt;
+&lt;p&gt;Actor Model（参与者模型）简化并发而产生，它将系统中的所有组件都视为 Actor（参与者），参与者之间通过发送消息来实现交互。每个 Actor 同时只能处理一个消息，也可以发送消息给其他参与者，而大量的参与者同时存在则构成了并行化。
+Actor Model 中的消息为异步非阻塞式的消息传递，也就是说消息发送之后可以进行其他操作，当接收到接收方发送的返回消息时可以进行后续操作。因为 Actor 之间只能通过消息进行交互，也就是说不存在共享内存空间，这就省去了锁的操作。
+Actor 通过隔离控制和计算实体来实现封装，相比使用锁来进行同步控制而言，简化了并行的实现难度。
+参与者模式在1973年由 Carl Hewitt 等人发表的论文中提出&lt;sup id=&quot;fnref:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;，后来这种思想被应用于面向对象的并发编程语言中，其中最有名的当属 Erlang 以及 Scala。Apache 的 Akka 是实现了 Actor Model 的 library，支持 Java 以及 Scala。
+在 Hadoop MapReduce v2 之后的版本中，Actor Model 就被用于其各个松耦合组件之间的通信。每个组件都维护其自己的状态机，由事件驱动状态机的变迁，在变迁发生时执行相关逻辑操作。
+在通常的思路中，我们用线程来实现并发，用锁来控制共享内存中的同步互斥问题。然而，线程本身属于相对昂贵的资源，对于程序员的水平要求相对较高。对线程的不当使用将容易导致死锁问题的产生，而且大量线程的等待也对系统资源是一种浪费。
+在 Actor Model 中使用基于事件驱动的编程模型，这种异步非阻塞的变成方式天生支持并发。且不需要涉及到对线程和锁的控制，可以使程序员关注于逻辑本身，降低了实现并发的难度。
+不过，使用 Actor Model 进行编程需要思路上的转变，从顺序执行的程序转为事件驱动的模型可能会在一定程度上让程序本身更难以理解。
+必须提到的是，对并行的控制（也就是同步）一定存在局部串行化。Actor Model 本身是一种抽象模型，对于使用者而言可以做到不使用锁，而锁将存在于更底层的位置来保证对并发的控制。
+比如 Erlang 和 akka 对上层提供的 API 并不需要锁，而其复杂的并发控制分别将锁实现在编程语言级别和框架级别。也就是说 Actor Model 和线程不是同一个抽象级别的问题，Actor Model 提供了更高的抽象级别。&lt;/p&gt;
+
+&lt;h1 id=&quot;同步问题编程实例哲学家就餐问题&quot;&gt;同步问题编程实例(哲学家就餐问题)&lt;/h1&gt;
+&lt;p&gt;这里对哲学家就餐问题分别使用锁的机制以及 Actor Model 进行实现，以此表现 Actor Model 的抽象能力。
+这里参考文章 &lt;em&gt;Locks, Actors, And Stm In Pictures&lt;/em&gt;&lt;sup id=&quot;fnref:2&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;，原文中详细介绍了Lock, Actor 再加上 Transaction 共三种方案在思想上的不同，并用卡通图进行辅助说明，在这里不做翻译只进行关键部分的转述。
+Actor Model 的实现使用框架celluloid&lt;sup id=&quot;fnref:3&quot;&gt;&lt;a href=&quot;#fn:3&quot; class=&quot;footnote&quot;&gt;3&lt;/a&gt;&lt;/sup&gt;，算法采用 Ruby 实现。&lt;/p&gt;
+&lt;h2 id=&quot;哲学家就餐问题描述&quot;&gt;哲学家就餐问题描述&lt;/h2&gt;
+&lt;p&gt;1965年，Dijkstra提出并解决了一个他称之为哲学家就餐的同步问题。该问题可简单描述为：5个哲学家围坐在一个圆桌上，每两个哲学家之间都有一只筷子，哲学家平时进行思考，只有当他们饥饿时，才拿起筷子吃饭。只有同时获得左右两只筷子他们才可以开始吃饭，吃饭后放下筷子继续思考。
+关键问题是，是否可以给出一段描述其行为的程序且保证不会发生死锁。 这里使用带有 Waiter 的算法。&lt;/p&gt;
+&lt;h2 id=&quot;locks&quot;&gt;Locks&lt;/h2&gt;
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'thread'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Waiter&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@mutex&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Mutex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;can_eat?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;left&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;left_fork&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;right&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;right_fork&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@mutex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;synchronize&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;left&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;used&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;right&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;used&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;left&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;used&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;true&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;right&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;used&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;true&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;true&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;stop_eating&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@mutex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;synchronize&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;left_fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;used&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;right_fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;used&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Philosopher&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;attr_accessor&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:left_fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:right_fork&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# 创建哲学家时指定其对应左右筷子，开始为思考状态&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;left_fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;right_fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@left_fork&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;left_fork&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@right_fork&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;right_fork&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@waiter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;think&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# 思考一定时间后处于饥饿状态，试图进食&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;think&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Philosopher &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#@name&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; is thinking...&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;rand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Philosopher &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#@name&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; is hungry...&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;dine&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# 等待判断是否可以进食，进食完成后继续思考&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;dine&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;can_eat?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;think&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Philosopher &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#@name&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; eats...&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;rand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Philosopher &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#@name&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; belches&quot;&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;stop_eating&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;think&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Fork&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;attr_accessor&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:used&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@used&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;false&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;threads&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# 为每个哲学家创建线程，为其分配筷子（圆桌)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;threads&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;left_fork&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;right_fork&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# special case for philosopher #5 because he gets forks #5 and #1&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# and the left fork is always the lower id because that's the one we try first.&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;left_fork&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;right_fork&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    &lt;span class=&quot;no&quot;&gt;Philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;left_fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;right_fork&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# 迭代启动线程&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;threads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;thread&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id=&quot;actors&quot;&gt;Actors&lt;/h2&gt;
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'rubygems'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'celluloid'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Waiter&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Celluloid&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# 设置标记表示筷子可用状态&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;FORK_FREE&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;FORK_USED&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;attr_reader&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:philosophers&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;attr_reader&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:forks&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;attr_reader&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:eating&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@philosophers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@eating&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;FORK_FREE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;welcome&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@philosophers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# 异步发送事件，使哲学家开始思考&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;think&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;hungry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@philosophers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;left_pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pos&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;right_pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;size&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# 判断哲学家左右两侧筷子是否可用&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;left_pos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;FORK_FREE&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;right_pos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;FORK_FREE&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;left_pos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;FORK_USED&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;right_pos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;FORK_USED&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# 当前哲学家加入进食队列并发送事件&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@eating&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;eat&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# 暂时不能进食，继续思考&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;think&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# 使某哲学家进食后释放筷子资源&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;drop_forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@philosophers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;left_pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pos&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;right_pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pos&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;size&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;left_pos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;FORK_FREE&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;right_pos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;FORK_FREE&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@eating&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;think&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Philosopher&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Celluloid&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;attr_reader&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:name&lt;/span&gt;
+  &lt;span class=&quot;kp&quot;&gt;attr_reader&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:waiter&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;
+    &lt;span class=&quot;vi&quot;&gt;@waiter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# 向 Waiter 注册自身&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;welcome&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Actor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;think&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; is thinking&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;rand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; gets hungry&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;hungry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Actor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;eat&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; is eating&quot;&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;rand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; burps&quot;&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;async&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;drop_forks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Actor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;current&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;names&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%w{Heraclitus Aristotle Epictetus Schopenhauer Popper}&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# 实例化所有哲学家，initialize方法中发送事件, 整个程序将被驱动开始运行&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;philosophers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;names&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;map&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Philosopher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;waiter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)}&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# 程序运行结束，进程休眠&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;sleep&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;footnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot;&gt;
+      &lt;p&gt;Carl Hewitt; Peter Bishop and Richard Steiger. A Universal Modular Actor Formalism for Artificial Intelligence. IJCAI. 1973&amp;nbsp;&lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:2&quot;&gt;
+      &lt;p&gt;http://adit.io/posts/2013-05-15-Locks,-Actors,-And-STM-In-Pictures.html&amp;nbsp;&lt;a href=&quot;#fnref:2&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:3&quot;&gt;
+      &lt;p&gt;https://github.com/celluloid/celluloid&amp;nbsp;&lt;a href=&quot;#fnref:3&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Actor_Model/&quot;&gt;Actor Model (参与者模式)思想与实例&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on March 15, 2017.&lt;/p&gt;
+  </content>
+</entry>
+
+
+<entry>
+  <title type="html"><![CDATA[Hadoop-YARN 流程分析]]></title>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" />
+  <id>http://localhost:4000/YARN流程分析</id>
+  <published>2017-03-13T00:00:00+00:00</published>
+  <updated>2017-03-13T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri>http://localhost:4000</uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#mr-v1-与-mr-v2&quot; id=&quot;markdown-toc-mr-v1-与-mr-v2&quot;&gt;MR v1 与 MR v2&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#apache-yarn&quot; id=&quot;markdown-toc-apache-yarn&quot;&gt;Apache YARN&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#yarn-组成结构&quot; id=&quot;markdown-toc-yarn-组成结构&quot;&gt;YARN 组成结构&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#yarn-通信协议&quot; id=&quot;markdown-toc-yarn-通信协议&quot;&gt;YARN 通信协议&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#yarn-工作流程&quot; id=&quot;markdown-toc-yarn-工作流程&quot;&gt;YARN 工作流程&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#yarn-编程模型&quot; id=&quot;markdown-toc-yarn-编程模型&quot;&gt;YARN 编程模型&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#mrappmaster-分析&quot; id=&quot;markdown-toc-mrappmaster-分析&quot;&gt;MRAppMaster 分析&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;mr-v1-与-mr-v2&quot;&gt;MR v1 与 MR v2&lt;/h1&gt;
+&lt;p&gt;MapReduce 框架在大规模数据集中的优良表现使其得到广泛应用，然而随着数据量的增长以及新应用类型的出现，最初的 MapReduce 框架(MR v1)面临诸多瓶颈。所以，Apache 又提出了 MR v2 以解决最初的 MapReduce 遇到的问题。
+两者的主要区别有如下几点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;扩展性：在 MR v1 中，资源管理和作业控制在同一个组件中管理。当数据量过大时，该组件的能力成为扩展集群规模的瓶颈。而 MR v2 将资源管理和作业控制分别作为两个可通信的独立组件，这使得瓶颈节点的压力得到了分散，提高了可扩展性。&lt;/li&gt;
+  &lt;li&gt;可靠性：MR v1 采用传统的 Master/Slave 架构，这时的 Master 存在单点故障问题，一旦 Master 节点失效，所有作业都将无法运行。MR v2 则将作业的 master 独立于资源分配，在 master 失效后可进行重新调度作业而不影响整个平台。&lt;/li&gt;
+  &lt;li&gt;资源利用率：MR v1 中资源分配的最小单位为 slot，是一种相对粗粒度的分配方案。因为一个任务很可能不能完全利用一个 slot 中的所有资源而造成浪费，此外 Map 和 Reduce 任务的 slot 不能共享，也就意味着会有闲置资源的等待问题。
+在 MR V2 中有专门的资源管理器，结合管理员配置以及程序需求创建 container（一组资源的结合）运行任务。&lt;/li&gt;
+  &lt;li&gt;程序类型：MR v1的资源管理以及任务调度专为 MapReduce 这种离线数据处理应用制作，而后来兴起的内存计算，流式数据处理等计算需要一个更普适性的平台。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;apache-yarn&quot;&gt;Apache YARN&lt;/h1&gt;
+&lt;p&gt;YARN(Yet Another Resource Negotiator)是一种资源统一管理平台，与其类似的还有Facebook 的 Corona 和 Berkeley 的 Mesos。 由于计算框架类型的不同，使用这种资源统一管理平台才能将多种计算框架部署于同一个集群上，能更有效的利用资源以及降低运维成本。&lt;/p&gt;
+&lt;h2 id=&quot;yarn-组成结构&quot;&gt;YARN 组成结构&lt;/h2&gt;
+&lt;p&gt;YARN 在资源管理上仍是 Master/Slave 架构，其中 Master 为 ResourceManager Slave 为 NodeManager。而对于应用的调度，则需要指定 ApplicationMaster 负责向 ResourceManager 申请资源，与 NodeManager 进行通信以获取信息进行任务调度。
+要注意在 YARN 作为资源管理平台的视野中，ApplicationMaster 和其他的 Task 的地位是相似的，都运行在 Container中。其间关系如图所示：
+&lt;img src=&quot;../assets/upload/YARN_components.png&quot; alt=&quot;YARN 基本组成结构&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Container&lt;/strong&gt;: 资源分配的单位，封装了多种所需资源。task 与 container 是一对一的关系，由应用程序需求动态生成。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ResourceManager&lt;/code&gt;(RM)&lt;/strong&gt;: 全局资源管理，负责系统资源分配。可通过 Zookeeper 来解决单点失效的问题。其中包括两个组件
+    &lt;ol&gt;
+      &lt;li&gt;调度器：根据各种限制条件将系统中的资源分配给应用程序。因为它仅负责资源分配，YARN 中将其设计为松耦合组件，提供几种实现方式，也可以由用户根据需求进行重新设计。&lt;/li&gt;
+      &lt;li&gt;应用程序管理器：管理系统中所有应用，负责启动、监控 AM 并在失败时重启。&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;NodeManager&lt;/code&gt;(NM)&lt;/strong&gt;：运行在每个物理节点上的资源和任务管理器，主要负责两部分工作
+    &lt;ol&gt;
+      &lt;li&gt;定时向 RM 汇报本节点资源使用情况以及 container 运行状态&lt;/li&gt;
+      &lt;li&gt;接收并处理来自 AM 的任务操作请求&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ApplicationMaster&lt;/code&gt;(AM)&lt;/strong&gt;: 用户提交的应用程序需要制定 AM，YARN 内置两个 AM 的实现，其一是一个 demo 以 shell script 的形式给出，其二是 MapReduce 程序的 AM —— MRAppMaster。AM 主要负责以下三个功能
+    &lt;ol&gt;
+      &lt;li&gt;与 RM 调度器通信获取资源&lt;/li&gt;
+      &lt;li&gt;与 NM 通信控制任务进程&lt;/li&gt;
+      &lt;li&gt;监控调度属于他的所有任务，在失败时进行重新调度&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;yarn-通信协议&quot;&gt;YARN 通信协议&lt;/h2&gt;
+&lt;p&gt;各组件之间通过 RPC 通信。为保证兼容性，YARN 采用 Google 的 Protocol Buffers，在编译源代码过程中可能由于 protobuf 版本问题导致编译不通过。
+在 YARN 中的通信总体上采用 pull 模型，也就是 client 主动向 server 发起连接请求。在 Hadoop 中有以下几种协议负责不同组件间的通信：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;ClientRMProtocol&lt;/strong&gt;: JobClient 与 RM 之间的通信，用于提交应用程序、查询程序状态&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;RMAdminProtocol&lt;/strong&gt;: 系统管理员通过该协议更新系统配置文件&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;AMRMProtocol&lt;/strong&gt;：每个 AM 通过该协议向 RM 注册并为各个 task 申请资源&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;ContainerManager&lt;/strong&gt;： AM 通过该协议控制 NM 启动停止 container，以及获取各个 container 的状态信息&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;ResourceTracker&lt;/strong&gt;：NM 通过该协议向 RM 注册并定时发送心跳信息汇报节点资源使用情况以及 container 的运行信息。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;yarn-工作流程&quot;&gt;YARN 工作流程&lt;/h2&gt;
+&lt;p&gt;当JobClient 提交应用程序到 YARN 时，首先启动对应的 AM，然后由 AM 创建应用、申请资源、监控只到作业完成，如下图具体包含以下几个步骤&lt;sup id=&quot;fnref:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;：
+&lt;img src=&quot;../assets/upload/YARN_workflow.png&quot; alt=&quot;YARN 工作流程&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;用户提交程序&lt;/li&gt;
+  &lt;li&gt;RM 分配 Container，与 对应 NM 通信告知启动 AM&lt;/li&gt;
+  &lt;li&gt;AM 向 RM 注册，程序进入运行状态，重复执行4-7直至结束&lt;/li&gt;
+  &lt;li&gt;AM 采用轮询方式向 RM 申请领取资源&lt;/li&gt;
+  &lt;li&gt;AM 申请到资源后与 NM 通信告知其启动任务&lt;/li&gt;
+  &lt;li&gt;NM 设置好运行环境，通过脚本启动任务&lt;/li&gt;
+  &lt;li&gt;各任务向 AM 汇报进度&lt;/li&gt;
+  &lt;li&gt;完成后 AM 向 RM 发起注销请求，关闭自己&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;yarn-编程模型&quot;&gt;YARN 编程模型&lt;/h2&gt;
+&lt;p&gt;在 YARN 中以采用事件驱动的有限状态机进行运行控制，在 MR v1 中控制 Job 以及 Task 的 Progress 类将由用状态机重写的类替代。
+对于一个生命周期较长的对象，其状态都会由一个状态机来表示。同时设计事件监听器(EventListener)和事件派发器(EventDispatcher)。
+事件和状态机的变迁相互影响，也就是说监听到某事件可能会导致状态机的变迁，而状态机变迁时的行为有可能是产生一个新的事件。
+所有的事件都将经过AsyncDispatcher 进行排队分发，这种事件集中排队分发的设计方式与Kafka&lt;sup id=&quot;fnref:2&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;类似。&lt;/p&gt;
+
+&lt;p&gt;此外，考虑到耦合性问题，YARN 中的组件以服务化的形式出现，均实现 &lt;code class=&quot;highlighter-rouge&quot;&gt;Service&lt;/code&gt; 接口。&lt;code class=&quot;highlighter-rouge&quot;&gt;AbstractService&lt;/code&gt;是一个抽象类，提供了一个 Service 最基本的实现。
+对于非组合服务，可以直接继承&lt;code class=&quot;highlighter-rouge&quot;&gt;AbstarctService&lt;/code&gt;类，而对于组合服务，比如&lt;code class=&quot;highlighter-rouge&quot;&gt;MRAppMaster&lt;/code&gt;组合了各种服务对象，则需要继承&lt;code class=&quot;highlighter-rouge&quot;&gt;CompositeService&lt;/code&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;mrappmaster-分析&quot;&gt;MRAppMaster 分析&lt;/h1&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;MRAppMaster&lt;/code&gt;继承&lt;code class=&quot;highlighter-rouge&quot;&gt;CompositeService&lt;/code&gt;，是 MapReduce 型应用程序的 ApplicationMaster。
+该类的 Java Doc 中介绍到，应用程序所用到的状态机被封装到接口&lt;code class=&quot;highlighter-rouge&quot;&gt;Job&lt;/code&gt;的实现类中，所有状态的改变都要通过&lt;code class=&quot;highlighter-rouge&quot;&gt;Job&lt;/code&gt;接口。事件（event）会导致该有限状态机的变迁。
+该类本分是一个松耦合的服务组件，和其他组件的交互行为都是通过事件产生的，这种方式与参与者模式(Actor Model)很类似。
+所有的组件都会向一个中心分发器（dispatcher)注册，事件均由该分发器调度分发。而各组件之间的信息会通过&lt;code class=&quot;highlighter-rouge&quot;&gt;AppContext&lt;/code&gt;进行共享。&lt;/p&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;MRAppMaster&lt;/code&gt;源码中有一个内部类 &lt;code class=&quot;highlighter-rouge&quot;&gt;RunningAppContext&lt;/code&gt;实现&lt;code class=&quot;highlighter-rouge&quot;&gt;AppContext&lt;/code&gt;接口，通过&lt;em&gt;context&lt;/em&gt;可以创建 Job, Task, TaskAttempt 以及 Speculative 的事件分发器。
+这个类中的代码多为环境搭建的操作，比如各服务组件的组合，监听器和分发器的创建注册，用户的验证等。
+在&lt;em&gt;serviceStart()&lt;/em&gt;方法的最后调用&lt;em&gt;startJobs()&lt;/em&gt;创建一个job-start事件并发送至&lt;code class=&quot;highlighter-rouge&quot;&gt;AsyncDispatcher&lt;/code&gt;，以此触发整个 Job 的状态机。&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;div class=&quot;footnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot;&gt;
+      &lt;p&gt;参考自《Hadoop 技术内幕：深入解析 MapReduce架构设计与实现原理》 董西成 著&amp;nbsp;&lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:2&quot;&gt;
+      &lt;p&gt;https://kafka.apache.org&amp;nbsp;&lt;a href=&quot;#fnref:2&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/&quot;&gt;Hadoop-YARN 流程分析&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on March 13, 2017.&lt;/p&gt;
+  </content>
+</entry>
 
 
 <entry>
@@ -346,6 +727,7 @@ Split 大小由如下公式计算得来
 &lt;p&gt;具体 copy 的步骤在&lt;code class=&quot;highlighter-rouge&quot;&gt;Fetcher&lt;/code&gt;类中实现，&lt;em&gt;copyFromHost()&lt;/em&gt; 从指定&lt;code class=&quot;highlighter-rouge&quot;&gt;MapHost&lt;/code&gt;中 shuffle 可用的 map 结果，将该 Host 中的可用结果拼接返回一个 URL并打开输入流。
 之后开始执行 &lt;em&gt;copyMapOutput()&lt;/em&gt; 函数拷贝数据。 对于拷贝失败或没有响应的任务，通过异常做重新调度等处理。&lt;em&gt;copyMapOutput()&lt;/em&gt; 方法将通过各种工具类实施 copy 过程，并进行 merge 操作。&lt;/p&gt;
 
+&lt;hr /&gt;
 &lt;script src=&quot;https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
 
 &lt;div class=&quot;footnotes&quot;&gt;
@@ -357,6 +739,110 @@ Split 大小由如下公式计算得来
 &lt;/div&gt;
 
     &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/&quot;&gt;Hadoop-MapReduce-task流程分析&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on March 02, 2017.&lt;/p&gt;
+  </content>
+</entry>
+
+
+<entry>
+  <title type="html"><![CDATA[Ubuntu 下搭建 NFS]]></title>
+ <link rel="alternate" type="text/html" href="http://localhost:4000/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BANFS/" />
+  <id>http://localhost:4000/Ubuntu下搭建NFS</id>
+  <published>2016-06-06T00:00:00+00:00</published>
+  <updated>2016-06-06T00:00:00+00:00</updated>
+  <author>
+    <name>Frank Weapon</name>
+    <uri>http://localhost:4000</uri>
+    <email>helldarkfire@gmail.com</email>
+  </author>
+  <content type="html">
+    &lt;h1 id=&quot;基本介绍&quot;&gt;基本介绍&lt;/h1&gt;
+
+&lt;p&gt;NFS (Network File System)是一种分布式文件系统，可以在客户端将服务器的某一目录挂载，像访问本地文件一样访问服务器文件。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;服务器：192.168.0.1&lt;/li&gt;
+  &lt;li&gt;客户端：192.168.0.101&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;软件安装&quot;&gt;软件安装&lt;/h1&gt;
+
+&lt;h2 id=&quot;服务器&quot;&gt;服务器:&lt;/h2&gt;
+
+&lt;p&gt;在服务器上安装 nfs-kernel-server 执行以下命令：&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    sudo apt-get update
+    sudo apt-get install nfs-kernel-server
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h2 id=&quot;客户端&quot;&gt;客户端&lt;/h2&gt;
+
+&lt;p&gt;在客户端上安装 nfs-common&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    sudo apt-get update
+    sudo apt-get install nfs-common
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;在服务器设置共享目录&quot;&gt;在服务器设置共享目录&lt;a id=&quot;orgheadline5&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;在服务器上创建共享目录
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    sudo mkdir /var/nfs
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;修改该目录拥有者和用户组
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    sudo chown nobody:nogroup /var/nfs
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;修改配置文件
+配置文件在 &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/exports&lt;/code&gt; 内有示例。
+比如：我们挂载/home以及/var/nfs 供IP地址为192.168.1.101的客户端访问
+    &lt;blockquote&gt;
+      &lt;p&gt;/var/nfs    192.168.1.101(rw,sync,no_subtree_check)&lt;/p&gt;
+    &lt;/blockquote&gt;
+
+    &lt;p&gt;其中参数含义如下：&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;rw: 允许客户端对该目录读和写。&lt;/li&gt;
+      &lt;li&gt;sync: 强制NFS 在返回消息之前向磁盘中写入文件。 通常情况下，该参数给环境带来更高稳定性。&lt;/li&gt;
+      &lt;li&gt;nosubtreecheck: 在每次请求之前都查看当前用户是否有权限对其子目录进行操作，带来更高安全性。&lt;/li&gt;
+      &lt;li&gt;norootsquash: 关闭客户端对该目录的root权限。&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;创建NFS表项 状态并启动服务
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    sudo exportfs -a
+    sudo service nfs-kernel-server start
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;h1 id=&quot;在客户端设置挂载点&quot;&gt;在客户端设置挂载点&lt;a id=&quot;orgheadline6&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+  &lt;/li&gt;
+  &lt;li&gt;在mnt目录下创建挂载点
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   sudo mkdir -p /mnt/nfs/var/nfs
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;挂载服务器目录
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   sudo mount 192.168.1.1:/var/nfs /mnt/nfs/var/nfs
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;查看挂载目录
+    &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    df -h
+    mount -t nfs
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+    &lt;p&gt;我们可以在最后看到刚挂载的目录。&lt;/p&gt;
+    &lt;h1 id=&quot;设置自动挂载目录&quot;&gt;设置自动挂载目录&lt;a id=&quot;orgheadline7&quot;&gt;&lt;/a&gt;&lt;/h1&gt;
+    &lt;p&gt;向 &lt;code class=&quot;highlighter-rouge&quot;&gt;/etc/fstab&lt;/code&gt; 中写入配置项&lt;/p&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;192.168.1.1:/var/nfs    /mnt/nfs/var/nfs   nfs auto,noatime,nolock,bg,nfsvers=4,sec=krb5p,intr,tcp,actimeo=1800 0 0&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+    &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BANFS/&quot;&gt;Ubuntu 下搭建 NFS&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on June 06, 2016.&lt;/p&gt;
   </content>
 </entry>
 

@@ -139,6 +139,395 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2017-03-15T00:00:00+00:00"><a href="http://localhost:4000/Actor_Model/">March 15, 2017</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~5 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/Actor_Model/" rel="bookmark" title="Actor Model (参与者模式)思想与实例" itemprop="url">Actor Model (参与者模式)思想与实例</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <ul id="markdown-toc">
+  <li><a href="#actor-model-设计思想" id="markdown-toc-actor-model-设计思想">Actor Model 设计思想</a></li>
+  <li><a href="#同步问题编程实例哲学家就餐问题" id="markdown-toc-同步问题编程实例哲学家就餐问题">同步问题编程实例(哲学家就餐问题)</a>    <ul>
+      <li><a href="#哲学家就餐问题描述" id="markdown-toc-哲学家就餐问题描述">哲学家就餐问题描述</a></li>
+      <li><a href="#locks" id="markdown-toc-locks">Locks</a></li>
+      <li><a href="#actors" id="markdown-toc-actors">Actors</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="actor-model-设计思想">Actor Model 设计思想</h1>
+<p>Actor Model（参与者模型）简化并发而产生，它将系统中的所有组件都视为 Actor（参与者），参与者之间通过发送消息来实现交互。每个 Actor 同时只能处理一个消息，也可以发送消息给其他参与者，而大量的参与者同时存在则构成了并行化。
+Actor Model 中的消息为异步非阻塞式的消息传递，也就是说消息发送之后可以进行其他操作，当接收到接收方发送的返回消息时可以进行后续操作。因为 Actor 之间只能通过消息进行交互，也就是说不存在共享内存空间，这就省去了锁的操作。
+Actor 通过隔离控制和计算实体来实现封装，相比使用锁来进行同步控制而言，简化了并行的实现难度。
+参与者模式在1973年由 Carl Hewitt 等人发表的论文中提出<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>，后来这种思想被应用于面向对象的并发编程语言中，其中最有名的当属 Erlang 以及 Scala。Apache 的 Akka 是实现了 Actor Model 的 library，支持 Java 以及 Scala。
+在 Hadoop MapReduce v2 之后的版本中，Actor Model 就被用于其各个松耦合组件之间的通信。每个组件都维护其自己的状态机，由事件驱动状态机的变迁，在变迁发生时执行相关逻辑操作。
+在通常的思路中，我们用线程来实现并发，用锁来控制共享内存中的同步互斥问题。然而，线程本身属于相对昂贵的资源，对于程序员的水平要求相对较高。对线程的不当使用将容易导致死锁问题的产生，而且大量线程的等待也对系统资源是一种浪费。
+在 Actor Model 中使用基于事件驱动的编程模型，这种异步非阻塞的变成方式天生支持并发。且不需要涉及到对线程和锁的控制，可以使程序员关注于逻辑本身，降低了实现并发的难度。
+不过，使用 Actor Model 进行编程需要思路上的转变，从顺序执行的程序转为事件驱动的模型可能会在一定程度上让程序本身更难以理解。
+必须提到的是，对并行的控制（也就是同步）一定存在局部串行化。Actor Model 本身是一种抽象模型，对于使用者而言可以做到不使用锁，而锁将存在于更底层的位置来保证对并发的控制。
+比如 Erlang 和 akka 对上层提供的 API 并不需要锁，而其复杂的并发控制分别将锁实现在编程语言级别和框架级别。也就是说 Actor Model 和线程不是同一个抽象级别的问题，Actor Model 提供了更高的抽象级别。</p>
+
+<h1 id="同步问题编程实例哲学家就餐问题">同步问题编程实例(哲学家就餐问题)</h1>
+<p>这里对哲学家就餐问题分别使用锁的机制以及 Actor Model 进行实现，以此表现 Actor Model 的抽象能力。
+这里参考文章 <em>Locks, Actors, And Stm In Pictures</em><sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>，原文中详细介绍了Lock, Actor 再加上 Transaction 共三种方案在思想上的不同，并用卡通图进行辅助说明，在这里不做翻译只进行关键部分的转述。
+Actor Model 的实现使用框架celluloid<sup id="fnref:3"><a href="#fn:3" class="footnote">3</a></sup>，算法采用 Ruby 实现。</p>
+<h2 id="哲学家就餐问题描述">哲学家就餐问题描述</h2>
+<p>1965年，Dijkstra提出并解决了一个他称之为哲学家就餐的同步问题。该问题可简单描述为：5个哲学家围坐在一个圆桌上，每两个哲学家之间都有一只筷子，哲学家平时进行思考，只有当他们饥饿时，才拿起筷子吃饭。只有同时获得左右两只筷子他们才可以开始吃饭，吃饭后放下筷子继续思考。
+关键问题是，是否可以给出一段描述其行为的程序且保证不会发生死锁。 这里使用带有 Waiter 的算法。</p>
+<h2 id="locks">Locks</h2>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'thread'</span>
+
+<span class="k">class</span> <span class="nc">Waiter</span>
+  <span class="k">def</span> <span class="nf">initialize</span>
+    <span class="vi">@mutex</span> <span class="o">=</span> <span class="no">Mutex</span><span class="p">.</span><span class="nf">new</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">can_eat?</span> <span class="n">philosopher</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">philosopher</span><span class="p">.</span><span class="nf">left_fork</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">philosopher</span><span class="p">.</span><span class="nf">right_fork</span>
+    <span class="vi">@mutex</span><span class="p">.</span><span class="nf">synchronize</span> <span class="k">do</span>
+      <span class="k">if</span> <span class="o">!</span><span class="n">left</span><span class="p">.</span><span class="nf">used</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">right</span><span class="p">.</span><span class="nf">used</span>
+        <span class="n">left</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">true</span>
+        <span class="n">right</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">true</span>
+        <span class="k">return</span> <span class="kp">true</span>
+      <span class="k">else</span>
+        <span class="k">return</span> <span class="kp">false</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">stop_eating</span> <span class="n">philosopher</span>
+    <span class="vi">@mutex</span><span class="p">.</span><span class="nf">synchronize</span> <span class="k">do</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">left_fork</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">false</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">right_fork</span><span class="p">.</span><span class="nf">used</span> <span class="o">=</span> <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Philosopher</span>
+  <span class="kp">attr_accessor</span> <span class="ss">:left_fork</span><span class="p">,</span> <span class="ss">:right_fork</span>
+
+  <span class="c1"># 创建哲学家时指定其对应左右筷子，开始为思考状态</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">left_fork</span><span class="p">,</span> <span class="n">right_fork</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)</span>
+    <span class="vi">@name</span> <span class="o">=</span> <span class="nb">name</span>
+    <span class="vi">@left_fork</span> <span class="o">=</span> <span class="n">left_fork</span>
+    <span class="vi">@right_fork</span> <span class="o">=</span> <span class="n">right_fork</span>
+    <span class="vi">@waiter</span> <span class="o">=</span> <span class="n">waiter</span>
+    <span class="n">think</span>
+  <span class="k">end</span>
+
+  <span class="c1"># 思考一定时间后处于饥饿状态，试图进食</span>
+  <span class="k">def</span> <span class="nf">think</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> is thinking..."</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">())</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> is hungry..."</span>
+    <span class="n">dine</span>
+  <span class="k">end</span>
+
+  <span class="c1"># 等待判断是否可以进食，进食完成后继续思考</span>
+  <span class="k">def</span> <span class="nf">dine</span>
+    <span class="k">while</span> <span class="o">!</span><span class="vi">@waiter</span><span class="p">.</span><span class="nf">can_eat?</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+      <span class="n">think</span>
+    <span class="k">end</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> eats..."</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">())</span>
+    <span class="nb">puts</span> <span class="s2">"Philosopher </span><span class="si">#@name</span><span class="s2"> belches"</span>
+    <span class="vi">@waiter</span><span class="p">.</span><span class="nf">stop_eating</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+    <span class="n">think</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">forks</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">class</span> <span class="nc">Fork</span>
+  <span class="kp">attr_accessor</span> <span class="ss">:used</span>
+  <span class="k">def</span> <span class="nf">initialize</span>
+    <span class="vi">@used</span> <span class="o">=</span> <span class="kp">false</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="nf">.</span><span class="n">n</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+  <span class="n">forks</span> <span class="o">&lt;&lt;</span> <span class="no">Fork</span><span class="p">.</span><span class="nf">new</span>
+<span class="k">end</span>
+
+<span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">waiter</span> <span class="o">=</span> <span class="no">Waiter</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="c1"># 为每个哲学家创建线程，为其分配筷子（圆桌)</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="nf">.</span><span class="n">n</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+  <span class="n">threads</span> <span class="o">&lt;&lt;</span> <span class="no">Thread</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span>
+      <span class="n">left_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+      <span class="n">right_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span>
+      <span class="c1"># special case for philosopher #5 because he gets forks #5 and #1</span>
+      <span class="c1"># and the left fork is always the lower id because that's the one we try first.</span>
+      <span class="n">left_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">right_fork</span> <span class="o">=</span> <span class="n">forks</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="k">end</span>
+    <span class="no">Philosopher</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">left_fork</span><span class="p">,</span> <span class="n">right_fork</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># 迭代启动线程</span>
+<span class="n">threads</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span><span class="o">|</span><span class="n">thread</span><span class="o">|</span> <span class="n">thread</span><span class="p">.</span><span class="nf">join</span><span class="p">}</span>
+</code></pre>
+</div>
+<h2 id="actors">Actors</h2>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'rubygems'</span>
+<span class="nb">require</span> <span class="s1">'celluloid'</span>
+
+<span class="k">class</span> <span class="nc">Waiter</span>
+  <span class="kp">include</span> <span class="no">Celluloid</span>
+  <span class="c1"># 设置标记表示筷子可用状态</span>
+  <span class="no">FORK_FREE</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="no">FORK_USED</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="kp">attr_reader</span> <span class="ss">:philosophers</span>
+  <span class="kp">attr_reader</span> <span class="ss">:forks</span>
+  <span class="kp">attr_reader</span> <span class="ss">:eating</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">forks</span><span class="p">)</span>
+    <span class="vi">@philosophers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="vi">@eating</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="vi">@forks</span> <span class="o">=</span> <span class="no">Array</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">forks</span><span class="p">,</span> <span class="no">FORK_FREE</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">welcome</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="vi">@philosophers</span> <span class="o">&lt;&lt;</span> <span class="n">philosopher</span>
+    <span class="c1"># 异步发送事件，使哲学家开始思考</span>
+    <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">think</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">hungry</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="vi">@philosophers</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+
+    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">pos</span>
+    <span class="n">right_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="vi">@forks</span><span class="p">.</span><span class="nf">size</span>
+    <span class="c1"># 判断哲学家左右两侧筷子是否可用</span>
+    <span class="k">if</span> <span class="vi">@forks</span><span class="p">[</span><span class="n">left_pos</span><span class="p">]</span> <span class="o">==</span> <span class="no">FORK_FREE</span> <span class="o">&amp;&amp;</span> <span class="vi">@forks</span><span class="p">[</span><span class="n">right_pos</span><span class="p">]</span> <span class="o">==</span> <span class="no">FORK_FREE</span>
+      <span class="vi">@forks</span><span class="p">[</span><span class="n">left_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_USED</span>
+      <span class="vi">@forks</span><span class="p">[</span><span class="n">right_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_USED</span>
+      <span class="c1"># 当前哲学家加入进食队列并发送事件</span>
+      <span class="vi">@eating</span> <span class="o">&lt;&lt;</span> <span class="n">philosopher</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">eat</span>
+    <span class="k">else</span>
+      <span class="c1"># 暂时不能进食，继续思考</span>
+      <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">think</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c1"># 使某哲学家进食后释放筷子资源</span>
+  <span class="k">def</span> <span class="nf">drop_forks</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="vi">@philosophers</span><span class="p">.</span><span class="nf">index</span><span class="p">(</span><span class="n">philosopher</span><span class="p">)</span>
+    <span class="n">left_pos</span> <span class="o">=</span> <span class="n">pos</span>
+    <span class="n">right_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="vi">@forks</span><span class="p">.</span><span class="nf">size</span>
+    <span class="vi">@forks</span><span class="p">[</span><span class="n">left_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_FREE</span>
+    <span class="vi">@forks</span><span class="p">[</span><span class="n">right_pos</span><span class="p">]</span> <span class="o">=</span> <span class="no">FORK_FREE</span>
+    <span class="vi">@eating</span> <span class="o">-=</span> <span class="p">[</span><span class="n">philosopher</span><span class="p">]</span>
+    <span class="n">philosopher</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">think</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">Philosopher</span>
+  <span class="kp">include</span> <span class="no">Celluloid</span>
+  <span class="kp">attr_reader</span> <span class="ss">:name</span>
+  <span class="kp">attr_reader</span> <span class="ss">:waiter</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)</span>
+    <span class="vi">@name</span> <span class="o">=</span> <span class="nb">name</span>
+    <span class="vi">@waiter</span> <span class="o">=</span> <span class="n">waiter</span>
+    <span class="c1"># 向 Waiter 注册自身</span>
+    <span class="n">waiter</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">welcome</span><span class="p">(</span><span class="no">Actor</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">think</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> is thinking"</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">)</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> gets hungry"</span>
+    <span class="n">waiter</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">hungry</span><span class="p">(</span><span class="no">Actor</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">eat</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> is eating"</span>
+    <span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">)</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> burps"</span>
+    <span class="n">waiter</span><span class="p">.</span><span class="nf">async</span><span class="p">.</span><span class="nf">drop_forks</span><span class="p">(</span><span class="no">Actor</span><span class="p">.</span><span class="nf">current</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">names</span> <span class="o">=</span> <span class="sx">%w{Heraclitus Aristotle Epictetus Schopenhauer Popper}</span>
+<span class="n">waiter</span> <span class="o">=</span> <span class="no">Waiter</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">names</span><span class="p">.</span><span class="nf">size</span><span class="p">)</span>
+<span class="c1"># 实例化所有哲学家，initialize方法中发送事件, 整个程序将被驱动开始运行</span>
+<span class="n">philosophers</span> <span class="o">=</span> <span class="n">names</span><span class="p">.</span><span class="nf">map</span> <span class="p">{</span><span class="o">|</span><span class="nb">name</span><span class="o">|</span> <span class="no">Philosopher</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">waiter</span><span class="p">)}</span>
+<span class="c1"># 程序运行结束，进程休眠</span>
+<span class="nb">sleep</span>
+</code></pre>
+</div>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>Carl Hewitt; Peter Bishop and Richard Steiger. A Universal Modular Actor Formalism for Artificial Intelligence. IJCAI. 1973&nbsp;<a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>http://adit.io/posts/2013-05-15-Locks,-Actors,-And-STM-In-Pictures.html&nbsp;<a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>https://github.com/celluloid/celluloid&nbsp;<a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2017-03-13T00:00:00+00:00"><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">March 13, 2017</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~2 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" rel="bookmark" title="Hadoop-YARN 流程分析" itemprop="url">Hadoop-YARN 流程分析</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <ul id="markdown-toc">
+  <li><a href="#mr-v1-与-mr-v2" id="markdown-toc-mr-v1-与-mr-v2">MR v1 与 MR v2</a></li>
+  <li><a href="#apache-yarn" id="markdown-toc-apache-yarn">Apache YARN</a>    <ul>
+      <li><a href="#yarn-组成结构" id="markdown-toc-yarn-组成结构">YARN 组成结构</a></li>
+      <li><a href="#yarn-通信协议" id="markdown-toc-yarn-通信协议">YARN 通信协议</a></li>
+      <li><a href="#yarn-工作流程" id="markdown-toc-yarn-工作流程">YARN 工作流程</a></li>
+      <li><a href="#yarn-编程模型" id="markdown-toc-yarn-编程模型">YARN 编程模型</a></li>
+    </ul>
+  </li>
+  <li><a href="#mrappmaster-分析" id="markdown-toc-mrappmaster-分析">MRAppMaster 分析</a></li>
+</ul>
+
+<h1 id="mr-v1-与-mr-v2">MR v1 与 MR v2</h1>
+<p>MapReduce 框架在大规模数据集中的优良表现使其得到广泛应用，然而随着数据量的增长以及新应用类型的出现，最初的 MapReduce 框架(MR v1)面临诸多瓶颈。所以，Apache 又提出了 MR v2 以解决最初的 MapReduce 遇到的问题。
+两者的主要区别有如下几点：</p>
+
+<ul>
+  <li>扩展性：在 MR v1 中，资源管理和作业控制在同一个组件中管理。当数据量过大时，该组件的能力成为扩展集群规模的瓶颈。而 MR v2 将资源管理和作业控制分别作为两个可通信的独立组件，这使得瓶颈节点的压力得到了分散，提高了可扩展性。</li>
+  <li>可靠性：MR v1 采用传统的 Master/Slave 架构，这时的 Master 存在单点故障问题，一旦 Master 节点失效，所有作业都将无法运行。MR v2 则将作业的 master 独立于资源分配，在 master 失效后可进行重新调度作业而不影响整个平台。</li>
+  <li>资源利用率：MR v1 中资源分配的最小单位为 slot，是一种相对粗粒度的分配方案。因为一个任务很可能不能完全利用一个 slot 中的所有资源而造成浪费，此外 Map 和 Reduce 任务的 slot 不能共享，也就意味着会有闲置资源的等待问题。
+在 MR V2 中有专门的资源管理器，结合管理员配置以及程序需求创建 container（一组资源的结合）运行任务。</li>
+  <li>程序类型：MR v1的资源管理以及任务调度专为 MapReduce 这种离线数据处理应用制作，而后来兴起的内存计算，流式数据处理等计算需要一个更普适性的平台。</li>
+</ul>
+
+<h1 id="apache-yarn">Apache YARN</h1>
+<p>YARN(Yet Another Resource Negotiator)是一种资源统一管理平台，与其类似的还有Facebook 的 Corona 和 Berkeley 的 Mesos。 由于计算框架类型的不同，使用这种资源统一管理平台才能将多种计算框架部署于同一个集群上，能更有效的利用资源以及降低运维成本。</p>
+<h2 id="yarn-组成结构">YARN 组成结构</h2>
+<p>YARN 在资源管理上仍是 Master/Slave 架构，其中 Master 为 ResourceManager Slave 为 NodeManager。而对于应用的调度，则需要指定 ApplicationMaster 负责向 ResourceManager 申请资源，与 NodeManager 进行通信以获取信息进行任务调度。
+要注意在 YARN 作为资源管理平台的视野中，ApplicationMaster 和其他的 Task 的地位是相似的，都运行在 Container中。其间关系如图所示：
+<img src="../assets/upload/YARN_components.png" alt="YARN 基本组成结构" /></p>
+
+<ol>
+  <li><strong>Container</strong>: 资源分配的单位，封装了多种所需资源。task 与 container 是一对一的关系，由应用程序需求动态生成。</li>
+  <li><strong><code class="highlighter-rouge">ResourceManager</code>(RM)</strong>: 全局资源管理，负责系统资源分配。可通过 Zookeeper 来解决单点失效的问题。其中包括两个组件
+    <ol>
+      <li>调度器：根据各种限制条件将系统中的资源分配给应用程序。因为它仅负责资源分配，YARN 中将其设计为松耦合组件，提供几种实现方式，也可以由用户根据需求进行重新设计。</li>
+      <li>应用程序管理器：管理系统中所有应用，负责启动、监控 AM 并在失败时重启。</li>
+    </ol>
+  </li>
+  <li><strong><code class="highlighter-rouge">NodeManager</code>(NM)</strong>：运行在每个物理节点上的资源和任务管理器，主要负责两部分工作
+    <ol>
+      <li>定时向 RM 汇报本节点资源使用情况以及 container 运行状态</li>
+      <li>接收并处理来自 AM 的任务操作请求</li>
+    </ol>
+  </li>
+  <li><strong><code class="highlighter-rouge">ApplicationMaster</code>(AM)</strong>: 用户提交的应用程序需要制定 AM，YARN 内置两个 AM 的实现，其一是一个 demo 以 shell script 的形式给出，其二是 MapReduce 程序的 AM —— MRAppMaster。AM 主要负责以下三个功能
+    <ol>
+      <li>与 RM 调度器通信获取资源</li>
+      <li>与 NM 通信控制任务进程</li>
+      <li>监控调度属于他的所有任务，在失败时进行重新调度</li>
+    </ol>
+  </li>
+</ol>
+
+<h2 id="yarn-通信协议">YARN 通信协议</h2>
+<p>各组件之间通过 RPC 通信。为保证兼容性，YARN 采用 Google 的 Protocol Buffers，在编译源代码过程中可能由于 protobuf 版本问题导致编译不通过。
+在 YARN 中的通信总体上采用 pull 模型，也就是 client 主动向 server 发起连接请求。在 Hadoop 中有以下几种协议负责不同组件间的通信：</p>
+
+<ul>
+  <li><strong>ClientRMProtocol</strong>: JobClient 与 RM 之间的通信，用于提交应用程序、查询程序状态</li>
+  <li><strong>RMAdminProtocol</strong>: 系统管理员通过该协议更新系统配置文件</li>
+  <li><strong>AMRMProtocol</strong>：每个 AM 通过该协议向 RM 注册并为各个 task 申请资源</li>
+  <li><strong>ContainerManager</strong>： AM 通过该协议控制 NM 启动停止 container，以及获取各个 container 的状态信息</li>
+  <li><strong>ResourceTracker</strong>：NM 通过该协议向 RM 注册并定时发送心跳信息汇报节点资源使用情况以及 container 的运行信息。</li>
+</ul>
+
+<h2 id="yarn-工作流程">YARN 工作流程</h2>
+<p>当JobClient 提交应用程序到 YARN 时，首先启动对应的 AM，然后由 AM 创建应用、申请资源、监控只到作业完成，如下图具体包含以下几个步骤<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>：
+<img src="../assets/upload/YARN_workflow.png" alt="YARN 工作流程" /></p>
+
+<ol>
+  <li>用户提交程序</li>
+  <li>RM 分配 Container，与 对应 NM 通信告知启动 AM</li>
+  <li>AM 向 RM 注册，程序进入运行状态，重复执行4-7直至结束</li>
+  <li>AM 采用轮询方式向 RM 申请领取资源</li>
+  <li>AM 申请到资源后与 NM 通信告知其启动任务</li>
+  <li>NM 设置好运行环境，通过脚本启动任务</li>
+  <li>各任务向 AM 汇报进度</li>
+  <li>完成后 AM 向 RM 发起注销请求，关闭自己</li>
+</ol>
+
+<h2 id="yarn-编程模型">YARN 编程模型</h2>
+<p>在 YARN 中以采用事件驱动的有限状态机进行运行控制，在 MR v1 中控制 Job 以及 Task 的 Progress 类将由用状态机重写的类替代。
+对于一个生命周期较长的对象，其状态都会由一个状态机来表示。同时设计事件监听器(EventListener)和事件派发器(EventDispatcher)。
+事件和状态机的变迁相互影响，也就是说监听到某事件可能会导致状态机的变迁，而状态机变迁时的行为有可能是产生一个新的事件。
+所有的事件都将经过AsyncDispatcher 进行排队分发，这种事件集中排队分发的设计方式与Kafka<sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>类似。</p>
+
+<p>此外，考虑到耦合性问题，YARN 中的组件以服务化的形式出现，均实现 <code class="highlighter-rouge">Service</code> 接口。<code class="highlighter-rouge">AbstractService</code>是一个抽象类，提供了一个 Service 最基本的实现。
+对于非组合服务，可以直接继承<code class="highlighter-rouge">AbstarctService</code>类，而对于组合服务，比如<code class="highlighter-rouge">MRAppMaster</code>组合了各种服务对象，则需要继承<code class="highlighter-rouge">CompositeService</code>。</p>
+
+<h1 id="mrappmaster-分析">MRAppMaster 分析</h1>
+<p><code class="highlighter-rouge">MRAppMaster</code>继承<code class="highlighter-rouge">CompositeService</code>，是 MapReduce 型应用程序的 ApplicationMaster。
+该类的 Java Doc 中介绍到，应用程序所用到的状态机被封装到接口<code class="highlighter-rouge">Job</code>的实现类中，所有状态的改变都要通过<code class="highlighter-rouge">Job</code>接口。事件（event）会导致该有限状态机的变迁。
+该类本分是一个松耦合的服务组件，和其他组件的交互行为都是通过事件产生的，这种方式与参与者模式(Actor Model)很类似。
+所有的组件都会向一个中心分发器（dispatcher)注册，事件均由该分发器调度分发。而各组件之间的信息会通过<code class="highlighter-rouge">AppContext</code>进行共享。</p>
+
+<p>在<code class="highlighter-rouge">MRAppMaster</code>源码中有一个内部类 <code class="highlighter-rouge">RunningAppContext</code>实现<code class="highlighter-rouge">AppContext</code>接口，通过<em>context</em>可以创建 Job, Task, TaskAttempt 以及 Speculative 的事件分发器。
+这个类中的代码多为环境搭建的操作，比如各服务组件的组合，监听器和分发器的创建注册，用户的验证等。
+在<em>serviceStart()</em>方法的最后调用<em>startJobs()</em>创建一个job-start事件并发送至<code class="highlighter-rouge">AsyncDispatcher</code>，以此触发整个 Job 的状态机。</p>
+
+<hr />
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>参考自《Hadoop 技术内幕：深入解析 MapReduce架构设计与实现原理》 董西成 著&nbsp;<a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>https://kafka.apache.org&nbsp;<a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2017-03-02T00:00:00+00:00"><a href="http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">March 02, 2017</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -474,6 +863,7 @@ Split 大小由如下公式计算得来
 <p>具体 copy 的步骤在<code class="highlighter-rouge">Fetcher</code>类中实现，<em>copyFromHost()</em> 从指定<code class="highlighter-rouge">MapHost</code>中 shuffle 可用的 map 结果，将该 Host 中的可用结果拼接返回一个 URL并打开输入流。
 之后开始执行 <em>copyMapOutput()</em> 函数拷贝数据。 对于拷贝失败或没有响应的任务，通过异常做重新调度等处理。<em>copyMapOutput()</em> 方法将通过各种工具类实施 copy 过程，并进行 merge 操作。</p>
 
+<hr />
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 <div class="footnotes">
@@ -483,387 +873,6 @@ Split 大小由如下公式计算得来
     </li>
   </ol>
 </div>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2016-04-19T00:00:00+00:00"><a href="http://localhost:4000/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/">April 19, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~2 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" rel="bookmark" title="用latex写一篇简单文章" itemprop="url">用latex写一篇简单文章</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#orgheadline5">1. 基本元素</a>
-<ul>
-<li><a href="#orgheadline1">1.1. 文章类型——最基本的内容</a></li>
-<li><a href="#orgheadline2">1.2. 作者、标题、日期——制作标题页</a></li>
-<li><a href="#orgheadline3">1.3. 章节、段落——组织文章内容</a></li>
-<li><a href="#orgheadline4">1.4. 目录——整理章节标题</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline9">2. 版面设置</a>
-<ul>
-<li><a href="#orgheadline6">2.1. 页边距——利用好页面</a></li>
-<li><a href="#orgheadline7">2.2. 页眉、页脚——有地方显示页标、作者、日期</a></li>
-<li><a href="#orgheadline8">2.3. 间距——合理调整页面</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline14">3. 插入内容</a>
-<ul>
-<li><a href="#orgheadline10">3.1. 插入图片——自动编号你的图例</a></li>
-<li><a href="#orgheadline11">3.2. 插入表格——用代码画出表格</a></li>
-<li><a href="#orgheadline12">3.3. 插入列表——格式化你的内容</a></li>
-<li><a href="#orgheadline13">3.4. 插入公式——编辑复杂的数学内容</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
-<h1 id="基本元素">基本元素<a id="orgheadline5"></a></h1>
-
-<h2 id="文章类型最基本的内容">文章类型——最基本的内容<a id="orgheadline1"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
-    <span class="nt">\begin{document}</span>
-    Hello, world!
-    <span class="nt">\end{document}</span></code></pre></figure>
-
-<h2 id="作者标题日期制作标题页">作者、标题、日期——制作标题页<a id="orgheadline2"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\title</span><span class="p">{</span>hello，world!<span class="p">}</span>
-    <span class="k">\author</span><span class="p">{</span>frank weapon<span class="p">}</span>
-    <span class="k">\date</span><span class="p">{</span><span class="k">\today</span><span class="p">}</span>
-    <span class="nt">\begin{document}</span>
-    <span class="k">\maketitle</span>
-    hello，world!
-    <span class="nt">\end{document}</span></code></pre></figure>
-
-<h2 id="章节段落组织文章内容">章节、段落——组织文章内容<a id="orgheadline3"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{document}</span>
-    <span class="k">\maketitle</span>
-    <span class="k">\section</span><span class="p">{</span>hello programming language<span class="p">}</span>
-    <span class="k">\subsection</span><span class="p">{</span>hello java<span class="p">}</span>
-    <span class="k">\paragraph</span><span class="p">{</span>java<span class="p">}</span> is a OO language
-    <span class="k">\paragraph</span><span class="p">{</span>java<span class="p">}</span> is a powerful language
-    <span class="k">\subsubsection</span><span class="p">{</span>hello spring<span class="p">}</span>
-    <span class="k">\subsubsection</span><span class="p">{</span>hello struts<span class="p">}</span>
-    <span class="k">\subsection</span><span class="p">{</span>hello ruby<span class="p">}</span>
-    <span class="nt">\end{document}</span></code></pre></figure>
-
-<h2 id="目录整理章节标题">目录——整理章节标题<a id="orgheadline4"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{document}</span>
-    <span class="k">\maketitle</span>
-    <span class="k">\tableofcontents</span>
-    ...
-    <span class="nt">\end{document}</span></code></pre></figure>
-
-<h1 id="版面设置">版面设置<a id="orgheadline9"></a></h1>
-
-<h2 id="页边距利用好页面">页边距——利用好页面<a id="orgheadline6"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
-    <span class="k">\usepackage</span><span class="p">{</span>geometry<span class="p">}</span>
-    <span class="k">\geometry</span><span class="p">{</span>papersize=<span class="p">{</span>20cm,15cm<span class="p">}}</span>
-    <span class="k">\geometry</span><span class="p">{</span>left=1cm,right=2cm,top=3cm,bottom=4cm<span class="p">}</span>
-    <span class="nt">\begin{document}</span>
-    Hello, world!
-    <span class="nt">\end{document}</span></code></pre></figure>
-
-<h2 id="页眉页脚有地方显示页标作者日期">页眉、页脚——有地方显示页标、作者、日期<a id="orgheadline7"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
-    <span class="k">\usepackage</span><span class="p">{</span>fancyhdr<span class="p">}</span>
-    <span class="k">\pagestyle</span><span class="p">{</span>fancy<span class="p">}</span>
-    <span class="k">\lhead</span><span class="p">{</span>head left<span class="p">}</span>
-    <span class="k">\chead</span><span class="p">{</span>head center<span class="p">}</span>
-    <span class="k">\rhead</span><span class="p">{</span>head right<span class="p">}</span>
-    <span class="k">\lfoot</span><span class="p">{}</span>
-    <span class="k">\cfoot</span><span class="p">{</span><span class="k">\thepage</span><span class="p">}</span>
-    <span class="k">\rfoot</span><span class="p">{}</span>
-    <span class="nt">\begin{document}</span>
-    Hello, world!
-    <span class="nt">\end{document}</span></code></pre></figure>
-
-<h2 id="间距合理调整页面">间距——合理调整页面<a id="orgheadline8"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="c">%paragraph indentation</span>
-    <span class="k">\setlength</span><span class="p">{</span><span class="k">\parindent</span><span class="p">}{</span>4em<span class="p">}</span>
-    <span class="c">%paragraph spacing</span>
-    <span class="k">\setlength</span><span class="p">{</span><span class="k">\parskip</span><span class="p">}{</span>1em<span class="p">}</span>
-    <span class="c">%Line spacing</span>
-    <span class="k">\renewcommand</span><span class="p">{</span><span class="k">\baselinestretch</span><span class="p">}{</span>1.5<span class="p">}</span></code></pre></figure>
-
-<h1 id="插入内容">插入内容<a id="orgheadline14"></a></h1>
-
-<h2 id="插入图片自动编号你的图例">插入图片——自动编号你的图例<a id="orgheadline10"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{figure}</span>[h]
-      <span class="k">\centering</span>
-      <span class="k">\includegraphics</span><span class="na">[width=0.8\textwidth]</span><span class="p">{</span>figure/fig1<span class="p">}</span>
-      <span class="k">\caption</span><span class="p">{</span>demo figure<span class="p">}</span>
-      <span class="k">\label</span><span class="p">{</span>figure demo<span class="p">}</span>
-    <span class="nt">\end{figure}</span></code></pre></figure>
-
-<h2 id="插入表格用代码画出表格">插入表格——用代码画出表格<a id="orgheadline11"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{table}</span>[h]
-    <span class="nt">\begin{center}</span>
-    <span class="k">\caption</span><span class="p">{</span>demo table<span class="p">}</span>
-    <span class="k">\label</span><span class="p">{</span>table demo<span class="p">}</span>
-    <span class="nt">\begin{tabular}</span><span class="p">{</span>| l | l | l |<span class="p">}</span>
-    <span class="k">\hline</span>
-    00 <span class="p">&amp;</span> 01 <span class="p">&amp;</span> 02<span class="k">\\</span>
-    <span class="k">\hline</span>
-    10 <span class="p">&amp;</span> 11 <span class="p">&amp;</span> 12<span class="k">\\</span>
-    <span class="k">\hline</span>
-    20 <span class="p">&amp;</span> 21 <span class="p">&amp;</span> 22<span class="k">\\</span>
-    <span class="k">\hline</span>
-    <span class="nt">\end{tabular}</span>
-    <span class="nt">\end{center}</span>
-    <span class="nt">\end{table}</span></code></pre></figure>
-
-<h2 id="插入列表格式化你的内容">插入列表——格式化你的内容<a id="orgheadline12"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{itemize}</span>
-    <span class="k">\item</span> one demo item
-    <span class="k">\item</span> another demo item
-    <span class="nt">\end{itemize}</span></code></pre></figure>
-
-<h2 id="插入公式编辑复杂的数学内容">插入公式——编辑复杂的数学内容<a id="orgheadline13"></a></h2>
-
-<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
-    <span class="k">\usepackage</span><span class="p">{</span>amsmath<span class="p">}</span>
-    <span class="nt">\begin{document}</span>
-    Hello, Math !
-    <span class="p">$</span><span class="nb">...</span><span class="p">$</span> <span class="c">% inline</span>
-    <span class="p">\[</span><span class="nb"> .. </span><span class="p">\]</span> <span class="c">% between two lines</span>
-    <span class="nt">\begin{equation}</span> <span class="c">% numbered equation between lines</span>
-    …
-    <span class="nt">\end{equation}</span>
-    <span class="nt">\end{document}</span></code></pre></figure>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2016-01-25T00:00:00+00:00"><a href="http://localhost:4000/Spacemacs/">January 25, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/Spacemacs/" rel="bookmark" title="Spacemacs简介" itemprop="url">Spacemacs简介</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#orgheadline4">1. Why Spacemacs</a>
-<ul>
-<li><a href="#orgheadline1">1.1. Compare to Emacs?</a></li>
-<li><a href="#orgheadline2">1.2. Compare to Vim?</a></li>
-<li><a href="#orgheadline3">1.3. Compaire to other IDE?</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline8">2. Spacemacs introduction</a>
-<ul>
-<li><a href="#orgheadline5">2.1. 官网</a></li>
-<li><a href="#orgheadline6">2.2. 项目结构</a></li>
-<li><a href="#orgheadline7">2.3. 目录结构</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline12">3. Using spacemacs</a>
-<ul>
-<li><a href="#orgheadline9">3.1. 安装(Mac OS X)</a></li>
-<li><a href="#orgheadline10">3.2. 配置.spacemacs</a></li>
-<li><a href="#orgheadline11">3.3. 开始使用</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
-<h1 id="why-spacemacs">Why Spacemacs<a id="orgheadline4"></a></h1>
-
-<h2 id="compare-to-emacs">Compare to Emacs?<a id="orgheadline1"></a></h2>
-
-<p>Spacemacs作为Emacs的一个扩展,Spacemacs相对于其他的Emacs配置来说，文档的详细程度绝对完胜其他配置。从头开始折腾Emacs是不太明智的行为，而采用各路大神的配置又会有些摸不清头脑不知道如何入手。
-这时候，Spacemacs详细的文档和清晰的分层可以作为想转向Emacs的人入门非常好的版本。</p>
-
-<h2 id="compare-to-vim">Compare to Vim?<a id="orgheadline2"></a></h2>
-
-<p>Spacemacs最突出的特点就是与Vim极高的相似性，以空格键作为leader键，甚至文档中专门为有兴趣转入Emacs的Vim党提供了专门的内容。安装过程中选择Vim布局，可以完全采用Vim的编辑方式享受Emacs的各种优势。</p>
-
-<h2 id="compaire-to-other-ide">Compaire to other IDE?<a id="orgheadline3"></a></h2>
-
-<p>如果写Java，目前可能没有工具能超过Intellij Idea，但是做轻量级一些的编码工作，一个庞大的IDE可能有些太过重量级。而且Emacs高度的可扩展性给了Geek们无限的空间，其写文档、Latex的能力也是其他IDE不能相比的。</p>
-
-<h1 id="spacemacs-introduction">Spacemacs introduction<a id="orgheadline8"></a></h1>
-
-<h2 id="官网">官网<a id="orgheadline5"></a></h2>
-
-<p><a href="http://spacemacs.org">Spacemacs.org</a></p>
-
-<h2 id="项目结构">项目结构<a id="orgheadline6"></a></h2>
-
-<p>Spacemacs 以layer来进行功能的分割，通过.spacemacs文件来进行配置管理，具体内容在仍然在.emacs.d目录下。某个layer的具体配置可以到layer目录下查看文档。</p>
-
-<h2 id="目录结构">目录结构<a id="orgheadline7"></a></h2>
-
-<ul>
-  <li>assets: 图标等内容,不需要关注。</li>
-  <li>core: Spacemacs 配置的核心内容，最好不要修改其内容。</li>
-  <li>doc: Spacemacs 的各类相关文档。</li>
-  <li>layers: 其他开发者贡献的代码，用于扩展Spacemacs</li>
-  <li>private: 本地个人目录，用于存放自己写的一些EL和keybinding等</li>
-  <li>tests: 测试目录，不需要关注。</li>
-</ul>
-
-<h1 id="using-spacemacs">Using spacemacs<a id="orgheadline12"></a></h1>
-
-<h2 id="安装mac-os-x">安装(Mac OS X)<a id="orgheadline9"></a></h2>
-
-<ul>
-  <li>
-    <p>安装Emacs24.4以上的版本</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>brew tap railwaycat/homebrew-emacsmacport
-brew install emacs-mac --with-spacemacs-icon
-brew linkapps
-</code></pre>
-    </div>
-  </li>
-  <li>
-    <p>下载配置文件</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
-</code></pre>
-    </div>
-  </li>
-  <li>
-    <p>以非安全模式启动emacs以保证成功下载插件</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>emacs --insecure
-</code></pre>
-    </div>
-  </li>
-  <li>
-    <p>选择编辑模式、待安装完成后重启</p>
-  </li>
-</ul>
-
-<h2 id="配置spacemacs">配置.spacemacs<a id="orgheadline10"></a></h2>
-
-<ul>
-  <li>打开 <em>~.spacemacs</em></li>
-  <li>在layers中打开需要用的注释掉的layer，并添加osx以使emacs能正常使用Max OS x的快捷键。</li>
-  <li>最下面 <code class="highlighter-rouge">(defun dotspacemacs/user-config ()</code> 中添加自己的配置。(若配置有明显分类，应参考官方文档创建自己的layer并进行引用管理）</li>
-  <li><code class="highlighter-rouge">SPC f e R</code> 刷新配置</li>
-</ul>
-
-<h2 id="开始使用">开始使用<a id="orgheadline11"></a></h2>
-
-<ul>
-  <li>
-    <p>与Emacs不同，采用SPC作为Leader键可以减少很多组合型快捷键的使用，在Normal Mode（Vim基本常识）中按下空格键会有大量功能键提示,多看文档多尝试。</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="org-left" />
-    
-<col class="org-left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="org-left">b</td>
-<td class="org-left">buffer</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">f</td>
-<td class="org-left">file</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">w</td>
-<td class="org-left">window</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">m</td>
-<td class="org-left">mode</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">s</td>
-<td class="org-left">search</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">h</td>
-<td class="org-left">help</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">c</td>
-<td class="org-left">comment/compile</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">p</td>
-<td class="org-left">project</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">l</td>
-<td class="org-left">layout</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>通过查看layout的文档、根据个人需求定制自己的Emacs</p>
-  </li>
-</ul>
 
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
@@ -889,6 +898,12 @@ brew linkapps
       <li>
         
           <a href="http://localhost:4000/page3">3</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="http://localhost:4000/page4">4</a>
         
       </li>
     
