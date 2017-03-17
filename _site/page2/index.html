@@ -139,6 +139,359 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2017-03-02T00:00:00+00:00"><a href="http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">March 02, 2017</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~7 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" rel="bookmark" title="Hadoop-MapReduce-task流程分析" itemprop="url">Hadoop-MapReduce-task流程分析</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <ul id="markdown-toc">
+  <li><a href="#task-运行概述" id="markdown-toc-task-运行概述">Task 运行概述</a>    <ul>
+      <li><a href="#map-task-流程" id="markdown-toc-map-task-流程">Map Task 流程:</a></li>
+      <li><a href="#reduce-task-流程" id="markdown-toc-reduce-task-流程">Reduce Task 流程:</a></li>
+    </ul>
+  </li>
+  <li><a href="#task-抽象类分析" id="markdown-toc-task-抽象类分析">Task 抽象类分析</a>    <ul>
+      <li><a href="#task-内部类介绍" id="markdown-toc-task-内部类介绍">Task 内部类介绍</a></li>
+      <li><a href="#task-方法介绍" id="markdown-toc-task-方法介绍">Task 方法介绍</a>        <ul>
+          <li><a href="#接口" id="markdown-toc-接口">接口</a></li>
+          <li><a href="#任务准备" id="markdown-toc-任务准备">任务准备</a></li>
+          <li><a href="#读写" id="markdown-toc-读写">读写</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#map-task-内部实现" id="markdown-toc-map-task-内部实现">Map Task 内部实现</a>    <ul>
+      <li><a href="#run-方法" id="markdown-toc-run-方法">run 方法</a></li>
+      <li><a href="#runoldmapper-方法" id="markdown-toc-runoldmapper-方法">runOldMapper 方法</a></li>
+    </ul>
+  </li>
+  <li><a href="#reduce-task-内部实现" id="markdown-toc-reduce-task-内部实现">Reduce Task 内部实现</a>    <ul>
+      <li><a href="#run-方法-1" id="markdown-toc-run-方法-1">run 方法</a></li>
+      <li><a href="#runoldreducer方法" id="markdown-toc-runoldreducer方法">runOldReducer方法</a></li>
+    </ul>
+  </li>
+  <li><a href="#mapreduce-的数据传递" id="markdown-toc-mapreduce-的数据传递">MapReduce 的数据传递</a>    <ul>
+      <li><a href="#inputformat" id="markdown-toc-inputformat">InputFormat</a></li>
+      <li><a href="#outputformat" id="markdown-toc-outputformat">OutputFormat</a></li>
+      <li><a href="#spill" id="markdown-toc-spill">spill</a>        <ul>
+          <li><a href="#缓冲区与索引" id="markdown-toc-缓冲区与索引">缓冲区与索引</a></li>
+        </ul>
+      </li>
+      <li><a href="#shuffle" id="markdown-toc-shuffle">shuffle</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>对于一个简单的 MapReduce 作业，用户只需要实现 Map 与 Reduce 两个函数。
+这两个函数由继承 Mapper 与 Reducer 类并重写相关方法得来，
+在 Hadoop2.7.3 源码中可以看到，<code class="highlighter-rouge">hadoop-mapreduce-project</code> module 中的示例程序 <code class="highlighter-rouge">WordCount</code>。
+其中包含两个静态内部类: TokenizerMapper和IntSumReducer。
+分别继承自 Mapper 和 Reducer，并重写了对应的 map 和 reduce 方法。在 Hadoop 中会通过反射将这两个类分别注入到 MapTask 和 ReduceTask 中进行调度运行。
+其中 MapTask 可以细分为Read, Map, Collect, Spill 和 Combine 五个阶段；ReduceTask 可以细分为 Shuffle, Merge, Sort, Reduce 和 Write 五个阶段。</p>
+
+<hr />
+
+<h1 id="task-运行概述">Task 运行概述</h1>
+<p>总体来说，MapReduce 过程分为 Map 阶段以及 Reduce 阶段。
+ 其中每个 Map Task 处理一篇数据（InputSplit，属逻辑分片），而 Reduce Task 从每个 Map Task 的输出中拷贝相应数据，经处理后写入 HDFS 中作为最终结果。
+ 总体上来看，整个过程采用了 pull 模型。也就是说，Map Task 将中间结果保存到本地磁盘中，再由 Reduce Task 从 Map Task 端拷贝拉取(pull)数据进行后续处理。
+ 这两者之间通过 HTTP 协议传输数据。</p>
+
+<h2 id="map-task-流程">Map Task 流程:</h2>
+<ol>
+  <li>根据用户指定、编写的 InputFormat 将Split 解析成为  键值对(k1,v1) 的形式</li>
+  <li>上述(k1,v1) 输入 map 函数，得到(k2,v2)</li>
+  <li>根据指定的 Partitioner(默认为 Hash Partitioner) 进行数据分片, 以确定每个键值对应该由哪个 Reduce Task 处理</li>
+  <li>将经过之前处理后的数据通过用户定义的 Combiner(可选项) 进行本地规约</li>
+  <li>将处理后的结果保存至本地硬盘上</li>
+</ol>
+
+<h2 id="reduce-task-流程">Reduce Task 流程:</h2>
+<ol>
+  <li>通过 HTTP 协议从各个已完成的 Map Task 中拷贝相应的数据</li>
+  <li>数据拷贝完成后根据 key 值进行排序，将 key 相等的记录聚集到一起形成若干分组</li>
+  <li>将每组数据输入 reduce  函数中</li>
+  <li>将 reduce 的输出写入 HDFS</li>
+</ol>
+
+<h1 id="task-抽象类分析">Task 抽象类分析</h1>
+<p>Task 作为一个抽象类，是 MapTask 和 ReduceTask 的父类。
+其中若干内部类作为 Task 运行流程中的工具类：</p>
+<h2 id="task-内部类介绍">Task 内部类介绍</h2>
+<ul>
+  <li><strong><del>Counter</del></strong>: 统计 Task 内部各类数据，目前已废弃，使用单独的枚举类<code class="highlighter-rouge">TaskCounter</code> 实现。</li>
+  <li><strong>TaskReporter</strong>: 继承自 <code class="highlighter-rouge">StatusReporter</code> 并实现<code class="highlighter-rouge">Reporter</code>和<code class="highlighter-rouge">Runnable</code>接口。作为一个独立的线程报告任务的进度、状态以及更新计数器。 若长期未收到该线程的报告，则视为该任务失效，杀死并重新调度。</li>
+  <li><strong>GcTimeUpdater</strong>: 记录并更新该任务在 GC 中所消耗的时间</li>
+  <li><strong>FileSystemStatisticUpdater</strong>: Hadoop 提供一个 <code class="highlighter-rouge">FileSystem</code> 抽象类，为了保证不同文件系统之间的通用性。其中包含内部类<code class="highlighter-rouge">Statistics</code>，该类中包含用 <em>volatile</em> 关键字标注的统计用变量。
+<code class="highlighter-rouge">FileSystemStatisticUpdater</code> 在其中迭代上述变量并记录最新状态，并创建各变量对应的 Counter。</li>
+  <li><strong>ValuesIterator</strong>: 以排序后的 <code class="highlighter-rouge">RawKeyValueIterator</code> 为输入，以迭代value 为目的的键值对迭代器。</li>
+  <li><strong>CombineValuesIterator</strong>: 继承自<code class="highlighter-rouge">ValuesIterator</code>， 仅在重写 <em>next()</em>方法时添加了 combine 计数器。</li>
+  <li><strong>CombineRunner</strong>: 以抽象类的形式对 combinerRunner 的两种API进行一次封装， 实现<em>create()</em>方法并在其中实例化 <code class="highlighter-rouge">OldCombineRunner</code>或<code class="highlighter-rouge">NewCombineRunner</code>。 规定<em>combine()</em>接口，以空方法表示，要求子类重写。</li>
+  <li><strong>OldCombineRunner</strong>: 实现了<em>combine()</em>方法的子类，通过反射实例化 Reducer ，迭代<code class="highlighter-rouge">CombineValuesIterator</code> 将具有相同 key 值的键值对进行 reduce 操作。</li>
+  <li><strong>NewCombineRunner</strong>: 为使用新的 API 实现一个内部类 <code class="highlighter-rouge">OutputConverter&lt;K,V&gt;</code> 并创建 <code class="highlighter-rouge">ReduceContext</code> 作为参数传入 Reducer 的 run 方法中。 新 API 封装性更好，将迭代过程封装到 <code class="highlighter-rouge">Reducer</code> 内部， 通过<code class="highlighter-rouge">ReduceContext</code> 设置参数。</li>
+</ul>
+
+<h2 id="task-方法介绍">Task 方法介绍</h2>
+<p>Task 作为一个抽象类，提供了许多 get/set 方法。包括各类秘钥（JobTokenSecret, ShffleSecret, EntryptedSpillKey)，流程控制方法(partition, phase, FsStatistics, progress, status), 任务相关标示(taskID, isJobSetupTask, isMapOrReduce)。</p>
+<h3 id="接口">接口</h3>
+<p>作为一个 Task 最重要的 <em>run</em> 方法， 规定了一个接口，由 <code class="highlighter-rouge">MapTask</code> 和 <code class="highlighter-rouge">ReduceTask</code> 分别各自实现。</p>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(</span><span class="n">JobConf</span> <span class="n">job</span><span class="o">,</span> <span class="n">TaskUmbilicalProtocol</span> <span class="n">umbilical</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ClassNotFoundException</span><span class="o">,</span> <span class="n">InterruptedException</span><span class="o">;</span>
+</code></pre>
+</div>
+<p>其第一个参数<code class="highlighter-rouge">JobConf</code>是作业从 Client 创建时指定的内容， 第二个参数 <code class="highlighter-rouge">TaskUmbilicalProtocol</code> 是 Hadoop 所有子进程与其父进程通信的协议接口。
+父进程指一个守护进程，它与 Master 进行通信，要求创建 Map 或 Reduce 任务并作为子进程运行。</p>
+
+<h3 id="任务准备">任务准备</h3>
+<p><code class="highlighter-rouge">Task</code> 的 <em>initilize</em> 方法进行任务初始化。
+首先，根据<code class="highlighter-rouge">JobConf</code>创建 <em><code class="highlighter-rouge">JobContextImpl</code>:jobContext</em> 和 <em><code class="highlighter-rouge">TaskAttemptContextImpl</code>:taskContext</em>，并将任务状态由<em>UNSSIGNED</em>修改为<em>RUNNING</em>。
+若使用 new API， 需要通过反射获得 <em>outputFormat</em>，从 OutputFormat 中获取<em><code class="highlighter-rouge">OutputCommitter</code>:committer</em>，否则直接从<code class="highlighter-rouge">JobConf</code>中取得<em>committer</em>。
+然后指定输出目录，调用<em>comitter.setupTask()</em>完成任务创建。
+最后使用到<code class="highlighter-rouge">ResourceCalculatorProcessTree</code>进行一些资源管理方面的处理。</p>
+<h3 id="读写">读写</h3>
+<p><em>readFiles(DataInput in)</em> 和 <em>write(DataOutput out)</em> 分别负责从（向）I/O 流中读取（写入）数据。 此外还需判断当前热舞是否为 Job clean up 或 Task clean up 任务并进行相关操作。</p>
+
+<h1 id="map-task-内部实现">Map Task 内部实现</h1>
+<h2 id="run-方法">run 方法</h2>
+<p><code class="highlighter-rouge">MapTask</code>在<em>run()</em>进行 task 相关设置</p>
+
+<ol>
+  <li>根据是否包含 Reduce 任务设置进度百分比：
+    <ol>
+      <li>Reduce 任务数量等于0，task 只有 map 阶段，完成时进度显示为100%(1.0f)</li>
+      <li>Reduce 任务数量大于0， task 分为 map 和 sort 两个阶段，前者完成时进度为66.7%(0.667f)，后者即为剩下的33.3%(0.333f)</li>
+    </ol>
+  </li>
+  <li>调用 <em><code class="highlighter-rouge">jobConf</code>:getUseNewMapper()</em> 判断使用的 API类型并传入父类的 <em>initilize()</em>方法进行初始化</li>
+  <li>并判断任务是否为 setup 或 cleanup 操作完成, 若是则执行相关方法并返回，否则进行常规的 map 任务</li>
+  <li>具体的 Map 操作由 <em>runNewMapper()</em> 和 <em>runOldMapper()</em>实现。</li>
+  <li>map 操作完成后，调用 <em>done()</em> 方法进行收尾工作。</li>
+</ol>
+
+<h2 id="runoldmapper-方法">runOldMapper 方法</h2>
+<p>对于一个 Map 任务，首先要找到与之对应的 <code class="highlighter-rouge">Split</code> 这里涉及到三个方法</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>    <span class="n">InputSplit</span> <span class="n">inputSplit</span> <span class="o">=</span> <span class="n">getSplitDetails</span><span class="o">(</span><span class="k">new</span> <span class="n">Path</span><span class="o">(</span><span class="n">splitIndex</span><span class="o">.</span><span class="na">getSplitLocation</span><span class="o">()),</span>
+           <span class="n">splitIndex</span><span class="o">.</span><span class="na">getStartOffset</span><span class="o">());</span>
+    <span class="n">updateJobWithSplit</span><span class="o">(</span><span class="n">job</span><span class="o">,</span> <span class="n">inputSplit</span><span class="o">);</span>
+    <span class="n">reporter</span><span class="o">.</span><span class="na">setInputSplit</span><span class="o">(</span><span class="n">inputSplit</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>注意到<code class="highlighter-rouge">InputSplit</code> 在这里（<em>runOldMapper</em>）是一个接口，而与之同名的抽象类用于新的 API（<em>runNewMapper()</em>) 中。
+<code class="highlighter-rouge">FileSplit</code> 通过实现<code class="highlighter-rouge">InputSplitWithLocationInfo</code>(子接口)并继承<code class="highlighter-rouge">InputSplit</code>以达到在新旧 API 中能够通用的目的。
+<code class="highlighter-rouge">InputSplit</code>表示每个task 需要处理的数据， 一般来说以面向字节的方式呈现，而 <code class="highlighter-rouge">RecordReader</code> 负责以面向记录(record-oriented) 的方式呈现数据。
+另外一个需要指出的是变量<em>splitIndex</em>，它是类<code class="highlighter-rouge">JobSplit</code>的一个内部静态类<code class="highlighter-rouge">TaskSplitIndex</code>的实例， 用于指定该任务待处理数据在文件中的偏移量。
+之后通过两个方法将 inputSplit 的详细内容更新到 Job 和 reporter 中。 需要了解 Split 的详细内容请点击<a href="#inputformat">这里</a>。</p>
+
+<p>接下来，会判断 skipping mode 实例化 SkippingRecordReader 或 TrackedRecordReader。 在 Map Task 中，读取 Record 出现错误时该 Record 会被标记，
+如果多次出现问题，将会进入 skipping mode，跳过所有被标记的 Record。
+之后根据 Reduce Task 的数量实例化 MapOutputCollector：
+对于不存在 Reduce Task 的作业，将实例化<code class="highlighter-rouge">DirectMapOutputCollector</code>，把结果直接输出。
+而正常存在 Reduce Task 的作业，将调用<em>createSortingCollector()</em> 从 <code class="highlighter-rouge">JobContext</code> 中读取 Collectors 列表并迭代选择合适的 Collector 进行初始化。
+然后通过<code class="highlighter-rouge">MapRunnable</code>接口创建 <em>runner</em>，该接口是为了扩展 Map 通用性，使其在多线程或或异步 mapper 中更具可操作性。调用<em>runner.run()</em>之后 map 阶段完成，
+对于存在 Reduce task 的作业，进入 sort 阶段。 最后更新状态进行资源的释放，本方法结束。</p>
+
+<p>另外值得一提的是 MapOutPutBuffer 中存在一个默认 Collector : <code class="highlighter-rouge">MapOutPutBuffer</code> 该类是 MapTask 的一个内部类， 涉及到 <strong>Spill</strong>操作和缓冲区设计的细节，
+需要了解请点击<a href="#spill">这里</a>。</p>
+
+<h1 id="reduce-task-内部实现">Reduce Task 内部实现</h1>
+<h2 id="run-方法-1">run 方法</h2>
+<p>与 Map 类似，判断是否为正常的 MapReduce 任务（即非 setup 或 cleanup 任务）。是则通过<code class="highlighter-rouge">Progress</code>类添加三个阶段，分别为 copy, sort和 reduce，否则进行相关特殊任务的操作。
+与 Map 不同的是，这里用到接口<code class="highlighter-rouge">ShuffleConsumerPlugin</code>，Hadoop 提供它的一个实现类<code class="highlighter-rouge">Shuffle</code>。 copy 和 sort 两个阶段均在 <em><code class="highlighter-rouge">Shuffle</code>:run()</em> 中完成。该方法返回值为一个迭代器类<code class="highlighter-rouge">RawKeyValueIterator</code>。关于 shuffle 的详细介绍请点击<a href="#shuffle">这里</a>
+在清理 shuffle 相关数据结构以及标记sort 阶段结束之后，进入reduce 阶段，根据 <em>useNewApi</em> 选择调用 <em>runNewReducer()</em> 或 <em>runOldReducer()</em> 进行 reduce操作，其中 reduce 需要对键值对进行分组，用到<code class="highlighter-rouge">RawComparator</code>类。
+最后关闭释放资源标记任务结束。</p>
+
+<h2 id="runoldreducer方法">runOldReducer方法</h2>
+<p>首先仍然是通过反射从 <code class="highlighter-rouge">JobConf</code>  中获取到 <code class="highlighter-rouge">Reducer</code>。 键值对的输出使用到<code class="highlighter-rouge">RecordWriter</code>, 在旧 API 中实例化的是 <em><code class="highlighter-rouge">OldTrackingRecordWriter</code>:out</em>, 并为保证数据不变形用<em>final</em>修饰变量<em>finalOut</em>，其值为<em>out</em>。
+之后创建一个<code class="highlighter-rouge">OutputCollector</code>的实例，重写其<em>collect</em>方法。在该方法中使用<em>finalOut</em>输出数据并用<em>reporter</em>更新任务进度。
+与 Map 相似，Reduce 中也存在 Skip Mode，Hadoop 会根据<em>isSkipping()</em>实例化一种 <code class="highlighter-rouge">ReduceValuesIterator</code>。 之后会逐 Key 循环进行 reduce 操作。若处于 Skip Mode 还会更新坏记录的数量。
+同样在最后进行清理工作与资源能释放。</p>
+
+<h1 id="mapreduce-的数据传递">MapReduce 的数据传递</h1>
+<p>Hadoop MapReduce 中涉及以下数据存储单位：</p>
+
+<ul>
+  <li><strong>block</strong>: HDFS 文件存储的基本单位，在 HDFS 中所有文件都以 block 进行存储，一式三份以保证容错能力。</li>
+  <li><strong>split</strong>: map 任务的输入，是一种逻辑划分，map task 和 split 是一对一关系。</li>
+  <li><strong>record</strong>: map 和 reduce 函数处理的目标， 是一个键值对。</li>
+  <li><strong>spill</strong>: map 函数的输出超出缓冲区大小时写入本地磁盘的文件。</li>
+</ul>
+
+<h2 id="inputformat">InputFormat</h2>
+<p><code class="highlighter-rouge">InputFormat</code> 是一个接口，规定了两个方法，有如下功能：</p>
+<ul>
+  <li>验证作业输入是否符合标准</li>
+  <li>将给定的输入文件（可能是多个)按照给定规则划分为多个部分（Split）作为Map Task的输入</li>
+  <li>提供将 Spilt 转化为 map 函数能处理的键值对形式的一种实现</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">InputFormat</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span> <span class="n">V</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="n">InputSplit</span><span class="o">[]</span> <span class="nf">getSplits</span><span class="o">(</span><span class="n">JobConf</span> <span class="n">job</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numSplits</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">;</span>
+  <span class="n">RecordReader</span><span class="o">&lt;</span><span class="n">K</span><span class="o">,</span> <span class="n">V</span><span class="o">&gt;</span> <span class="nf">getRecordReader</span><span class="o">(</span><span class="n">InputSplit</span> <span class="n">split</span><span class="o">,</span>
+                                     <span class="n">JobConf</span> <span class="n">job</span><span class="o">,</span>
+                                     <span class="n">Reporter</span> <span class="n">reporter</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p><em>getSplits()</em>会根据作业信息以及 Hadoop 配置产生出一组 Split。
+要注意，这些 Split 作为逻辑分区并不真实存在于每个 Map 节点上（从其实现类的源码中可以看出）。
+每个 Split 可由一个三元组<em>(input-file-path, start, offset)</em>表示(此处存疑，但源码中 getSplit 方法的注释如此描述)。
+<em>getRecordReader()</em> 则由不同的实现类负责划分 record 的界限，为 map 操作做好准备。</p>
+
+<p>InputFormat的设计通过多级划分，充分考虑了复用性和差异性。其类间关系如下图所示：
+<img src="../assets/upload/Hadoop_InputFormat_hierarchy.png" alt="InputFormat继承结构" /></p>
+
+<p>接口<code class="highlighter-rouge">InputFormat</code>最主要的实现是<code class="highlighter-rouge">FileInputFormat</code>而他本身也只是一个抽象类。其中涉及到大量文件操作的方法，包括多文件操作的过滤器，递归访问，路径设置等。
+其中最重要的就是实现了<em>getSplits()</em>方法，其中涉及到 Split 分割的算法。
+Split 大小由如下公式计算得来
+<script type="math/tex">splitSize = \max(minSize, \min(goalSize,blockSize))</script>
+其中目标大小: <script type="math/tex">goalSize = totalSize / numSplits (numSplits \geq 1)</script>, minSize由配置文件指定，默认为1。
+也就是说通常情况下, Split 的大小与 blockSize 的默认大小（64M)相等。 若想增大 Split 的大小，从配置文件中增大 minSize 即可。
+这里给出 三个文件，大小分别为(1MB, 32MB 和 250MB)各 size 取不同值对应的 Split 数目<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">minsize</th>
+      <th style="text-align: center">goalSize</th>
+      <th style="text-align: center">splitSize</th>
+      <th style="text-align: center">file3 split 数目</th>
+      <th style="text-align: center">split 总数目</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">1 MB</td>
+      <td style="text-align: center">totalSize(numSplits=1)</td>
+      <td style="text-align: center">64MB</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">6</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">32 MB</td>
+      <td style="text-align: center">totalSize/5</td>
+      <td style="text-align: center">50MB</td>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">7</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">128MB</td>
+      <td style="text-align: center">totalSize/2</td>
+      <td style="text-align: center">128MB</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">4</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>在进行逻辑上的 Split 划分之后，需要确定该 Split 的物理位置。因为 HDFS 中文件以 Block 形式存储且一式三份，也就意味着对于一个 Split，与之对应的 block 会有多个。<em>getSplitHosts()</em>方法接收网络拓扑和 Split 信息做为参数，将返回一组对当前 split 贡献度最大的 hosts(节点)，一般来说，考虑到数据本地性，同一Rack 的节点贡献度要高于跨 rack 节点。</p>
+
+<p>InputFormat 的最后一项任务就是 <em>getRecordReader()</em>, 该方法因输入文件类型以及程序目的的不同又各子类进行实现。<code class="highlighter-rouge">RecordReader</code> 在实现时需要注意两点，第一：记录需要被分解为 Key, value 两部分，因为 map 函数只能接受键值对形式的输入。 第二：记录可能因 Split 的划分被分割成两部分，RecordReader 规定每个 Split 的第一条不完整 Record 为上一个 Split 所有。</p>
+<h2 id="outputformat">OutputFormat</h2>
+<p>接口<code class="highlighter-rouge">OutputFormat</code> 中规定两个方法，其一是<em>getRecordWriter()</em>，获取用于写输出文件的 RecordWriter， 同样根据场景子类进行实现。
+另一个方法为<em>checkOutputSpecs()</em>在抽象类<code class="highlighter-rouge">FileOutputFormat</code>中有实现，用于验证 Job 指定的输出的正确性，出现问题时抛出异常由上层进行处理。
+<code class="highlighter-rouge">RecordWriter</code> 在 <code class="highlighter-rouge">ReduceTask</code> 或 <code class="highlighter-rouge">DirectMapOutputCollector</code>(没有 reduce 任务的作业)中用到，将数据通过输出流一步步写出。</p>
+
+<h2 id="spill">spill</h2>
+<p>spill 产生于 map 之后，也就是 collect 方法中。经过 map 计算后的中间结果会经由 partitioner 按 key 分成若干组（组数等于 reduce task 的个数），这时(k,v)会变成(k,v,partition)组成的三元组，传递给 <em><code class="highlighter-rouge">MapOutputBuffer</code>.collect()</em> 做进一步处理。
+在<code class="highlighter-rouge">MapOutputBuffer</code>中使用一个缓存区收集中间结果，在使用率到达一定阈值后排序并进行一次flush操作。这个过程由 <em><code class="highlighter-rouge">MapOutputBuffer</code>.sortAndSpill()</em> 方法完成，每一个 spill 都是内部有序的，而且如果存在 combiner，在 spill 之前会执行 combine 操作进行数据压缩。
+中间结果的产生和写入磁盘可以看成生产者-消费者模型，<em>collect()</em>方法是生产者，而<em>write()</em>为消费者。二者通过可重入互斥锁 <em><code class="highlighter-rouge">ReentrantLock</code>:spillLock</em> 同步。
+类<code class="highlighter-rouge">SpillThread</code>继承Thread 实现 <em>run()</em> 方法</p>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>      <span class="nd">@Override</span>
+      <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">spillLock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+        <span class="n">spillThreadRunning</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+          <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">spillDone</span><span class="o">.</span><span class="na">signal</span><span class="o">();</span>
+            <span class="k">while</span> <span class="o">(!</span><span class="n">spillInProgress</span><span class="o">)</span> <span class="o">{</span>
+              <span class="n">spillReady</span><span class="o">.</span><span class="na">await</span><span class="o">();</span>
+            <span class="o">}</span>
+            <span class="k">try</span> <span class="o">{</span>
+              <span class="n">spillLock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+              <span class="n">sortAndSpill</span><span class="o">();</span>
+            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+              <span class="n">sortSpillException</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+              <span class="n">spillLock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+              <span class="k">if</span> <span class="o">(</span><span class="n">bufend</span> <span class="o">&lt;</span> <span class="n">bufstart</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">bufvoid</span> <span class="o">=</span> <span class="n">kvbuffer</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+              <span class="o">}</span>
+              <span class="n">kvstart</span> <span class="o">=</span> <span class="n">kvend</span><span class="o">;</span>
+              <span class="n">bufstart</span> <span class="o">=</span> <span class="n">bufend</span><span class="o">;</span>
+              <span class="n">spillInProgress</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+          <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+          <span class="n">spillLock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+          <span class="n">spillThreadRunning</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+</code></pre>
+</div>
+<p>从源码中可以看出，配合<em>spillLock</em>控制同步信号的还有两个<code class="highlighter-rouge">Condition</code>:<em>spillDone</em> 和 <em>spillReady</em> 以及两个<code class="highlighter-rouge">boolean</code>:<em>spillInProgress</em> 和 <em>volatile spillThreadRunning</em>。
+该线程在 <em><code class="highlighter-rouge">MapOutputBuffer</code>.init()</em> 方法中被启动进入等待状态，每当collect执行的时候，都需要判断缓冲区是否达到阈值且 spill 线程是否正在运行，然后执行相关操作。
+另外源码中还设计两组标志位(kvstart,kvend)和(bufstart,bufend)，分别对应索引和缓冲区(详见下节)，每次 spill 都会将 start 和 end 之间的内容写入磁盘。</p>
+
+<h3 id="缓冲区与索引">缓冲区与索引</h3>
+<p>为保证读写操作的并行性，Hadoop 在这里设计了一种环形缓冲区。
+如果采取读写公用的单向缓冲区，锁将使得读写操作中总有一个处于等待状态。另外一种做法是设置两个缓冲区，交替读写，这一定程度上缓解了并行问题，但还是会存在等待问题。所以 Hadoop 选择了环形缓冲区，不断向剩余空间内循环的写入数据。
+另外，Hadoop 考虑到效率问题，设计了二级索引结构。所以如上的环形缓冲区共有三个，分别为 kvoffsets, kvindices 和 kvbuffer，共占用空间为 io.sort.mb(默认值100MB)。其关系如下图所示<sup id="fnref:1:1"><a href="#fn:1" class="footnote">1</a></sup>：</p>
+
+<p><img src="../assets/upload/Hadoop_two_level_indices.png" alt="buffer 二级索引" /></p>
+
+<ul>
+  <li>kvoffsets: 偏移量索引数组，保存 key,value 的位置索引在 kvindices 中的偏移量</li>
+  <li>kvindices: 位置索引数组，保存 key,value 在 kvbuffer 中的起始位置</li>
+  <li>kvbuffer: 数据缓冲区，保存实际的 key,value 值</li>
+</ul>
+
+<p>因为缓冲区共享100MB 内存，一个合理的比例成为一个问题。在 Hadoop 0.21中，为避免设置比例的不合理带来的性能问题，将这三个缓冲区进行了合并。通过一个指针 equator 标明索引和数据共同的起始位置，索引和数据分别沿相反方向增长使用内存空间，如下图所示<sup id="fnref:1:2"><a href="#fn:1" class="footnote">1</a></sup>：</p>
+
+<p><img src="../assets/upload/Hadoop_merged_buffer.png" alt="buffer 合并环形缓冲区" /></p>
+
+<h2 id="shuffle">shuffle</h2>
+<p>shuffle 过程是将 map task 的最终结果拷贝到 reduce task 所在的节点上的过程，在拷贝数据量达到一定阈值后出发合并线程对本地数据进行合并操作为 reduce 的运行做准备。
+在<code class="highlighter-rouge">ReduceTask</code>我们提到接口<code class="highlighter-rouge">ShuffleConsumerPlugin</code>规定了 shuffle 过程中必要的方法，Hadoop 给出了他的一个实现类<code class="highlighter-rouge">Shuffle</code>。</p>
+
+<p><code class="highlighter-rouge">Shuffle</code>类中最重要的方法<em>run()</em>返回一个<code class="highlighter-rouge">RawKeyValueIterator</code>，由后续操作再次封装后作为 reduce 操作的对象。
+在<em>run()</em>方法中，首先实例化一个<code class="highlighter-rouge">EventFetcher</code>来处理 map-completion 事件，然后根据配置实例化若干 <code class="highlighter-rouge">Fetcher</code>并启动线程，对于 map 结果在本地磁盘中的任务，会实例化<code class="highlighter-rouge">LocalFetcher</code>。
+最后不断通过<code class="highlighter-rouge">Reporter</code>输出进度，直到 <em><code class="highlighter-rouge">ShuffleScheduler</code>waitUntilDone()</em> 判定 shuffle 完成，copy 阶段结束。</p>
+
+<p>具体 copy 的步骤在<code class="highlighter-rouge">Fetcher</code>类中实现，<em>copyFromHost()</em> 从指定<code class="highlighter-rouge">MapHost</code>中 shuffle 可用的 map 结果，将该 Host 中的可用结果拼接返回一个 URL并打开输入流。
+之后开始执行 <em>copyMapOutput()</em> 函数拷贝数据。 对于拷贝失败或没有响应的任务，通过异常做重新调度等处理。<em>copyMapOutput()</em> 方法将通过各种工具类实施 copy 过程，并进行 merge 操作。</p>
+
+<hr />
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>参考自《Hadoop 技术内幕：深入解析 MapReduce架构设计与实现原理》 董西成 著&nbsp;<a href="#fnref:1" class="reversefootnote">&#8617;</a>&nbsp;<a href="#fnref:1:1" class="reversefootnote">&#8617;<sup>2</sup></a>&nbsp;<a href="#fnref:1:2" class="reversefootnote">&#8617;<sup>3</sup></a></p>
+    </li>
+  </ol>
+</div>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2016-06-06T00:00:00+00:00"><a href="http://localhost:4000/Ubuntu%E4%B8%8B%E6%90%AD%E5%BB%BANFS/">June 06, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -421,209 +774,6 @@
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2016-01-25T00:00:00+00:00"><a href="http://localhost:4000/Spacemacs/">January 25, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/Spacemacs/" rel="bookmark" title="Spacemacs简介" itemprop="url">Spacemacs简介</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#orgheadline4">1. Why Spacemacs</a>
-<ul>
-<li><a href="#orgheadline1">1.1. Compare to Emacs?</a></li>
-<li><a href="#orgheadline2">1.2. Compare to Vim?</a></li>
-<li><a href="#orgheadline3">1.3. Compaire to other IDE?</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline8">2. Spacemacs introduction</a>
-<ul>
-<li><a href="#orgheadline5">2.1. 官网</a></li>
-<li><a href="#orgheadline6">2.2. 项目结构</a></li>
-<li><a href="#orgheadline7">2.3. 目录结构</a></li>
-</ul>
-</li>
-<li><a href="#orgheadline12">3. Using spacemacs</a>
-<ul>
-<li><a href="#orgheadline9">3.1. 安装(Mac OS X)</a></li>
-<li><a href="#orgheadline10">3.2. 配置.spacemacs</a></li>
-<li><a href="#orgheadline11">3.3. 开始使用</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
-<h1 id="why-spacemacs">Why Spacemacs<a id="orgheadline4"></a></h1>
-
-<h2 id="compare-to-emacs">Compare to Emacs?<a id="orgheadline1"></a></h2>
-
-<p>Spacemacs作为Emacs的一个扩展,Spacemacs相对于其他的Emacs配置来说，文档的详细程度绝对完胜其他配置。从头开始折腾Emacs是不太明智的行为，而采用各路大神的配置又会有些摸不清头脑不知道如何入手。
-这时候，Spacemacs详细的文档和清晰的分层可以作为想转向Emacs的人入门非常好的版本。</p>
-
-<h2 id="compare-to-vim">Compare to Vim?<a id="orgheadline2"></a></h2>
-
-<p>Spacemacs最突出的特点就是与Vim极高的相似性，以空格键作为leader键，甚至文档中专门为有兴趣转入Emacs的Vim党提供了专门的内容。安装过程中选择Vim布局，可以完全采用Vim的编辑方式享受Emacs的各种优势。</p>
-
-<h2 id="compaire-to-other-ide">Compaire to other IDE?<a id="orgheadline3"></a></h2>
-
-<p>如果写Java，目前可能没有工具能超过Intellij Idea，但是做轻量级一些的编码工作，一个庞大的IDE可能有些太过重量级。而且Emacs高度的可扩展性给了Geek们无限的空间，其写文档、Latex的能力也是其他IDE不能相比的。</p>
-
-<h1 id="spacemacs-introduction">Spacemacs introduction<a id="orgheadline8"></a></h1>
-
-<h2 id="官网">官网<a id="orgheadline5"></a></h2>
-
-<p><a href="http://spacemacs.org">Spacemacs.org</a></p>
-
-<h2 id="项目结构">项目结构<a id="orgheadline6"></a></h2>
-
-<p>Spacemacs 以layer来进行功能的分割，通过.spacemacs文件来进行配置管理，具体内容在仍然在.emacs.d目录下。某个layer的具体配置可以到layer目录下查看文档。</p>
-
-<h2 id="目录结构">目录结构<a id="orgheadline7"></a></h2>
-
-<ul>
-  <li>assets: 图标等内容,不需要关注。</li>
-  <li>core: Spacemacs 配置的核心内容，最好不要修改其内容。</li>
-  <li>doc: Spacemacs 的各类相关文档。</li>
-  <li>layers: 其他开发者贡献的代码，用于扩展Spacemacs</li>
-  <li>private: 本地个人目录，用于存放自己写的一些EL和keybinding等</li>
-  <li>tests: 测试目录，不需要关注。</li>
-</ul>
-
-<h1 id="using-spacemacs">Using spacemacs<a id="orgheadline12"></a></h1>
-
-<h2 id="安装mac-os-x">安装(Mac OS X)<a id="orgheadline9"></a></h2>
-
-<ul>
-  <li>
-    <p>安装Emacs24.4以上的版本</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>brew tap railwaycat/homebrew-emacsmacport
-brew install emacs-mac --with-spacemacs-icon
-brew linkapps
-</code></pre>
-    </div>
-  </li>
-  <li>
-    <p>下载配置文件</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
-</code></pre>
-    </div>
-  </li>
-  <li>
-    <p>以非安全模式启动emacs以保证成功下载插件</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>emacs --insecure
-</code></pre>
-    </div>
-  </li>
-  <li>
-    <p>选择编辑模式、待安装完成后重启</p>
-  </li>
-</ul>
-
-<h2 id="配置spacemacs">配置.spacemacs<a id="orgheadline10"></a></h2>
-
-<ul>
-  <li>打开 <em>~.spacemacs</em></li>
-  <li>在layers中打开需要用的注释掉的layer，并添加osx以使emacs能正常使用Max OS x的快捷键。</li>
-  <li>最下面 <code class="highlighter-rouge">(defun dotspacemacs/user-config ()</code> 中添加自己的配置。(若配置有明显分类，应参考官方文档创建自己的layer并进行引用管理）</li>
-  <li><code class="highlighter-rouge">SPC f e R</code> 刷新配置</li>
-</ul>
-
-<h2 id="开始使用">开始使用<a id="orgheadline11"></a></h2>
-
-<ul>
-  <li>
-    <p>与Emacs不同，采用SPC作为Leader键可以减少很多组合型快捷键的使用，在Normal Mode（Vim基本常识）中按下空格键会有大量功能键提示,多看文档多尝试。</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="org-left" />
-    
-<col class="org-left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="org-left">b</td>
-<td class="org-left">buffer</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">f</td>
-<td class="org-left">file</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">w</td>
-<td class="org-left">window</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">m</td>
-<td class="org-left">mode</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">s</td>
-<td class="org-left">search</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">h</td>
-<td class="org-left">help</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">c</td>
-<td class="org-left">comment/compile</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">p</td>
-<td class="org-left">project</td>
-</tr>
-    
-    
-<tr>
-<td class="org-left">l</td>
-<td class="org-left">layout</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>通过查看layout的文档、根据个人需求定制自己的Emacs</p>
-  </li>
-</ul>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
 
 <div class="pagination">
   
@@ -653,6 +803,12 @@ brew linkapps
       <li>
         
           <a href="http://localhost:4000/page4">4</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="http://localhost:4000/page5">5</a>
         
       </li>
     

@@ -139,6 +139,209 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2016-01-25T00:00:00+00:00"><a href="http://localhost:4000/Spacemacs/">January 25, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/Spacemacs/" rel="bookmark" title="Spacemacs简介" itemprop="url">Spacemacs简介</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline4">1. Why Spacemacs</a>
+<ul>
+<li><a href="#orgheadline1">1.1. Compare to Emacs?</a></li>
+<li><a href="#orgheadline2">1.2. Compare to Vim?</a></li>
+<li><a href="#orgheadline3">1.3. Compaire to other IDE?</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline8">2. Spacemacs introduction</a>
+<ul>
+<li><a href="#orgheadline5">2.1. 官网</a></li>
+<li><a href="#orgheadline6">2.2. 项目结构</a></li>
+<li><a href="#orgheadline7">2.3. 目录结构</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline12">3. Using spacemacs</a>
+<ul>
+<li><a href="#orgheadline9">3.1. 安装(Mac OS X)</a></li>
+<li><a href="#orgheadline10">3.2. 配置.spacemacs</a></li>
+<li><a href="#orgheadline11">3.3. 开始使用</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="why-spacemacs">Why Spacemacs<a id="orgheadline4"></a></h1>
+
+<h2 id="compare-to-emacs">Compare to Emacs?<a id="orgheadline1"></a></h2>
+
+<p>Spacemacs作为Emacs的一个扩展,Spacemacs相对于其他的Emacs配置来说，文档的详细程度绝对完胜其他配置。从头开始折腾Emacs是不太明智的行为，而采用各路大神的配置又会有些摸不清头脑不知道如何入手。
+这时候，Spacemacs详细的文档和清晰的分层可以作为想转向Emacs的人入门非常好的版本。</p>
+
+<h2 id="compare-to-vim">Compare to Vim?<a id="orgheadline2"></a></h2>
+
+<p>Spacemacs最突出的特点就是与Vim极高的相似性，以空格键作为leader键，甚至文档中专门为有兴趣转入Emacs的Vim党提供了专门的内容。安装过程中选择Vim布局，可以完全采用Vim的编辑方式享受Emacs的各种优势。</p>
+
+<h2 id="compaire-to-other-ide">Compaire to other IDE?<a id="orgheadline3"></a></h2>
+
+<p>如果写Java，目前可能没有工具能超过Intellij Idea，但是做轻量级一些的编码工作，一个庞大的IDE可能有些太过重量级。而且Emacs高度的可扩展性给了Geek们无限的空间，其写文档、Latex的能力也是其他IDE不能相比的。</p>
+
+<h1 id="spacemacs-introduction">Spacemacs introduction<a id="orgheadline8"></a></h1>
+
+<h2 id="官网">官网<a id="orgheadline5"></a></h2>
+
+<p><a href="http://spacemacs.org">Spacemacs.org</a></p>
+
+<h2 id="项目结构">项目结构<a id="orgheadline6"></a></h2>
+
+<p>Spacemacs 以layer来进行功能的分割，通过.spacemacs文件来进行配置管理，具体内容在仍然在.emacs.d目录下。某个layer的具体配置可以到layer目录下查看文档。</p>
+
+<h2 id="目录结构">目录结构<a id="orgheadline7"></a></h2>
+
+<ul>
+  <li>assets: 图标等内容,不需要关注。</li>
+  <li>core: Spacemacs 配置的核心内容，最好不要修改其内容。</li>
+  <li>doc: Spacemacs 的各类相关文档。</li>
+  <li>layers: 其他开发者贡献的代码，用于扩展Spacemacs</li>
+  <li>private: 本地个人目录，用于存放自己写的一些EL和keybinding等</li>
+  <li>tests: 测试目录，不需要关注。</li>
+</ul>
+
+<h1 id="using-spacemacs">Using spacemacs<a id="orgheadline12"></a></h1>
+
+<h2 id="安装mac-os-x">安装(Mac OS X)<a id="orgheadline9"></a></h2>
+
+<ul>
+  <li>
+    <p>安装Emacs24.4以上的版本</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>brew tap railwaycat/homebrew-emacsmacport
+brew install emacs-mac --with-spacemacs-icon
+brew linkapps
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>下载配置文件</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>以非安全模式启动emacs以保证成功下载插件</p>
+
+    <div class="highlighter-rouge"><pre class="highlight"><code>emacs --insecure
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>选择编辑模式、待安装完成后重启</p>
+  </li>
+</ul>
+
+<h2 id="配置spacemacs">配置.spacemacs<a id="orgheadline10"></a></h2>
+
+<ul>
+  <li>打开 <em>~.spacemacs</em></li>
+  <li>在layers中打开需要用的注释掉的layer，并添加osx以使emacs能正常使用Max OS x的快捷键。</li>
+  <li>最下面 <code class="highlighter-rouge">(defun dotspacemacs/user-config ()</code> 中添加自己的配置。(若配置有明显分类，应参考官方文档创建自己的layer并进行引用管理）</li>
+  <li><code class="highlighter-rouge">SPC f e R</code> 刷新配置</li>
+</ul>
+
+<h2 id="开始使用">开始使用<a id="orgheadline11"></a></h2>
+
+<ul>
+  <li>
+    <p>与Emacs不同，采用SPC作为Leader键可以减少很多组合型快捷键的使用，在Normal Mode（Vim基本常识）中按下空格键会有大量功能键提示,多看文档多尝试。</p>
+
+    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+    
+    
+<colgroup>
+<col class="org-left" />
+    
+<col class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">b</td>
+<td class="org-left">buffer</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">f</td>
+<td class="org-left">file</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">w</td>
+<td class="org-left">window</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">m</td>
+<td class="org-left">mode</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">s</td>
+<td class="org-left">search</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">h</td>
+<td class="org-left">help</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">c</td>
+<td class="org-left">comment/compile</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">p</td>
+<td class="org-left">project</td>
+</tr>
+    
+    
+<tr>
+<td class="org-left">l</td>
+<td class="org-left">layout</td>
+</tr>
+</tbody>
+</table>
+  </li>
+  <li>
+    <p>通过查看layout的文档、根据个人需求定制自己的Emacs</p>
+  </li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2015-11-16T00:00:00+00:00"><a href="http://localhost:4000/Openstack-%E7%BB%84%E4%BB%B6%E5%AE%89%E8%A3%85/">November 16, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -713,130 +916,6 @@ systemctl disable firewalld
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-11-15T00:00:00+00:00"><a href="http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">November 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" rel="bookmark" title="Openstack-功能介绍" itemprop="url">Openstack-功能介绍</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. 写在前面</a></li>
-<li><a href="#sec-2">2. 节点功能</a>
-<ul>
-<li><a href="#sec-2-1">2.1. controller</a></li>
-<li><a href="#sec-2-2">2.2. network</a></li>
-<li><a href="#sec-2-3">2.3. compute</a></li>
-<li><a href="#sec-2-4">2.4. block storage (可选）</a></li>
-<li><a href="#sec-2-5">2.5. object storage (可选）</a></li>
-</ul>
-</li>
-<li><a href="#sec-3">3. 组件功能</a>
-<ul>
-<li><a href="#sec-3-1">3.1. Identity Service 身份验证服务 （Keystone)</a></li>
-<li><a href="#sec-3-2">3.2. Image Service 镜像服务 （Glance)</a></li>
-<li><a href="#sec-3-3">3.3. Compute Service 计算服务 (Nova)</a></li>
-<li><a href="#sec-3-4">3.4. Networking Service 网络服务 (Neutron)</a></li>
-<li><a href="#sec-3-5">3.5. DashBoard 图形化管理界面 (Horizon)</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
-<h1 id="写在前面">写在前面<a id="sec-1" name="sec-1"></a></h1>
-
-<ul>
-  <li>openstack作为一个开源项目，每隔一段时间都会发布一个版本而且有两种部署方式，在不同平台上有不同的安装方式。 这里介绍的为kilo版本采用neutron布局，在centOS7下，3台物理机上部署安装。 在官方网站提供了详尽的部署文档（英文版），应该以该文档为主，这里记录一些问题的补充说明作为辅助。</li>
-  <li>根据个人经验，总体上对openstack有个概念性的了解，明白组件功能所在对部署时问题的解决有很大帮助，否则面对问题会有些无从下手。 请花些时间耐心阅读组件功能介绍。</li>
-  <li>有些问题源于配置文件的错误，可能是在复制过程中无意发生差错，这种问题在查找过程中不太容易发现。 若出现解决不掉的问题可以考虑将问题组件的配置文件备份后删除，然后重新安装该组件，再次配置问题可能就不复存在了。</li>
-  <li>注意验证工作，不要轻易跳过验证不通过的部分，除非你对该部分的原理相当了解，能弄明白验证不通过的原因所在。 否则请认真进行每一步验证工作，这样在问题出现时才有相当于检查点的存在。 不至于找不到问题所在而彻底重新安装。</li>
-</ul>
-
-<h1 id="节点功能">节点功能<a id="sec-2" name="sec-2"></a></h1>
-
-<p>节点指一台计算机，若采用neutron布局，则最少需要3台计算机。 包括一台计算节点（controller)需要1张网卡，一台网络节点（network)需要3张网卡，一台计算节点（compute1)需要两张网卡。 若需要加入存储节点请参照官网配置。</p>
-
-<h2 id="controller">controller<a id="sec-2-1" name="sec-2-1"></a></h2>
-
-<p>该节点相当于项目经理，大部分的组件都需要安装在该节点上，任务的分配也都在这里进行，但该节点并不承担虚拟机的运行负载，也不承担网络负载。数据库只运行在该节点上，Dashboard也部署在这台机器的Apache上，所以如果想要外网访问Dashboard就需要给它额外一张网卡并提供公网地址。</p>
-
-<h2 id="network">network<a id="sec-2-2" name="sec-2-2"></a></h2>
-
-<p>该节点承担所有实例（运行在openstack上的虚拟机）的网络访问职责，注意这里只负责实例的网络访问，和物理机无关。每个物理机通过自己的网线上网。除基本环境外只需要安装网络组件。</p>
-
-<h2 id="compute">compute<a id="sec-2-3" name="sec-2-3"></a></h2>
-
-<p>所有的实例都运行在该节点上，虚拟机所占用的资源均为该节点的硬件资源，可在环境中添加多个compute节点。</p>
-
-<h2 id="block-storage-可选">block storage (可选）<a id="sec-2-4" name="sec-2-4"></a></h2>
-
-<p>简单来说相当于硬盘，以块存储序列化后的内容，添加该节点后需要额外网卡进行存储通信。</p>
-
-<h2 id="object-storage-可选">object storage (可选）<a id="sec-2-5" name="sec-2-5"></a></h2>
-
-<p>简单来说相当于内存，以对象的形式存储数据，添加该节点后需要额外网卡进行存储通信。</p>
-
-<h1 id="组件功能">组件功能<a id="sec-3" name="sec-3"></a></h1>
-
-<p>组件指安装在各节点上的软件，在不同节点上需要的组件有所不同，安装时注意选择。</p>
-
-<h2 id="identity-service-身份验证服务-keystone">Identity Service 身份验证服务 （Keystone)<a id="sec-3-1" name="sec-3-1"></a></h2>
-
-<ul>
-  <li>功能：
-    <ol>
-      <li>记录用户以及其权限</li>
-      <li>提供了每个用户的可用服务列表</li>
-    </ol>
-  </li>
-</ul>
-
-<h2 id="image-service-镜像服务-glance">Image Service 镜像服务 （Glance)<a id="sec-3-2" name="sec-3-2"></a></h2>
-
-<ul>
-  <li>功能：
-提供对包括制作在内的镜像管理。</li>
-</ul>
-
-<h2 id="compute-service-计算服务-nova">Compute Service 计算服务 (Nova)<a id="sec-3-3" name="sec-3-3"></a></h2>
-
-<ul>
-  <li>功能：
-作为IaaS最主要的组成部分，计算服务负责云操作系统的运行。</li>
-</ul>
-
-<h2 id="networking-service-网络服务-neutron">Networking Service 网络服务 (Neutron)<a id="sec-3-4" name="sec-3-4"></a></h2>
-
-<ul>
-  <li>功能：
-提供所有虚拟机的网络功能，包括基础网络设施的搭建以及网络访问控制。</li>
-</ul>
-
-<h2 id="dashboard-图形化管理界面-horizon">DashBoard 图形化管理界面 (Horizon)<a id="sec-3-5" name="sec-3-5"></a></h2>
-
-<ul>
-  <li>功能：
-通过浏览器打开网页操作Openstack，否则只能记住大量API通过控制台控制。</li>
-</ul>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
 
 <div class="pagination">
   
@@ -866,6 +945,12 @@ systemctl disable firewalld
       <li>
         
           <a href="http://localhost:4000/page4">4</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="http://localhost:4000/page5">5</a>
         
       </li>
     

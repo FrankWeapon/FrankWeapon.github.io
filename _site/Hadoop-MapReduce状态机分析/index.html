@@ -1,0 +1,345 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Hadoop-MapReduce状态机分析 &#8211; Weapon's Journal</title>
+<meta name="description" content="Personal technical Summary">
+<meta name="keywords" content="Hadoop, MapReduce">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://localhost:4000/images/">
+<meta name="twitter:title" content="Hadoop-MapReduce状态机分析">
+<meta name="twitter:description" content="Personal technical Summary">
+<meta name="twitter:creator" content="@FrankWeapon">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop-MapReduce状态机分析">
+<meta property="og:description" content="Personal technical Summary">
+<meta property="og:url" content="http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/">
+<meta property="og:site_name" content="Weapon's Journal">
+
+
+
+
+
+<link rel="canonical" href="http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/">
+<link href="http://localhost:4000/feed.xml" type="application/atom+xml" rel="alternate" title="Weapon's Journal Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://localhost:4000/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="http://localhost:4000/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://localhost:4000/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://localhost:4000/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://localhost:4000/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://localhost:4000/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="http://localhost:4000/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="http://localhost:4000/images/avatar.jpg" alt="Frank Weapon photo" class="author-photo">
+					<h4>Frank Weapon</h4>
+					<p>A student majoring CS, A person makes living by programming</p>
+				</li>
+				<li><a href="http://localhost:4000/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:helldarkfire@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				<li>
+					<a href="http://twitter.com/FrankWeapon"><i class="fa fa-fw fa-twitter"></i> Twitter</a>
+				</li>
+				<li>
+					<a href="http://facebook.com/Martin Frank"><i class="fa fa-fw fa-facebook"></i> Facebook</a>
+				</li>
+				<li>
+					<a href="https://google.com/+weapon frank"><i class="fa fa-fw fa-google-plus"></i> Google+</a>
+				</li>
+				
+				<li>
+					<a href="http://github.com/FrankWeapon"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="http://localhost:4000/posts/">All Posts</a></li>
+				<li><a href="http://localhost:4000/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="https://github.com/FrankWeapon" target="_blank">GitHub</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/" rel="bookmark" title="Hadoop-MapReduce状态机分析">Hadoop-MapReduce状态机分析</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-03-17T00:00:00+00:00">March 17, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+          Reading time ~1 minute
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <ul id="markdown-toc">
+  <li><a href="#hadoop-mapreduce-状态机类结构" id="markdown-toc-hadoop-mapreduce-状态机类结构">Hadoop MapReduce 状态机类结构</a></li>
+  <li><a href="#状态机及变迁分析" id="markdown-toc-状态机及变迁分析">状态机及变迁分析</a>    <ul>
+      <li><a href="#jobimpl" id="markdown-toc-jobimpl">JobImpl</a>        <ul>
+          <li><a href="#状态机" id="markdown-toc-状态机">状态机</a></li>
+          <li><a href="#变迁待填坑" id="markdown-toc-变迁待填坑">变迁(待填坑)</a></li>
+        </ul>
+      </li>
+      <li><a href="#taskimpl" id="markdown-toc-taskimpl">TaskImpl</a>        <ul>
+          <li><a href="#状态机-1" id="markdown-toc-状态机-1">状态机</a></li>
+          <li><a href="#变迁待填坑-1" id="markdown-toc-变迁待填坑-1">变迁(待填坑)</a></li>
+        </ul>
+      </li>
+      <li><a href="#taskattemptimpl" id="markdown-toc-taskattemptimpl">TaskAttemptImpl</a>        <ul>
+          <li><a href="#状态机-2" id="markdown-toc-状态机-2">状态机</a></li>
+          <li><a href="#变迁待填坑-2" id="markdown-toc-变迁待填坑-2">变迁(待填坑)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="hadoop-mapreduce-状态机类结构">Hadoop MapReduce 状态机类结构</h1>
+<p>之前的文章<a href="http://frankweapon.github.io/YARN流程分析/">YARN 流程分析</a>中提到 MR v2 之后对流程的控制都以 Actor Model 的形式进行(<a href="http://frankweapon.github.io/Actor_Model/">Actor Model (参与者模式)思想与实例</a>)。
+Hadoop MapReduce 中的状态机被封装<code class="highlighter-rouge">hadoop-mapreduce-client-app</code>module 的几个类中，其目录结构如下：</p>
+
+<blockquote>
+  <p>org.apache.hadoop.mapreduce.v2.app.job
+event</p>
+  <blockquote>
+    <p>JobEvent<br />
+JobEventType<br />
+JobFinishEvent<br />
+JobStartEvent<br />
+…</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>impl</p>
+  <blockquote>
+    <p>JobImpl<br />
+MapTaskImpl<br />
+ReduceTaskImpl<br />
+TaskImpl<br />
+TaskAttemptImpl</p>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <p>Job<br />
+JobStateInternal<br />
+Task<br />
+TaskAttempt<br />
+TaskStateInternal</p>
+</blockquote>
+
+<p>其中 StateInternal 是一个枚举类型，其中封装了各状态机的所有状态，接口中规定了一些 get 方法，用于读取作业或任务的状态信息。
+event 包中包含了这里用到的事件，正是这些事件被 handle 或 dispatch 导致了状态机变迁的发生，而变迁发生又会根据需要产生新的事件推动整个系统的进行。
+impl 包中则为创建这些状态机的类，每个类中包含大量实现<code class="highlighter-rouge">SingleArcTransition</code>或<code class="highlighter-rouge">MultipleArcTransition</code>接口的内部类，这些内部类分别代表着一个变迁。
+接口中只规定了一个方法</p>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>  <span class="kd">public</span> <span class="n">STATE</span> <span class="nf">transition</span><span class="o">(</span><span class="n">OPERAND</span> <span class="n">operand</span><span class="o">,</span> <span class="n">EVENT</span> <span class="n">event</span><span class="o">);</span>
+</code></pre>
+</div>
+<p>任何变迁都要实现这个方法，保证在接收到某事件后可做出一系列操作并进入下一状态。
+状态机类都包含一个静态变量<em>stateMachineFactory</em>用于将状态与变迁连接到一起，形成状态机。
+<code class="highlighter-rouge">StateMachineFactory</code>是 YARN 中一个不可变类，用<em>final</em>修饰，它提供了一个方法<em>addTransition()</em></p>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>  <span class="kd">public</span> <span class="n">StateMachineFactory</span>
+             <span class="o">&lt;</span><span class="n">OPERAND</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">EVENTTYPE</span><span class="o">,</span> <span class="n">EVENT</span><span class="o">&gt;</span>
+          <span class="nf">addTransition</span><span class="o">(</span><span class="n">STATE</span> <span class="n">preState</span><span class="o">,</span> <span class="n">STATE</span> <span class="n">postState</span><span class="o">,</span>
+                        <span class="n">EVENTTYPE</span> <span class="n">eventType</span><span class="o">,</span>
+                        <span class="n">SingleArcTransition</span><span class="o">&lt;</span><span class="n">OPERAND</span><span class="o">,</span> <span class="n">EVENT</span><span class="o">&gt;</span> <span class="n">hook</span><span class="o">){</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">StateMachineFactory</span><span class="o">&lt;</span><span class="n">OPERAND</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">EVENTTYPE</span><span class="o">,</span> <span class="n">EVENT</span><span class="o">&gt;</span>
+        <span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="k">new</span> <span class="n">ApplicableSingleOrMultipleTransition</span><span class="o">&lt;</span><span class="n">OPERAND</span><span class="o">,</span> <span class="n">STATE</span><span class="o">,</span> <span class="n">EVENTTYPE</span><span class="o">,</span> <span class="n">EVENT</span><span class="o">&gt;</span>
+           <span class="o">(</span><span class="n">preState</span><span class="o">,</span> <span class="n">eventType</span><span class="o">,</span> <span class="k">new</span> <span class="n">SingleInternalArc</span><span class="o">(</span><span class="n">postState</span><span class="o">,</span> <span class="n">hook</span><span class="o">)));</span>
+  <span class="o">}</span>
+</code></pre>
+</div>
+<p>可以看出，这个方法采用链式编程的原则，所以在初始化<em>stateMachineFactory</em>的时候，可以不断调用该方法向状态机中加入新的变迁。
+该方法另有4个重载方法，其一与之类似，将后置状态改为一个Set，SingleArcTransition 改为 multipleArcTransition，用于根据事件中的具体情况判断变迁如何进行。
+另两个取消 hook 参数，用于添加可忽略的事件，最后一个重载方法将返回一个新的状态机。
+所有变迁添加完成后调用<em>installTopology()</em>完成状态机的创建。</p>
+<h1 id="状态机及变迁分析">状态机及变迁分析</h1>
+<p>因官方提供下载的 FSM 并没有随着版本更新，在下面我对 Hadoop 2.7.3 中的状态机进行了绘制。下图中考虑到可见性有部分省略，需要确认变迁请参照上章节内容到源代码中查看。
+图中绿色线代表正常流程，红色线代表失效，黄色线代表关闭。
+虚线表现了一部分 multipleArcTransition，也就是在收到某事件时，将进一步判断事件内部信息来决定状态机变迁如何产生。
+驱动整个状态机的入口在<em>handle()</em>方法中，首先将写操作上锁，然后获取当前状态，然后执行<em>doTransition()</em>。在该方法中捕获到<code class="highlighter-rouge">InvalidStateTransitionException</code>时，
+首先更新状态，然后生成<code class="highlighter-rouge">InternalError</code>事件，状态机计入<code class="highlighter-rouge">Error</code>状态。</p>
+<h2 id="jobimpl">JobImpl</h2>
+<h3 id="状态机">状态机</h3>
+<p>JobImpl 中创建的状态机如下图所示，为了清晰度省略了一部分变迁。
+<img src="../assets/upload/Hadoop_FSM_Job.png" alt="Job 状态机" />
+Hadoop提供了作业级别的容错能力，图中紫色线将重启作业，而灰色线则代表发生<code class="highlighter-rouge">InternalError</code>时进入<code class="highlighter-rouge">Error</code>状态。</p>
+<h3 id="变迁待填坑">变迁(待填坑)</h3>
+
+<h2 id="taskimpl">TaskImpl</h2>
+<h3 id="状态机-1">状态机</h3>
+<p><img src="../assets/upload/Hadoop_FSM_Task.png" alt="Task 状态机" /></p>
+<h3 id="变迁待填坑-1">变迁(待填坑)</h3>
+
+<h2 id="taskattemptimpl">TaskAttemptImpl</h2>
+<h3 id="状态机-2">状态机</h3>
+<p><img src="../assets/upload/Hadoop_FSM_TaskAttempt.png" alt="TaskAttempt 状态机" /></p>
+<h3 id="变迁待填坑-2">变迁(待填坑)</h3>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="http://localhost:4000/tags/#Hadoop" title="Pages tagged Hadoop" class="tag"><span class="term">Hadoop</span></a><a href="http://localhost:4000/tags/#MapReduce" title="Pages tagged MapReduce" class="tag"><span class="term">MapReduce</span></a></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div id="disqus_thread"></div>
+
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://http-frankweapon-github-io.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="http://localhost:4000/Actor_Model/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="http://localhost:4000/Actor_Model/" title="Actor Model (参与者模式)思想与实例">Actor Model (参与者模式)思想与实例</a></h3>
+      <p>  Actor Model 设计思想  同步问题编程实例(哲学家就餐问题)          哲学家就餐问题描述      Locks      Actors      Actor Model 设计思想Actor Model（参与者模型）简化并发而产生，它将系统中的所有组件...&hellip; <a href="http://localhost:4000/Actor_Model/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-YARN 流程分析">Hadoop-YARN 流程分析</a></h4>
+        <span>Published on March 13, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-MapReduce-task流程分析">Hadoop-MapReduce-task流程分析</a></h4>
+        <span>Published on March 02, 2017</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+    
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 Frank Weapon. </span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://localhost:4000/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://localhost:4000/assets/js/scripts.min.js"></script>
+
+
+
+
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'helldarkfire@gmail.com'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+<script id="dsq-count-scr" src="//http-frankweapon-github-io.disqus.com/count.js" async></script>
+</body>
+</html>

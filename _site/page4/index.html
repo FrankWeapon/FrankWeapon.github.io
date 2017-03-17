@@ -139,6 +139,130 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2015-11-15T00:00:00+00:00"><a href="http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">November 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/Openstack-%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" rel="bookmark" title="Openstack-功能介绍" itemprop="url">Openstack-功能介绍</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. 写在前面</a></li>
+<li><a href="#sec-2">2. 节点功能</a>
+<ul>
+<li><a href="#sec-2-1">2.1. controller</a></li>
+<li><a href="#sec-2-2">2.2. network</a></li>
+<li><a href="#sec-2-3">2.3. compute</a></li>
+<li><a href="#sec-2-4">2.4. block storage (可选）</a></li>
+<li><a href="#sec-2-5">2.5. object storage (可选）</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. 组件功能</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Identity Service 身份验证服务 （Keystone)</a></li>
+<li><a href="#sec-3-2">3.2. Image Service 镜像服务 （Glance)</a></li>
+<li><a href="#sec-3-3">3.3. Compute Service 计算服务 (Nova)</a></li>
+<li><a href="#sec-3-4">3.4. Networking Service 网络服务 (Neutron)</a></li>
+<li><a href="#sec-3-5">3.5. DashBoard 图形化管理界面 (Horizon)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="写在前面">写在前面<a id="sec-1" name="sec-1"></a></h1>
+
+<ul>
+  <li>openstack作为一个开源项目，每隔一段时间都会发布一个版本而且有两种部署方式，在不同平台上有不同的安装方式。 这里介绍的为kilo版本采用neutron布局，在centOS7下，3台物理机上部署安装。 在官方网站提供了详尽的部署文档（英文版），应该以该文档为主，这里记录一些问题的补充说明作为辅助。</li>
+  <li>根据个人经验，总体上对openstack有个概念性的了解，明白组件功能所在对部署时问题的解决有很大帮助，否则面对问题会有些无从下手。 请花些时间耐心阅读组件功能介绍。</li>
+  <li>有些问题源于配置文件的错误，可能是在复制过程中无意发生差错，这种问题在查找过程中不太容易发现。 若出现解决不掉的问题可以考虑将问题组件的配置文件备份后删除，然后重新安装该组件，再次配置问题可能就不复存在了。</li>
+  <li>注意验证工作，不要轻易跳过验证不通过的部分，除非你对该部分的原理相当了解，能弄明白验证不通过的原因所在。 否则请认真进行每一步验证工作，这样在问题出现时才有相当于检查点的存在。 不至于找不到问题所在而彻底重新安装。</li>
+</ul>
+
+<h1 id="节点功能">节点功能<a id="sec-2" name="sec-2"></a></h1>
+
+<p>节点指一台计算机，若采用neutron布局，则最少需要3台计算机。 包括一台计算节点（controller)需要1张网卡，一台网络节点（network)需要3张网卡，一台计算节点（compute1)需要两张网卡。 若需要加入存储节点请参照官网配置。</p>
+
+<h2 id="controller">controller<a id="sec-2-1" name="sec-2-1"></a></h2>
+
+<p>该节点相当于项目经理，大部分的组件都需要安装在该节点上，任务的分配也都在这里进行，但该节点并不承担虚拟机的运行负载，也不承担网络负载。数据库只运行在该节点上，Dashboard也部署在这台机器的Apache上，所以如果想要外网访问Dashboard就需要给它额外一张网卡并提供公网地址。</p>
+
+<h2 id="network">network<a id="sec-2-2" name="sec-2-2"></a></h2>
+
+<p>该节点承担所有实例（运行在openstack上的虚拟机）的网络访问职责，注意这里只负责实例的网络访问，和物理机无关。每个物理机通过自己的网线上网。除基本环境外只需要安装网络组件。</p>
+
+<h2 id="compute">compute<a id="sec-2-3" name="sec-2-3"></a></h2>
+
+<p>所有的实例都运行在该节点上，虚拟机所占用的资源均为该节点的硬件资源，可在环境中添加多个compute节点。</p>
+
+<h2 id="block-storage-可选">block storage (可选）<a id="sec-2-4" name="sec-2-4"></a></h2>
+
+<p>简单来说相当于硬盘，以块存储序列化后的内容，添加该节点后需要额外网卡进行存储通信。</p>
+
+<h2 id="object-storage-可选">object storage (可选）<a id="sec-2-5" name="sec-2-5"></a></h2>
+
+<p>简单来说相当于内存，以对象的形式存储数据，添加该节点后需要额外网卡进行存储通信。</p>
+
+<h1 id="组件功能">组件功能<a id="sec-3" name="sec-3"></a></h1>
+
+<p>组件指安装在各节点上的软件，在不同节点上需要的组件有所不同，安装时注意选择。</p>
+
+<h2 id="identity-service-身份验证服务-keystone">Identity Service 身份验证服务 （Keystone)<a id="sec-3-1" name="sec-3-1"></a></h2>
+
+<ul>
+  <li>功能：
+    <ol>
+      <li>记录用户以及其权限</li>
+      <li>提供了每个用户的可用服务列表</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="image-service-镜像服务-glance">Image Service 镜像服务 （Glance)<a id="sec-3-2" name="sec-3-2"></a></h2>
+
+<ul>
+  <li>功能：
+提供对包括制作在内的镜像管理。</li>
+</ul>
+
+<h2 id="compute-service-计算服务-nova">Compute Service 计算服务 (Nova)<a id="sec-3-3" name="sec-3-3"></a></h2>
+
+<ul>
+  <li>功能：
+作为IaaS最主要的组成部分，计算服务负责云操作系统的运行。</li>
+</ul>
+
+<h2 id="networking-service-网络服务-neutron">Networking Service 网络服务 (Neutron)<a id="sec-3-4" name="sec-3-4"></a></h2>
+
+<ul>
+  <li>功能：
+提供所有虚拟机的网络功能，包括基础网络设施的搭建以及网络访问控制。</li>
+</ul>
+
+<h2 id="dashboard-图形化管理界面-horizon">DashBoard 图形化管理界面 (Horizon)<a id="sec-3-5" name="sec-3-5"></a></h2>
+
+<ul>
+  <li>功能：
+通过浏览器打开网页操作Openstack，否则只能记住大量API通过控制台控制。</li>
+</ul>
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="http://localhost:4000/%E7%94%A8Emacs%E5%AE%9E%E7%8E%B0GTD/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -395,868 +519,6 @@ Emacs的GUI称为frame，可以在基本frame上新建一个窗体，但不太�
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
 
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-08-14T00:00:00+00:00"><a href="http://localhost:4000/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/">August 14, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~5 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/Emacs%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" rel="bookmark" title="Emacs基本操作" itemprop="url">Emacs基本操作</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. 文件、buffer、window操作</a></li>
-<li><a href="#sec-2">2. 光标的移动</a></li>
-<li><a href="#sec-3">3. 文本编辑</a></li>
-<li><a href="#sec-4">4. 帮助</a></li>
-<li><a href="#sec-5">5. org-mode</a>
-<ul>
-<li><a href="#sec-5-1">5.1. 大纲</a></li>
-<li><a href="#sec-5-2">5.2. 文本</a></li>
-<li><a href="#sec-5-3">5.3. 表格</a></li>
-<li><a href="#sec-5-4">5.4. 列表</a></li>
-<li><a href="#sec-5-5">5.5. 标记</a></li>
-<li><a href="#sec-5-6">5.6. 内容原数据</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
-<p>Emacs功能与Vim有重叠部分，如果激活了Evil的话，可以用Vim的方式进行很多操作，而不必再次记忆Emacs快捷键</p>
-
-<h1 id="文件bufferwindow操作">文件、buffer、window操作<a id="sec-1" name="sec-1"></a></h1>
-
-<p>以下快捷键均以 C-x 开始</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">key</td>
-<td class="left">funciton</td>
-</tr>
-
-
-<tr>
-<td class="left">C-f</td>
-<td class="left">打开一个文件</td>
-</tr>
-
-
-<tr>
-<td class="left">C-s</td>
-<td class="left">保存</td>
-</tr>
-
-
-<tr>
-<td class="left">C-w</td>
-<td class="left">另存为</td>
-</tr>
-
-
-<tr>
-<td class="left">C-v</td>
-<td class="left">关闭当前buffer并打开新文件</td>
-</tr>
-
-
-<tr>
-<td class="left">i</td>
-<td class="left">在当前光标处插入内容</td>
-</tr>
-
-
-<tr>
-<td class="left">b</td>
-<td class="left">切换、新建buffer</td>
-</tr>
-
-
-<tr>
-<td class="left">C-b</td>
-<td class="left">显示当前所有buffer列表</td>
-</tr>
-
-
-<tr>
-<td class="left">k</td>
-<td class="left">关闭当前buffer</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c</td>
-<td class="left">退出emacs</td>
-</tr>
-
-
-<tr>
-<td class="left">C-q</td>
-<td class="left">只读、读写模式的切换</td>
-</tr>
-
-
-<tr>
-<td class="left">0</td>
-<td class="left">关闭当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">1</td>
-<td class="left">只保留当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">2</td>
-<td class="left">上下分割当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">3</td>
-<td class="left">左右分割当前window</td>
-</tr>
-
-
-<tr>
-<td class="left">o</td>
-<td class="left">切换到下一个窗口</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="光标的移动">光标的移动<a id="sec-2" name="sec-2"></a></h1>
-
-<p>Evil很强大，会覆盖掉部分默认的移动方式，若开启Evil请熟悉Vim</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-f</td>
-<td class="left">后一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">C-b</td>
-<td class="left">前一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">C-p</td>
-<td class="left">上一行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-n</td>
-<td class="left">下一行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-a</td>
-<td class="left">行首</td>
-</tr>
-
-
-<tr>
-<td class="left">C-e</td>
-<td class="left">行尾</td>
-</tr>
-
-
-<tr>
-<td class="left">M-b</td>
-<td class="left">上一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">M-f</td>
-<td class="left">下一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">M-a</td>
-<td class="left">句首</td>
-</tr>
-
-
-<tr>
-<td class="left">C-e</td>
-<td class="left">句尾</td>
-</tr>
-
-
-<tr>
-<td class="left">M-&lt;</td>
-<td class="left">文件开头</td>
-</tr>
-
-
-<tr>
-<td class="left">M-&gt;</td>
-<td class="left">文件末尾</td>
-</tr>
-
-
-<tr>
-<td class="left">M-g g</td>
-<td class="left">跳到指定行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-v</td>
-<td class="left">向下翻页</td>
-</tr>
-
-
-<tr>
-<td class="left">M-v</td>
-<td class="left">向上翻页</td>
-</tr>
-
-
-<tr>
-<td class="left">C-M-f</td>
-<td class="left">向前匹配括号</td>
-</tr>
-
-
-<tr>
-<td class="left">C-M-b</td>
-<td class="left">向后匹配括号</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="文本编辑">文本编辑<a id="sec-3" name="sec-3"></a></h1>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-@</td>
-<td class="left">设置标记位</td>
-</tr>
-
-
-<tr>
-<td class="left">C-d</td>
-<td class="left">删除后一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">M-d</td>
-<td class="left">删除后一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">C-Del</td>
-<td class="left">删除前一个字符</td>
-</tr>
-
-
-<tr>
-<td class="left">M-Del</td>
-<td class="left">删除前一个单词</td>
-</tr>
-
-
-<tr>
-<td class="left">C-k</td>
-<td class="left">删除一行</td>
-</tr>
-
-
-<tr>
-<td class="left">C-w</td>
-<td class="left">删除标记区域内容</td>
-</tr>
-
-
-<tr>
-<td class="left">M-w</td>
-<td class="left">复制标记区域内容</td>
-</tr>
-
-
-<tr>
-<td class="left">C-y</td>
-<td class="left">粘贴</td>
-</tr>
-
-
-<tr>
-<td class="left">M-y</td>
-<td class="left">粘贴其他（循环缓冲区)</td>
-</tr>
-
-
-<tr>
-<td class="left">C-t</td>
-<td class="left">交换两个字符位置</td>
-</tr>
-
-
-<tr>
-<td class="left">C-t</td>
-<td class="left">交换两个单词位置</td>
-</tr>
-
-
-<tr>
-<td class="left">M-u n</td>
-<td class="left">重复上个命令n次</td>
-</tr>
-
-
-<tr>
-<td class="left">C-s</td>
-<td class="left">向后搜索</td>
-</tr>
-
-
-<tr>
-<td class="left">C-r</td>
-<td class="left">向前搜索</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="帮助">帮助<a id="sec-4" name="sec-4"></a></h1>
-
-<p>以下命令均以C-h开始</p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">m</td>
-<td class="left">查看当前模式</td>
-</tr>
-
-
-<tr>
-<td class="left">c</td>
-<td class="left">查看快捷键绑定的命令</td>
-</tr>
-
-
-<tr>
-<td class="left">k</td>
-<td class="left">显示快捷键绑定的命令的作用</td>
-</tr>
-
-
-<tr>
-<td class="left">f</td>
-<td class="left">显示函数功能</td>
-</tr>
-
-
-<tr>
-<td class="left">b</td>
-<td class="left">查看当前缓冲区的可用快捷键</td>
-</tr>
-
-
-<tr>
-<td class="left">t</td>
-<td class="left">Emacs教程</td>
-</tr>
-</tbody>
-</table>
-
-<h1 id="org-mode">org-mode<a id="sec-5" name="sec-5"></a></h1>
-
-<p>org-mode功能很强大，这里仅介绍快捷键以备查看</p>
-
-<h2 id="大纲">大纲<a id="sec-5-1" name="sec-5-1"></a></h2>
-
-<ul>
-  <li>
-    <p>折叠:</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">S-TAB</td>
-<td class="left">循环整个文档的折叠方式</td>
-</tr>
-    
-    
-<tr>
-<td class="left">TAB</td>
-<td class="left">循环光标所在处折叠方式</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>移动:</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c C-n/p</td>
-<td class="left">上、下一个标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-f/b</td>
-<td class="left">同级标题间上、下移动</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-u</td>
-<td class="left">跳到上级标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-j</td>
-<td class="left">切换大纲浏览状态</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>编辑:</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">M-RET</td>
-<td class="left">插入同级标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-RET</td>
-<td class="left">插入TODO标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-LEFT/RIGHT</td>
-<td class="left">标题升、降级</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-UP/DOWN</td>
-<td class="left">标题上、下移</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-LEFT/RIGHT</td>
-<td class="left">子树升、降级</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-UP/DONW</td>
-<td class="left">子树上、下移</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c \*</td>
-<td class="left">本行切换为标题、正文</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-w</td>
-<td class="left">跨缓冲区移动标题</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c /</td>
-<td class="left">搜索</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-t</td>
-<td class="left">设定TODO/DONE&#x2026;</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-s</td>
-<td class="left">规划时间</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-d</td>
-<td class="left">设置Deadline</td>
-</tr>
-</tbody>
-</table>
-  </li>
-</ul>
-
-<h2 id="文本">文本<a id="sec-5-2" name="sec-5-2"></a></h2>
-
-<ul>
-  <li>
-    <p>链接：
-description</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c l</td>
-<td class="left">保存链接</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-l</td>
-<td class="left">创建或修改链接</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c C-o</td>
-<td class="left">打开链接</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c %</td>
-<td class="left">记录内部链接地址</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c &amp;</td>
-<td class="left">跳转到已记录的内部链接</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>字体：</p>
-    <ol>
-      <li><strong>粗体</strong></li>
-      <li><em>斜体</em></li>
-      <li><del>删除线</del></li>
-      <li><span class="underline">下划线</span></li>
-      <li>下标： H<sub>2</sub> O</li>
-      <li>上标： E=mc<sup>2</sup></li>
-      <li>等宽： <code class="highlighter-rouge">GIT</code> 或 <code class="highlighter-rouge">GIT</code></li>
-    </ol>
-  </li>
-</ul>
-
-<h2 id="表格">表格<a id="sec-5-3" name="sec-5-3"></a></h2>
-
-<ul>
-  <li>
-    <p>移动</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c C-c</td>
-<td class="left">调整表格，不移动光标</td>
-</tr>
-    
-    
-<tr>
-<td class="left">TAB</td>
-<td class="left">移动到下一区域</td>
-</tr>
-    
-    
-<tr>
-<td class="left">S-TAB</td>
-<td class="left">移动到上一区域</td>
-</tr>
-    
-    
-<tr>
-<td class="left">RET</td>
-<td class="left">移动到下一行</td>
-</tr>
-</tbody>
-</table>
-  </li>
-  <li>
-    <p>编辑</p>
-
-    <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-    
-    
-<colgroup>
-<col class="left" />
-    
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">M-LEFT/RIGHT</td>
-<td class="left">移动列</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-UP/DOWN</td>
-<td class="left">移动行</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-LEFT/RIGHT</td>
-<td class="left">删除、插入列</td>
-</tr>
-    
-    
-<tr>
-<td class="left">M-S-UP/DOWN</td>
-<td class="left">删除、插入行</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c -</td>
-<td class="left">插入水平分割线</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c RET</td>
-<td class="left">插入水平分割线并进入下一行</td>
-</tr>
-    
-    
-<tr>
-<td class="left">C-c ^</td>
-<td class="left">根据当前列排序</td>
-</tr>
-</tbody>
-</table>
-  </li>
-</ul>
-
-<h2 id="列表">列表<a id="sec-5-4" name="sec-5-4"></a></h2>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">TAB</td>
-<td class="left">折叠</td>
-</tr>
-
-
-<tr>
-<td class="left">M-RET</td>
-<td class="left">插入列表项</td>
-</tr>
-
-
-<tr>
-<td class="left">M-S-RET</td>
-<td class="left">插入复选框列表项</td>
-</tr>
-
-
-<tr>
-<td class="left">C-RET</td>
-<td class="left">插入标题项</td>
-</tr>
-
-
-<tr>
-<td class="left">M-S-UP/DOWN</td>
-<td class="left">移动列表项</td>
-</tr>
-
-
-<tr>
-<td class="left">M-LEFT/RIGHT</td>
-<td class="left">升、降级列表项</td>
-</tr>
-
-
-<tr>
-<td class="left">M-S-LEFT/RIGHT</td>
-<td class="left">升、降级列表项及其子项</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c C-c</td>
-<td class="left">改变复选框状态</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c -</td>
-<td class="left">更换列表标记</td>
-</tr>
-
-
-<tr>
-<td class="left">S-LEFT/RIGHT</td>
-<td class="left">更换列表标记</td>
-</tr>
-</tbody>
-</table>
-
-<h2 id="标记">标记<a id="sec-5-5" name="sec-5-5"></a></h2>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col class="left" />
-
-<col class="left" />
-</colgroup>
-<tbody>
-<tr>
-<td class="left">C-c C-q</td>
-<td class="left">设置tag</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c \\</td>
-<td class="left">按照tag搜索标题</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c / m</td>
-<td class="left">搜索并以树显示</td>
-</tr>
-
-
-<tr>
-<td class="left">C-c a m</td>
-<td class="left">按tag搜索多文件</td>
-</tr>
-</tbody>
-</table>
-
-<h2 id="内容原数据">内容原数据<a id="sec-5-6" name="sec-5-6"></a></h2>
-
-<p>以 #+ 开始，标记文档内容。</p>
-
-<figure class="highlight"><pre><code class="language-lisp" data-lang="lisp">    #切换正常分行
-    #+BEGIN_VERSE
-
-    #引用、左右均有部分缩进
-    #+BEGIN_QUOTE
-
-    #居中
-    #+BEGIN_CENTER
-
-    #代码
-    #+BEGIN_SRC java</code></pre></figure>
-
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
 
 <div class="pagination">
   
@@ -1289,9 +551,15 @@ description</p>
         
       </li>
     
+      <li>
+        
+          <a href="http://localhost:4000/page5">5</a>
+        
+      </li>
+    
   </ul>
   
-    Next
+    <a href="http://localhost:4000/page5" class="btn">Next</a>
   
 </div><!-- /.pagination -->
 </div><!-- /#main -->
