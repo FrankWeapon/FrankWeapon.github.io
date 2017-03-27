@@ -4,7 +4,7 @@
 <generator uri="https://github.com/mojombo/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml" />
 <link rel="alternate" type="text/html" href="http://localhost:4000" />
-<updated>2017-03-17T03:32:27+00:00</updated>
+<updated>2017-03-21T13:07:43+00:00</updated>
 <id>http://localhost:4000/</id>
 <author>
   <name>Frank Weapon</name>
@@ -40,7 +40,7 @@
       &lt;/li&gt;
       &lt;li&gt;&lt;a href=&quot;#taskattemptimpl&quot; id=&quot;markdown-toc-taskattemptimpl&quot;&gt;TaskAttemptImpl&lt;/a&gt;        &lt;ul&gt;
           &lt;li&gt;&lt;a href=&quot;#状态机-2&quot; id=&quot;markdown-toc-状态机-2&quot;&gt;状态机&lt;/a&gt;&lt;/li&gt;
-          &lt;li&gt;&lt;a href=&quot;#变迁待填坑-2&quot; id=&quot;markdown-toc-变迁待填坑-2&quot;&gt;变迁(待填坑)&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;#变迁&quot; id=&quot;markdown-toc-变迁&quot;&gt;变迁&lt;/a&gt;&lt;/li&gt;
         &lt;/ul&gt;
       &lt;/li&gt;
     &lt;/ul&gt;
@@ -128,7 +128,24 @@ Hadoop提供了作业级别的容错能力，图中紫色线将重启作业，�
 &lt;h2 id=&quot;taskattemptimpl&quot;&gt;TaskAttemptImpl&lt;/h2&gt;
 &lt;h3 id=&quot;状态机-2&quot;&gt;状态机&lt;/h3&gt;
 &lt;p&gt;&lt;img src=&quot;../assets/upload/Hadoop_FSM_TaskAttempt.png&quot; alt=&quot;TaskAttempt 状态机&quot; /&gt;&lt;/p&gt;
-&lt;h3 id=&quot;变迁待填坑-2&quot;&gt;变迁(待填坑)&lt;/h3&gt;
+&lt;h3 id=&quot;变迁&quot;&gt;变迁&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;RequestContainerTransition&lt;/strong&gt;: 在状态机拓扑建立完成后，状态机处于NEW。此时收到
+SCHEDULE 或 RESCHEDULE 事件后将触发本变迁，若是为发生故障的 container 重新申请资源则调用 &lt;code class=&quot;highlighter-rouge&quot;&gt;ContainerRequest&lt;/code&gt; 中的一个静态方法，该方法中对资源的申请不再考虑到本地性的问题。
+而首次申请资源则将 &lt;em&gt;dataLocalHosts&lt;/em&gt; 以及 &lt;em&gt;dataLocalRacks&lt;/em&gt; 作为参数传入 &lt;code class=&quot;highlighter-rouge&quot;&gt;ContainerRequest&lt;/code&gt;的构造方法中。状态机进入UNASSIGNED。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;ContainerAssignedTransition&lt;/strong&gt;: UNASSIGNED 下收到 ASSIGNED 触发本变迁，这时对 &lt;code class=&quot;highlighter-rouge&quot;&gt;TaskAttemptImpl&lt;/code&gt;中的成员变量赋值。其中包括由事件传入的参数 &lt;em&gt;container&lt;/em&gt;, 通过子类重新的方法&lt;em&gt;createRemoteTask()&lt;/em&gt;的返回值得到的 &lt;em&gt;remoteTask&lt;/em&gt;, 将以上两者组合封装的 &lt;em&gt;JvmID&lt;/em&gt;。最后将 &lt;em&gt;remoteTask&lt;/em&gt; 和 &lt;em&gt;JvmID&lt;/em&gt; 作为参数向&lt;em&gt;taskAttemptListener&lt;/em&gt;中注册。
+此外发送两个事件:&lt;code class=&quot;highlighter-rouge&quot;&gt;ContainerRemoteLaunchEvent&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;SpeculatorEvent&lt;/code&gt;。
+变量&lt;em&gt;remoteTask&lt;/em&gt;实际上是一个 &lt;code class=&quot;highlighter-rouge&quot;&gt;Task&lt;/code&gt;的实例，也就是一个 Map 或 Reduce 任务运行的实际类。在注释中可以看出这个引用采用懒加载方式， 一旦任务开始运行后将这个引用设置为空，大概占用 30KB的内存。变迁结束后状态机进入 ASSIGNED。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;LaunchedContainerTransition&lt;/strong&gt;: ASSIGNED 下收到 CONTAINER_LAUNCHED 触发本变迁，首先同样是对成员变量进行赋值，并且向 TaskAttemptListener 注册开始监听事件。通过&lt;em&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;NetUtils&lt;/code&gt;:createSocketAddr&lt;/em&gt; 创建通信地址并赋值给相应成员变量。在这里将以后不再使用的  &lt;em&gt;remoteTask&lt;/em&gt; 设置为 null 以释放内存。最后创建 ATTEMPT_LAUNCHED 事件。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;CommitPendingTransition&lt;/strong&gt;: 对于需要 commit 的任务，收到 TA_COMMIT_PENDING后执行本变迁，这里只进行了一个操作，向 eventHandler 中发送了 T_ATTEMPT_COMMIT_PENDING 事件，由 &lt;code class=&quot;highlighter-rouge&quot;&gt;TaskImpl&lt;/code&gt; 进行处理。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;CleanupContainerTransition&lt;/strong&gt;: 处于 RUNNING 状态或 COMMIT_PENDING 下收到 DONE 消息时执行本变迁。首先向 TaskAttemptListener 注销以停止对本 Attempt 的监听，此变迁还有可能执行与收到 KILL 事件时，这时要设置 reschedule 标记。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;SucceedTransition&lt;/strong&gt;: 处于 SUCCESS_CONTAINER_CLEANUP 状态下收到 TA_CONTAINER_CLEANED 事件后将触发本变迁。 设置完成时间，发送与完成相关的几个事件。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;DeallocateContainerTransition&lt;/strong&gt;: 收到 TA_KILL和 TA_FAILMSG 时，本变迁被执行。首先设置该任务的完成时间，对于 TaskAttemptKillEvent 来说还要通过 &lt;em&gt;getMessage()&lt;/em&gt; 方法获取诊断信息。然后发出&lt;code class=&quot;highlighter-rouge&quot;&gt;CONTAINER_DEALLOATE&lt;/code&gt;事件。若从 UNASSIGNED 状态转移而来，还要撤回需求。然后判断终态为 FAILED 还是 KILLED分别发出对应事件。此外还需要一个&lt;code class=&quot;highlighter-rouge&quot;&gt;TaskAttemptUnsuccessultCompletionEvent&lt;/code&gt;来封装终态以及 &lt;em&gt;taskAttempt&lt;/em&gt;。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;TaskCleanupTransition&lt;/strong&gt;: 处于 CONTAINER_CLEANUP 状态下时通过此变迁进入 TASK_CLEANUP&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;KilledTransition&lt;/strong&gt;: 被 Kill 的任务的终态，封装相关信息发出&lt;code class=&quot;highlighter-rouge&quot;&gt;TaskTAttemptKillEvent&lt;/code&gt;。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;FailedTransition&lt;/strong&gt;: FAIL 的任务的终态，封装相关信息发出&lt;code class=&quot;highlighter-rouge&quot;&gt;T_ATTEMPT_FAILED&lt;/code&gt;。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;TooMAnyFetchFailureTransition&lt;/strong&gt;: 对于处于 SUCCEED 状态下的 Map 任务，可能出现该变迁，经过封装信息后发出 T_ATTEMPT_FAILED 事件，任务进入 FAILD 状态。&lt;/li&gt;
+&lt;/ul&gt;
 
     &lt;p&gt;&lt;a href=&quot;http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/&quot;&gt;Hadoop-MapReduce状态机分析&lt;/a&gt; was originally published by Frank Weapon at &lt;a href=&quot;http://localhost:4000&quot;&gt;Weapon's Journal&lt;/a&gt; on March 17, 2017.&lt;/p&gt;
   </content>

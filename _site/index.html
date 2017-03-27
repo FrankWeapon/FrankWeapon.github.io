@@ -144,7 +144,7 @@
       <span class="entry-reading-time">
         <i class="fa fa-clock-o"></i>
         
-        Reading time ~1 minute
+        Reading time ~2 minutes
       </span><!-- /.entry-reading-time -->
       
     </div><!-- /.entry-meta -->
@@ -168,7 +168,7 @@
       </li>
       <li><a href="#taskattemptimpl" id="markdown-toc-taskattemptimpl">TaskAttemptImpl</a>        <ul>
           <li><a href="#状态机-2" id="markdown-toc-状态机-2">状态机</a></li>
-          <li><a href="#变迁待填坑-2" id="markdown-toc-变迁待填坑-2">变迁(待填坑)</a></li>
+          <li><a href="#变迁" id="markdown-toc-变迁">变迁</a></li>
         </ul>
       </li>
     </ul>
@@ -256,7 +256,24 @@ Hadoop提供了作业级别的容错能力，图中紫色线将重启作业，�
 <h2 id="taskattemptimpl">TaskAttemptImpl</h2>
 <h3 id="状态机-2">状态机</h3>
 <p><img src="../assets/upload/Hadoop_FSM_TaskAttempt.png" alt="TaskAttempt 状态机" /></p>
-<h3 id="变迁待填坑-2">变迁(待填坑)</h3>
+<h3 id="变迁">变迁</h3>
+<ul>
+  <li><strong>RequestContainerTransition</strong>: 在状态机拓扑建立完成后，状态机处于NEW。此时收到
+SCHEDULE 或 RESCHEDULE 事件后将触发本变迁，若是为发生故障的 container 重新申请资源则调用 <code class="highlighter-rouge">ContainerRequest</code> 中的一个静态方法，该方法中对资源的申请不再考虑到本地性的问题。
+而首次申请资源则将 <em>dataLocalHosts</em> 以及 <em>dataLocalRacks</em> 作为参数传入 <code class="highlighter-rouge">ContainerRequest</code>的构造方法中。状态机进入UNASSIGNED。</li>
+  <li><strong>ContainerAssignedTransition</strong>: UNASSIGNED 下收到 ASSIGNED 触发本变迁，这时对 <code class="highlighter-rouge">TaskAttemptImpl</code>中的成员变量赋值。其中包括由事件传入的参数 <em>container</em>, 通过子类重新的方法<em>createRemoteTask()</em>的返回值得到的 <em>remoteTask</em>, 将以上两者组合封装的 <em>JvmID</em>。最后将 <em>remoteTask</em> 和 <em>JvmID</em> 作为参数向<em>taskAttemptListener</em>中注册。
+此外发送两个事件:<code class="highlighter-rouge">ContainerRemoteLaunchEvent</code> 和 <code class="highlighter-rouge">SpeculatorEvent</code>。
+变量<em>remoteTask</em>实际上是一个 <code class="highlighter-rouge">Task</code>的实例，也就是一个 Map 或 Reduce 任务运行的实际类。在注释中可以看出这个引用采用懒加载方式， 一旦任务开始运行后将这个引用设置为空，大概占用 30KB的内存。变迁结束后状态机进入 ASSIGNED。</li>
+  <li><strong>LaunchedContainerTransition</strong>: ASSIGNED 下收到 CONTAINER_LAUNCHED 触发本变迁，首先同样是对成员变量进行赋值，并且向 TaskAttemptListener 注册开始监听事件。通过<em><code class="highlighter-rouge">NetUtils</code>:createSocketAddr</em> 创建通信地址并赋值给相应成员变量。在这里将以后不再使用的  <em>remoteTask</em> 设置为 null 以释放内存。最后创建 ATTEMPT_LAUNCHED 事件。</li>
+  <li><strong>CommitPendingTransition</strong>: 对于需要 commit 的任务，收到 TA_COMMIT_PENDING后执行本变迁，这里只进行了一个操作，向 eventHandler 中发送了 T_ATTEMPT_COMMIT_PENDING 事件，由 <code class="highlighter-rouge">TaskImpl</code> 进行处理。</li>
+  <li><strong>CleanupContainerTransition</strong>: 处于 RUNNING 状态或 COMMIT_PENDING 下收到 DONE 消息时执行本变迁。首先向 TaskAttemptListener 注销以停止对本 Attempt 的监听，此变迁还有可能执行与收到 KILL 事件时，这时要设置 reschedule 标记。</li>
+  <li><strong>SucceedTransition</strong>: 处于 SUCCESS_CONTAINER_CLEANUP 状态下收到 TA_CONTAINER_CLEANED 事件后将触发本变迁。 设置完成时间，发送与完成相关的几个事件。</li>
+  <li><strong>DeallocateContainerTransition</strong>: 收到 TA_KILL和 TA_FAILMSG 时，本变迁被执行。首先设置该任务的完成时间，对于 TaskAttemptKillEvent 来说还要通过 <em>getMessage()</em> 方法获取诊断信息。然后发出<code class="highlighter-rouge">CONTAINER_DEALLOATE</code>事件。若从 UNASSIGNED 状态转移而来，还要撤回需求。然后判断终态为 FAILED 还是 KILLED分别发出对应事件。此外还需要一个<code class="highlighter-rouge">TaskAttemptUnsuccessultCompletionEvent</code>来封装终态以及 <em>taskAttempt</em>。</li>
+  <li><strong>TaskCleanupTransition</strong>: 处于 CONTAINER_CLEANUP 状态下时通过此变迁进入 TASK_CLEANUP</li>
+  <li><strong>KilledTransition</strong>: 被 Kill 的任务的终态，封装相关信息发出<code class="highlighter-rouge">TaskTAttemptKillEvent</code>。</li>
+  <li><strong>FailedTransition</strong>: FAIL 的任务的终态，封装相关信息发出<code class="highlighter-rouge">T_ATTEMPT_FAILED</code>。</li>
+  <li><strong>TooMAnyFetchFailureTransition</strong>: 对于处于 SUCCEED 状态下的 Map 任务，可能出现该变迁，经过封装信息后发出 T_ATTEMPT_FAILED 事件，任务进入 FAILD 状态。</li>
+</ul>
 
   </div><!-- /.entry-content -->
 </article><!-- /.hentry -->
