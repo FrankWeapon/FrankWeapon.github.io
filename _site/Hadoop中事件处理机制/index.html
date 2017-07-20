@@ -1,0 +1,272 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Hadoop-事件处理机制 &#8211; Weapon's Journal</title>
+<meta name="description" content="Personal technical Summary">
+<meta name="keywords" content="Hadoop, MapReduce">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://localhost:4000/images/">
+<meta name="twitter:title" content="Hadoop-事件处理机制">
+<meta name="twitter:description" content="Personal technical Summary">
+<meta name="twitter:creator" content="@FrankWeapon">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop-事件处理机制">
+<meta property="og:description" content="Personal technical Summary">
+<meta property="og:url" content="http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/">
+<meta property="og:site_name" content="Weapon's Journal">
+
+
+
+
+
+<link rel="canonical" href="http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/">
+<link href="http://localhost:4000/feed.xml" type="application/atom+xml" rel="alternate" title="Weapon's Journal Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://localhost:4000/assets/css/main.css">
+<!-- Webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="http://localhost:4000/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://localhost:4000/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://localhost:4000/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://localhost:4000/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://localhost:4000/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://localhost:4000/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+</head>
+
+<body id="post" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="http://localhost:4000/">Home</a></li>
+		<li>
+			<a href="#">About</a>
+			<ul class="dl-submenu">
+				<li>
+					<img src="http://localhost:4000/images/avatar.jpg" alt="Frank Weapon photo" class="author-photo">
+					<h4>Frank Weapon</h4>
+					<p>A student majoring CS, A person makes living by programming</p>
+				</li>
+				<li><a href="http://localhost:4000/about/"><span class="btn btn-inverse">Learn More</span></a></li>
+				<li>
+					<a href="mailto:helldarkfire@gmail.com"><i class="fa fa-fw fa-envelope"></i> Email</a>
+				</li>
+				<li>
+					<a href="http://twitter.com/FrankWeapon"><i class="fa fa-fw fa-twitter"></i> Twitter</a>
+				</li>
+				<li>
+					<a href="http://facebook.com/Martin Frank"><i class="fa fa-fw fa-facebook"></i> Facebook</a>
+				</li>
+				<li>
+					<a href="https://google.com/+weapon frank"><i class="fa fa-fw fa-google-plus"></i> Google+</a>
+				</li>
+				
+				<li>
+					<a href="http://github.com/FrankWeapon"><i class="fa fa-fw fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="#">Posts</a>
+			<ul class="dl-submenu">
+				<li><a href="http://localhost:4000/posts/">All Posts</a></li>
+				<li><a href="http://localhost:4000/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	    
+	    <li><a href="https://github.com/FrankWeapon" target="_blank">GitHub</a></li>
+	  
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" rel="bookmark" title="Hadoop-事件处理机制">Hadoop-事件处理机制</a></h1>
+        
+        <h2><span class="entry-date date published"><time datetime="2017-07-19T00:00:00+00:00">July 19, 2017</time></span></h2>
+        
+        <p class="entry-reading-time">
+          <i class="fa fa-clock-o"></i>
+          
+          Reading time ~1 minute
+        </p><!-- /.entry-reading-time -->
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <ul id="markdown-toc">
+  <li><a href="#hadoop中的事件总线" id="markdown-toc-hadoop中的事件总线">Hadoop中的事件总线</a></li>
+  <li><a href="#mrappmaster中的事件处理" id="markdown-toc-mrappmaster中的事件处理">MRAppMaster中的事件处理</a></li>
+</ul>
+
+<h1 id="hadoop中的事件总线">Hadoop中的事件总线</h1>
+<p>之前的文章<a href="http://frankweapon.github.io/Hadoop-MapReduce状态机分析/">Hadoop状态机介绍</a>提到整个Hadoop的调度由状态机来控制，而驱动状态机变迁的则是事件。
+这里给出Hadoop中几个类的层级结构图，内容较多，该图可由Intellij idea导出。
+<img src="../assets/upload/Hadoop_class_hierachy.png" alt="Hadoop层次结构" />
+从图中我们可以看到，实现<code class="highlighter-rouge">AbstractService</code>类有三种，其一为<code class="highlighter-rouge">CompositeService</code>，它的子类包括了之前提到的RM，NM以及AM等，这些子类都有<em>main()</em>方法，也就是说，在运行Hadoop的过程中，他们各自独立为一个进程；
+其二为<code class="highlighter-rouge">AbstractYarnScheduler</code>，这个类完全属于YARN模块内，这里不进行介绍。最后一个则是所有事件的总线，<code class="highlighter-rouge">AsyncDispatcher</code>。Hadoop运行过程中所有的事件都将被发布到该类的一个阻塞队列当中，再由他做一次分发。
+在这个类中有几个重要的内容：</p>
+<ul>
+  <li><strong>eventDispatchers</strong>: Map类型的成员变量，其Key为eventType，是一个枚举类型，value为处理该eventType的<code class="highlighter-rouge">EventHandler</code>。关于<code class="highlighter-rouge">EventHandler</code>，我们从图中可以看到，大量的类都实现了该接口，
+其中既包括<code class="highlighter-rouge">TaskImpl</code>这样封装了状态机的类，也包括<code class="highlighter-rouge">JobEventDispatcher</code>这样只做分发并不做其他处理的分发器类。其实Dispatch这样的操作本身也属于处理事件的一种方式，起名为Dispatcher更能表达该类本身的行为。
+所有实现<code class="highlighter-rouge">EventHandler</code>的类通过<em><code class="highlighter-rouge">AsyncDispatcher:</code>register()</em>将自身注册到<strong>eventDispatchers</strong>之中。</li>
+  <li><strong>GenericEventHandler</strong>: 他是一个内部类，实现了<code class="highlighter-rouge">EventHandler</code>，在<em>handle()</em>方法中把收到的时间put到eventQueue中。</li>
+  <li><strong>dispatch()</strong>: <em>dispatch()</em>方法从队列中拿一个事件，到<em>eventDispatchers</em>中寻找对应的handler，调用其<em>handle()</em>方法。这里值得注意的是，在这个方法中捕获到异常时，他会新开启一个shutdownThread关闭<code class="highlighter-rouge">AsyncDispatcher</code>服务。</li>
+</ul>
+
+<p>在开发过程中，我们可能需要对事件处理部分进行断点调试，在这个类中加断点将阻塞所有消息，包括RM以及NM本身运行所发的事件。所以更好的方式是找到与开发内容相关的事件分发器，避免<code class="highlighter-rouge">AsyncDispatcher</code>中的大量事件的干扰。</p>
+<h1 id="mrappmaster中的事件处理">MRAppMaster中的事件处理</h1>
+<!--当Job由用户编写后通过JobClient提交，在YARN上会启用实现了`ClientProtocal`的`YARNRunner`。在该类中通过`ResourceMgrDelegate`-->
+<p>之前提到 MRAppMaster 作为一个单独的进程，有它的main方法。在main方法中除了设置一系列相关参数以及关闭时使用的钩子函数外，调用了静态方法<em>initAndStartAppMaster()</em>。在这个方法中进行用户身份的验证等操作，最后以用户身份初始化并运行 MRAppMaster。</p>
+
+<p>从之前的层次结构图中可以看到，MRAppMaster也是<code class="highlighter-rouge">AbstractService</code>的实现类，他重写了<em>serviceInit(final Configuration conf)</em>方法，首先根据入参<em>conf</em>设置了一系列上下文环境以及成员变量，然后调用<em>createDispatcher()</em>实例化了一个<code class="highlighter-rouge">AsyncDispatcher</code>。
+但是，在这里并没有单例模式出现，同时在ResourceManager 等AbstractService 的子类中也有这样的实例化方法。这与我所设想的有些不同，如果按照代码中所示，将有多个<code class="highlighter-rouge">AsyncDispatcher</code>的实例出现，而且其中的消息队列以及存储handler与对应事件的Map也不是静态变量。
+也就意味着在不同的服务中所使用的事件队列是不一样的，这一点需要再在运行时考证。</p>
+
+<p>MRAppMaster 本身没有实现Handler接口，但他有几个实现Handler接口的内部类，在<em>serviceInit()</em>方法中调用<em><code class="highlighter-rouge">AsyncDispatcher:</code>register</em>分别把他们和相关的事件进行绑定。这样一来，Job、Task、TaskAttempt 等事件就都会由对应的Handler (JobImpl,TaskImpl,TaskAttemptImpl)来进行处理。在这些实现了hanlder接口的impl内部有各自的状态机，经 MRAppMaster 分发之后的状态将驱动这些状态机进行变迁，同时不断产生新的事件直到状态机运行到终态。</p>
+
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="http://localhost:4000/tags/#Hadoop" title="Pages tagged Hadoop" class="tag"><span class="term">Hadoop</span></a><a href="http://localhost:4000/tags/#MapReduce" title="Pages tagged MapReduce" class="tag"><span class="term">MapReduce</span></a></span>
+        
+        <div class="social-share">
+  <ul class="socialcount socialcount-small inline-list">
+    <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+    <li class="twitter"><a href="https://twitter.com/intent/tweet?text=http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+    <li class="googleplus"><a href="https://plus.google.com/share?url=http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+  </ul>
+</div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    
+    <div id="disqus_thread"></div>
+
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://http-frankweapon-github-io.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+    <div class="read-more">
+  
+    <div class="read-more-header">
+      <a href="http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/" class="read-more-btn">Read More</a>
+    </div><!-- /.read-more-header -->
+    <div class="read-more-content">
+      <h3><a href="http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/" title="Hadoop-MapReduce状态机分析">Hadoop-MapReduce状态机分析</a></h3>
+      <p>  Hadoop MapReduce 状态机类结构  状态机及变迁分析          JobImpl                  状态机          变迁(待填坑)                    TaskImpl                  状...&hellip; <a href="http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/">Continue reading</a></p>
+    </div><!-- /.read-more-content -->
+  
+  <div class="read-more-list">
+    
+      <div class="list-item">
+        <h4><a href="http://localhost:4000/Actor_Model/" title="Actor Model (参与者模式)思想与实例">Actor Model (参与者模式)思想与实例</a></h4>
+        <span>Published on March 15, 2017</span>
+      </div><!-- /.list-item -->
+    
+      <div class="list-item">
+        <h4><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-YARN 流程分析">Hadoop-YARN 流程分析</a></h4>
+        <span>Published on March 13, 2017</span>
+      </div><!-- /.list-item -->
+    
+  </div><!-- /.read-more-list -->
+</div><!-- /.read-more -->
+    
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>&copy; 2017 Frank Weapon. </span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://localhost:4000/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="http://localhost:4000/assets/js/scripts.min.js"></script>
+
+
+
+
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'helldarkfire@gmail.com'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+<script id="dsq-count-scr" src="//http-frankweapon-github-io.disqus.com/count.js" async></script>
+</body>
+</html>

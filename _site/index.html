@@ -139,6 +139,59 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2017-07-19T00:00:00+00:00"><a href="http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/">July 19, 2017</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~1 minute
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" rel="bookmark" title="Hadoop-事件处理机制" itemprop="url">Hadoop-事件处理机制</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <ul id="markdown-toc">
+  <li><a href="#hadoop中的事件总线" id="markdown-toc-hadoop中的事件总线">Hadoop中的事件总线</a></li>
+  <li><a href="#mrappmaster中的事件处理" id="markdown-toc-mrappmaster中的事件处理">MRAppMaster中的事件处理</a></li>
+</ul>
+
+<h1 id="hadoop中的事件总线">Hadoop中的事件总线</h1>
+<p>之前的文章<a href="http://frankweapon.github.io/Hadoop-MapReduce状态机分析/">Hadoop状态机介绍</a>提到整个Hadoop的调度由状态机来控制，而驱动状态机变迁的则是事件。
+这里给出Hadoop中几个类的层级结构图，内容较多，该图可由Intellij idea导出。
+<img src="../assets/upload/Hadoop_class_hierachy.png" alt="Hadoop层次结构" />
+从图中我们可以看到，实现<code class="highlighter-rouge">AbstractService</code>类有三种，其一为<code class="highlighter-rouge">CompositeService</code>，它的子类包括了之前提到的RM，NM以及AM等，这些子类都有<em>main()</em>方法，也就是说，在运行Hadoop的过程中，他们各自独立为一个进程；
+其二为<code class="highlighter-rouge">AbstractYarnScheduler</code>，这个类完全属于YARN模块内，这里不进行介绍。最后一个则是所有事件的总线，<code class="highlighter-rouge">AsyncDispatcher</code>。Hadoop运行过程中所有的事件都将被发布到该类的一个阻塞队列当中，再由他做一次分发。
+在这个类中有几个重要的内容：</p>
+<ul>
+  <li><strong>eventDispatchers</strong>: Map类型的成员变量，其Key为eventType，是一个枚举类型，value为处理该eventType的<code class="highlighter-rouge">EventHandler</code>。关于<code class="highlighter-rouge">EventHandler</code>，我们从图中可以看到，大量的类都实现了该接口，
+其中既包括<code class="highlighter-rouge">TaskImpl</code>这样封装了状态机的类，也包括<code class="highlighter-rouge">JobEventDispatcher</code>这样只做分发并不做其他处理的分发器类。其实Dispatch这样的操作本身也属于处理事件的一种方式，起名为Dispatcher更能表达该类本身的行为。
+所有实现<code class="highlighter-rouge">EventHandler</code>的类通过<em><code class="highlighter-rouge">AsyncDispatcher:</code>register()</em>将自身注册到<strong>eventDispatchers</strong>之中。</li>
+  <li><strong>GenericEventHandler</strong>: 他是一个内部类，实现了<code class="highlighter-rouge">EventHandler</code>，在<em>handle()</em>方法中把收到的时间put到eventQueue中。</li>
+  <li><strong>dispatch()</strong>: <em>dispatch()</em>方法从队列中拿一个事件，到<em>eventDispatchers</em>中寻找对应的handler，调用其<em>handle()</em>方法。这里值得注意的是，在这个方法中捕获到异常时，他会新开启一个shutdownThread关闭<code class="highlighter-rouge">AsyncDispatcher</code>服务。</li>
+</ul>
+
+<p>在开发过程中，我们可能需要对事件处理部分进行断点调试，在这个类中加断点将阻塞所有消息，包括RM以及NM本身运行所发的事件。所以更好的方式是找到与开发内容相关的事件分发器，避免<code class="highlighter-rouge">AsyncDispatcher</code>中的大量事件的干扰。</p>
+<h1 id="mrappmaster中的事件处理">MRAppMaster中的事件处理</h1>
+<!--当Job由用户编写后通过JobClient提交，在YARN上会启用实现了`ClientProtocal`的`YARNRunner`。在该类中通过`ResourceMgrDelegate`-->
+<p>之前提到 MRAppMaster 作为一个单独的进程，有它的main方法。在main方法中除了设置一系列相关参数以及关闭时使用的钩子函数外，调用了静态方法<em>initAndStartAppMaster()</em>。在这个方法中进行用户身份的验证等操作，最后以用户身份初始化并运行 MRAppMaster。</p>
+
+<p>从之前的层次结构图中可以看到，MRAppMaster也是<code class="highlighter-rouge">AbstractService</code>的实现类，他重写了<em>serviceInit(final Configuration conf)</em>方法，首先根据入参<em>conf</em>设置了一系列上下文环境以及成员变量，然后调用<em>createDispatcher()</em>实例化了一个<code class="highlighter-rouge">AsyncDispatcher</code>。
+但是，在这里并没有单例模式出现，同时在ResourceManager 等AbstractService 的子类中也有这样的实例化方法。这与我所设想的有些不同，如果按照代码中所示，将有多个<code class="highlighter-rouge">AsyncDispatcher</code>的实例出现，而且其中的消息队列以及存储handler与对应事件的Map也不是静态变量。
+也就意味着在不同的服务中所使用的事件队列是不一样的，这一点需要再在运行时考证。</p>
+
+<p>MRAppMaster 本身没有实现Handler接口，但他有几个实现Handler接口的内部类，在<em>serviceInit()</em>方法中调用<em><code class="highlighter-rouge">AsyncDispatcher:</code>register</em>分别把他们和相关的事件进行绑定。这样一来，Job、Task、TaskAttempt 等事件就都会由对应的Handler (JobImpl,TaskImpl,TaskAttemptImpl)来进行处理。在这些实现了hanlder接口的impl内部有各自的状态机，经 MRAppMaster 分发之后的状态将驱动这些状态机进行变迁，同时不断产生新的事件直到状态机运行到终态。</p>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2017-03-17T00:00:00+00:00"><a href="http://localhost:4000/Hadoop-MapReduce%E7%8A%B6%E6%80%81%E6%9C%BA%E5%88%86%E6%9E%90/">March 17, 2017</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -163,12 +216,12 @@
       </li>
       <li><a href="#taskimpl" id="markdown-toc-taskimpl">TaskImpl</a>        <ul>
           <li><a href="#状态机-1" id="markdown-toc-状态机-1">状态机</a></li>
-          <li><a href="#变迁待填坑-1" id="markdown-toc-变迁待填坑-1">变迁(待填坑)</a></li>
+          <li><a href="#变迁" id="markdown-toc-变迁">变迁</a></li>
         </ul>
       </li>
       <li><a href="#taskattemptimpl" id="markdown-toc-taskattemptimpl">TaskAttemptImpl</a>        <ul>
           <li><a href="#状态机-2" id="markdown-toc-状态机-2">状态机</a></li>
-          <li><a href="#变迁" id="markdown-toc-变迁">变迁</a></li>
+          <li><a href="#变迁-1" id="markdown-toc-变迁-1">变迁</a></li>
         </ul>
       </li>
     </ul>
@@ -251,13 +304,19 @@ Hadoop提供了作业级别的容错能力，图中紫色线将重启作业，�
 <h2 id="taskimpl">TaskImpl</h2>
 <h3 id="状态机-1">状态机</h3>
 <p><img src="../assets/upload/Hadoop_FSM_Task.png" alt="Task 状态机" /></p>
-<h3 id="变迁待填坑-1">变迁(待填坑)</h3>
-
-<h2 id="taskattemptimpl">TaskAttemptImpl</h2>
-<h3 id="状态机-2">状态机</h3>
-<p><img src="../assets/upload/Hadoop_FSM_TaskAttempt.png" alt="TaskAttempt 状态机" /></p>
 <h3 id="变迁">变迁</h3>
 <ul>
+  <li><strong>InitialScheduleTransition</strong>: 最初的变迁，首先调用 <em>addAndScheduleAttempt()</em>方法创建一个 <code class="highlighter-rouge">TaskAttempt</code>，该方法根据传入参数的不同发送 TA_RESCHEDULE 或 TA_SCHEDULE 事件。 此外还有一个枚举类型表明该task attempt 是 VIRGIN 还是 SPECULATIVE。最后调用 <em>sendTaskStartedEvent</em> 创建一个 <code class="highlighter-rouge">JobHistoryEvent</code>。</li>
+  <li><strong>LaunchTransition</strong>: 本变迁中只调用 <code class="highlighter-rouge">MRAPPMitrics</code> 中的方法对 task 运行进度进行衡量。变迁结束后状态机进入 RUNNING 状态。</li>
+  <li><strong>AttemptSucceedTransition</strong>: 状态机通过本变迁从 RUNNING 状态变为 SUCCEED 状态。变迁中首先更新 <em>task</em> 中各类型 attempt 的值，然后发送<code class="highlighter-rouge">TaskFinishedEvent</code>。之后发送<code class="highlighter-rouge">TaskAttemptKillEvent</code>将该 task 的其他 attempt kill 掉。最后调用<em>finished()</em> 修改 <code class="highlighter-rouge">MRAPPMitrics</code>。</li>
+  <li><strong>AttemptCommitPendingTransition</strong>: 在给出 task 的输出之前需要通过此变迁，对 commit 输出的一次确认。</li>
+  <li><strong>AttemptKilledTransition</strong>: 在收到 ATTEMPT_KILLED 事件之后触发本变迁，除设置相关变量之外，对于 <code class="highlighter-rouge">TaskAttemptKilledEvent</code> 还需要创建一个 <em>rescheduleNewAttempt</em>，调用<em>addAndScheduleAttempt()</em>方法发送事件。有两个变迁<code class="highlighter-rouge">KillWaitAttemptSucceedTransition</code>, <code class="highlighter-rouge">KillWaitAttemptFailedTransition</code> 分别继承自本变迁并返回不同的 Attempt 完成状态。</li>
+  <li><strong>AttemptFailedTransition</strong>: 状态机通过此变迁进入 FAILED，同样设置相关变量。 对于重试次数小于最大重试限度的 task 将进行 reschedule，返回当前状态。而大于最大重试次数的 task 将当前未完成的属于该 Task 的 Attempt kill 掉，创建 <code class="highlighter-rouge">TaskFailedEvent</code> 后调用 <em>finished()</em>方法，结束 task 的运行。
+    <h2 id="taskattemptimpl">TaskAttemptImpl</h2>
+    <h3 id="状态机-2">状态机</h3>
+    <p><img src="../assets/upload/Hadoop_FSM_TaskAttempt.png" alt="TaskAttempt 状态机" /></p>
+    <h3 id="变迁-1">变迁</h3>
+  </li>
   <li><strong>RequestContainerTransition</strong>: 在状态机拓扑建立完成后，状态机处于NEW。此时收到
 SCHEDULE 或 RESCHEDULE 事件后将触发本变迁，若是为发生故障的 container 重新申请资源则调用 <code class="highlighter-rouge">ContainerRequest</code> 中的一个静态方法，该方法中对资源的申请不再考虑到本地性的问题。
 而首次申请资源则将 <em>dataLocalHosts</em> 以及 <em>dataLocalRacks</em> 作为参数传入 <code class="highlighter-rouge">ContainerRequest</code>的构造方法中。状态机进入UNASSIGNED。</li>
@@ -527,139 +586,6 @@ Actor Model 的实现使用框架celluloid<sup id="fnref:3"><a href="#fn:3" clas
     </li>
     <li id="fn:3">
       <p>https://github.com/celluloid/celluloid&nbsp;<a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
-    </li>
-  </ol>
-</div>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2017-03-13T00:00:00+00:00"><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/">March 13, 2017</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~2 minutes
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" rel="bookmark" title="Hadoop-YARN 流程分析" itemprop="url">Hadoop-YARN 流程分析</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <ul id="markdown-toc">
-  <li><a href="#mr-v1-与-mr-v2" id="markdown-toc-mr-v1-与-mr-v2">MR v1 与 MR v2</a></li>
-  <li><a href="#apache-yarn" id="markdown-toc-apache-yarn">Apache YARN</a>    <ul>
-      <li><a href="#yarn-组成结构" id="markdown-toc-yarn-组成结构">YARN 组成结构</a></li>
-      <li><a href="#yarn-通信协议" id="markdown-toc-yarn-通信协议">YARN 通信协议</a></li>
-      <li><a href="#yarn-工作流程" id="markdown-toc-yarn-工作流程">YARN 工作流程</a></li>
-      <li><a href="#yarn-编程模型" id="markdown-toc-yarn-编程模型">YARN 编程模型</a></li>
-    </ul>
-  </li>
-  <li><a href="#mrappmaster-分析" id="markdown-toc-mrappmaster-分析">MRAppMaster 分析</a></li>
-</ul>
-
-<h1 id="mr-v1-与-mr-v2">MR v1 与 MR v2</h1>
-<p>MapReduce 框架在大规模数据集中的优良表现使其得到广泛应用，然而随着数据量的增长以及新应用类型的出现，最初的 MapReduce 框架(MR v1)面临诸多瓶颈。所以，Apache 又提出了 MR v2 以解决最初的 MapReduce 遇到的问题。
-两者的主要区别有如下几点：</p>
-
-<ul>
-  <li>扩展性：在 MR v1 中，资源管理和作业控制在同一个组件中管理。当数据量过大时，该组件的能力成为扩展集群规模的瓶颈。而 MR v2 将资源管理和作业控制分别作为两个可通信的独立组件，这使得瓶颈节点的压力得到了分散，提高了可扩展性。</li>
-  <li>可靠性：MR v1 采用传统的 Master/Slave 架构，这时的 Master 存在单点故障问题，一旦 Master 节点失效，所有作业都将无法运行。MR v2 则将作业的 master 独立于资源分配，在 master 失效后可进行重新调度作业而不影响整个平台。</li>
-  <li>资源利用率：MR v1 中资源分配的最小单位为 slot，是一种相对粗粒度的分配方案。因为一个任务很可能不能完全利用一个 slot 中的所有资源而造成浪费，此外 Map 和 Reduce 任务的 slot 不能共享，也就意味着会有闲置资源的等待问题。
-在 MR V2 中有专门的资源管理器，结合管理员配置以及程序需求创建 container（一组资源的结合）运行任务。</li>
-  <li>程序类型：MR v1的资源管理以及任务调度专为 MapReduce 这种离线数据处理应用制作，而后来兴起的内存计算，流式数据处理等计算需要一个更普适性的平台。</li>
-</ul>
-
-<h1 id="apache-yarn">Apache YARN</h1>
-<p>YARN(Yet Another Resource Negotiator)是一种资源统一管理平台，与其类似的还有Facebook 的 Corona 和 Berkeley 的 Mesos。 由于计算框架类型的不同，使用这种资源统一管理平台才能将多种计算框架部署于同一个集群上，能更有效的利用资源以及降低运维成本。</p>
-<h2 id="yarn-组成结构">YARN 组成结构</h2>
-<p>YARN 在资源管理上仍是 Master/Slave 架构，其中 Master 为 ResourceManager Slave 为 NodeManager。而对于应用的调度，则需要指定 ApplicationMaster 负责向 ResourceManager 申请资源，与 NodeManager 进行通信以获取信息进行任务调度。
-要注意在 YARN 作为资源管理平台的视野中，ApplicationMaster 和其他的 Task 的地位是相似的，都运行在 Container中。其间关系如图所示：
-<img src="../assets/upload/YARN_components.png" alt="YARN 基本组成结构" /></p>
-
-<ol>
-  <li><strong>Container</strong>: 资源分配的单位，封装了多种所需资源。task 与 container 是一对一的关系，由应用程序需求动态生成。</li>
-  <li><strong><code class="highlighter-rouge">ResourceManager</code>(RM)</strong>: 全局资源管理，负责系统资源分配。可通过 Zookeeper 来解决单点失效的问题。其中包括两个组件
-    <ol>
-      <li>调度器：根据各种限制条件将系统中的资源分配给应用程序。因为它仅负责资源分配，YARN 中将其设计为松耦合组件，提供几种实现方式，也可以由用户根据需求进行重新设计。</li>
-      <li>应用程序管理器：管理系统中所有应用，负责启动、监控 AM 并在失败时重启。</li>
-    </ol>
-  </li>
-  <li><strong><code class="highlighter-rouge">NodeManager</code>(NM)</strong>：运行在每个物理节点上的资源和任务管理器，主要负责两部分工作
-    <ol>
-      <li>定时向 RM 汇报本节点资源使用情况以及 container 运行状态</li>
-      <li>接收并处理来自 AM 的任务操作请求</li>
-    </ol>
-  </li>
-  <li><strong><code class="highlighter-rouge">ApplicationMaster</code>(AM)</strong>: 用户提交的应用程序需要制定 AM，YARN 内置两个 AM 的实现，其一是一个 demo 以 shell script 的形式给出，其二是 MapReduce 程序的 AM —— MRAppMaster。AM 主要负责以下三个功能
-    <ol>
-      <li>与 RM 调度器通信获取资源</li>
-      <li>与 NM 通信控制任务进程</li>
-      <li>监控调度属于他的所有任务，在失败时进行重新调度</li>
-    </ol>
-  </li>
-</ol>
-
-<h2 id="yarn-通信协议">YARN 通信协议</h2>
-<p>各组件之间通过 RPC 通信。为保证兼容性，YARN 采用 Google 的 Protocol Buffers，在编译源代码过程中可能由于 protobuf 版本问题导致编译不通过。
-在 YARN 中的通信总体上采用 pull 模型，也就是 client 主动向 server 发起连接请求。在 Hadoop 中有以下几种协议负责不同组件间的通信：</p>
-
-<ul>
-  <li><strong>ClientRMProtocol</strong>: JobClient 与 RM 之间的通信，用于提交应用程序、查询程序状态</li>
-  <li><strong>RMAdminProtocol</strong>: 系统管理员通过该协议更新系统配置文件</li>
-  <li><strong>AMRMProtocol</strong>：每个 AM 通过该协议向 RM 注册并为各个 task 申请资源</li>
-  <li><strong>ContainerManager</strong>： AM 通过该协议控制 NM 启动停止 container，以及获取各个 container 的状态信息</li>
-  <li><strong>ResourceTracker</strong>：NM 通过该协议向 RM 注册并定时发送心跳信息汇报节点资源使用情况以及 container 的运行信息。</li>
-</ul>
-
-<h2 id="yarn-工作流程">YARN 工作流程</h2>
-<p>当JobClient 提交应用程序到 YARN 时，首先启动对应的 AM，然后由 AM 创建应用、申请资源、监控只到作业完成，如下图具体包含以下几个步骤<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>：
-<img src="../assets/upload/YARN_workflow.png" alt="YARN 工作流程" /></p>
-
-<ol>
-  <li>用户提交程序</li>
-  <li>RM 分配 Container，与 对应 NM 通信告知启动 AM</li>
-  <li>AM 向 RM 注册，程序进入运行状态，重复执行4-7直至结束</li>
-  <li>AM 采用轮询方式向 RM 申请领取资源</li>
-  <li>AM 申请到资源后与 NM 通信告知其启动任务</li>
-  <li>NM 设置好运行环境，通过脚本启动任务</li>
-  <li>各任务向 AM 汇报进度</li>
-  <li>完成后 AM 向 RM 发起注销请求，关闭自己</li>
-</ol>
-
-<h2 id="yarn-编程模型">YARN 编程模型</h2>
-<p>在 YARN 中以采用事件驱动的有限状态机进行运行控制，在 MR v1 中控制 Job 以及 Task 的 Progress 类将由用状态机重写的类替代。
-对于一个生命周期较长的对象，其状态都会由一个状态机来表示。同时设计事件监听器(EventListener)和事件派发器(EventDispatcher)。
-事件和状态机的变迁相互影响，也就是说监听到某事件可能会导致状态机的变迁，而状态机变迁时的行为有可能是产生一个新的事件。
-所有的事件都将经过AsyncDispatcher 进行排队分发，这种事件集中排队分发的设计方式与Kafka<sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>类似。</p>
-
-<p>此外，考虑到耦合性问题，YARN 中的组件以服务化的形式出现，均实现 <code class="highlighter-rouge">Service</code> 接口。<code class="highlighter-rouge">AbstractService</code>是一个抽象类，提供了一个 Service 最基本的实现。
-对于非组合服务，可以直接继承<code class="highlighter-rouge">AbstarctService</code>类，而对于组合服务，比如<code class="highlighter-rouge">MRAppMaster</code>组合了各种服务对象，则需要继承<code class="highlighter-rouge">CompositeService</code>。</p>
-
-<h1 id="mrappmaster-分析">MRAppMaster 分析</h1>
-<p><code class="highlighter-rouge">MRAppMaster</code>继承<code class="highlighter-rouge">CompositeService</code>，是 MapReduce 型应用程序的 ApplicationMaster。
-该类的 Java Doc 中介绍到，应用程序所用到的状态机被封装到接口<code class="highlighter-rouge">Job</code>的实现类中，所有状态的改变都要通过<code class="highlighter-rouge">Job</code>接口。事件（event）会导致该有限状态机的变迁。
-该类本分是一个松耦合的服务组件，和其他组件的交互行为都是通过事件产生的，这种方式与参与者模式(Actor Model)很类似。
-所有的组件都会向一个中心分发器（dispatcher)注册，事件均由该分发器调度分发。而各组件之间的信息会通过<code class="highlighter-rouge">AppContext</code>进行共享。</p>
-
-<p>在<code class="highlighter-rouge">MRAppMaster</code>源码中有一个内部类 <code class="highlighter-rouge">RunningAppContext</code>实现<code class="highlighter-rouge">AppContext</code>接口，通过<em>context</em>可以创建 Job, Task, TaskAttempt 以及 Speculative 的事件分发器。
-这个类中的代码多为环境搭建的操作，比如各服务组件的组合，监听器和分发器的创建注册，用户的验证等。
-在<em>serviceStart()</em>方法的最后调用<em>startJobs()</em>创建一个job-start事件并发送至<code class="highlighter-rouge">AsyncDispatcher</code>，以此触发整个 Job 的状态机。</p>
-
-<hr />
-<div class="footnotes">
-  <ol>
-    <li id="fn:1">
-      <p>参考自《Hadoop 技术内幕：深入解析 MapReduce架构设计与实现原理》 董西成 著&nbsp;<a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
-    </li>
-    <li id="fn:2">
-      <p>https://kafka.apache.org&nbsp;<a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
     </li>
   </ol>
 </div>

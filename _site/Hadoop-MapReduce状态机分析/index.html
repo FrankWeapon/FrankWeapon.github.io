@@ -147,12 +147,12 @@
       </li>
       <li><a href="#taskimpl" id="markdown-toc-taskimpl">TaskImpl</a>        <ul>
           <li><a href="#状态机-1" id="markdown-toc-状态机-1">状态机</a></li>
-          <li><a href="#变迁待填坑-1" id="markdown-toc-变迁待填坑-1">变迁(待填坑)</a></li>
+          <li><a href="#变迁" id="markdown-toc-变迁">变迁</a></li>
         </ul>
       </li>
       <li><a href="#taskattemptimpl" id="markdown-toc-taskattemptimpl">TaskAttemptImpl</a>        <ul>
           <li><a href="#状态机-2" id="markdown-toc-状态机-2">状态机</a></li>
-          <li><a href="#变迁" id="markdown-toc-变迁">变迁</a></li>
+          <li><a href="#变迁-1" id="markdown-toc-变迁-1">变迁</a></li>
         </ul>
       </li>
     </ul>
@@ -235,13 +235,19 @@ Hadoop提供了作业级别的容错能力，图中紫色线将重启作业，�
 <h2 id="taskimpl">TaskImpl</h2>
 <h3 id="状态机-1">状态机</h3>
 <p><img src="../assets/upload/Hadoop_FSM_Task.png" alt="Task 状态机" /></p>
-<h3 id="变迁待填坑-1">变迁(待填坑)</h3>
-
-<h2 id="taskattemptimpl">TaskAttemptImpl</h2>
-<h3 id="状态机-2">状态机</h3>
-<p><img src="../assets/upload/Hadoop_FSM_TaskAttempt.png" alt="TaskAttempt 状态机" /></p>
 <h3 id="变迁">变迁</h3>
 <ul>
+  <li><strong>InitialScheduleTransition</strong>: 最初的变迁，首先调用 <em>addAndScheduleAttempt()</em>方法创建一个 <code class="highlighter-rouge">TaskAttempt</code>，该方法根据传入参数的不同发送 TA_RESCHEDULE 或 TA_SCHEDULE 事件。 此外还有一个枚举类型表明该task attempt 是 VIRGIN 还是 SPECULATIVE。最后调用 <em>sendTaskStartedEvent</em> 创建一个 <code class="highlighter-rouge">JobHistoryEvent</code>。</li>
+  <li><strong>LaunchTransition</strong>: 本变迁中只调用 <code class="highlighter-rouge">MRAPPMitrics</code> 中的方法对 task 运行进度进行衡量。变迁结束后状态机进入 RUNNING 状态。</li>
+  <li><strong>AttemptSucceedTransition</strong>: 状态机通过本变迁从 RUNNING 状态变为 SUCCEED 状态。变迁中首先更新 <em>task</em> 中各类型 attempt 的值，然后发送<code class="highlighter-rouge">TaskFinishedEvent</code>。之后发送<code class="highlighter-rouge">TaskAttemptKillEvent</code>将该 task 的其他 attempt kill 掉。最后调用<em>finished()</em> 修改 <code class="highlighter-rouge">MRAPPMitrics</code>。</li>
+  <li><strong>AttemptCommitPendingTransition</strong>: 在给出 task 的输出之前需要通过此变迁，对 commit 输出的一次确认。</li>
+  <li><strong>AttemptKilledTransition</strong>: 在收到 ATTEMPT_KILLED 事件之后触发本变迁，除设置相关变量之外，对于 <code class="highlighter-rouge">TaskAttemptKilledEvent</code> 还需要创建一个 <em>rescheduleNewAttempt</em>，调用<em>addAndScheduleAttempt()</em>方法发送事件。有两个变迁<code class="highlighter-rouge">KillWaitAttemptSucceedTransition</code>, <code class="highlighter-rouge">KillWaitAttemptFailedTransition</code> 分别继承自本变迁并返回不同的 Attempt 完成状态。</li>
+  <li><strong>AttemptFailedTransition</strong>: 状态机通过此变迁进入 FAILED，同样设置相关变量。 对于重试次数小于最大重试限度的 task 将进行 reschedule，返回当前状态。而大于最大重试次数的 task 将当前未完成的属于该 Task 的 Attempt kill 掉，创建 <code class="highlighter-rouge">TaskFailedEvent</code> 后调用 <em>finished()</em>方法，结束 task 的运行。
+    <h2 id="taskattemptimpl">TaskAttemptImpl</h2>
+    <h3 id="状态机-2">状态机</h3>
+    <p><img src="../assets/upload/Hadoop_FSM_TaskAttempt.png" alt="TaskAttempt 状态机" /></p>
+    <h3 id="变迁-1">变迁</h3>
+  </li>
   <li><strong>RequestContainerTransition</strong>: 在状态机拓扑建立完成后，状态机处于NEW。此时收到
 SCHEDULE 或 RESCHEDULE 事件后将触发本变迁，若是为发生故障的 container 重新申请资源则调用 <code class="highlighter-rouge">ContainerRequest</code> 中的一个静态方法，该方法中对资源的申请不再考虑到本地性的问题。
 而首次申请资源则将 <em>dataLocalHosts</em> 以及 <em>dataLocalRacks</em> 作为参数传入 <code class="highlighter-rouge">ContainerRequest</code>的构造方法中。状态机进入UNASSIGNED。</li>
@@ -300,20 +306,20 @@ SCHEDULE 或 RESCHEDULE 事件后将触发本变迁，若是为发生故障的 c
       <a href="http://localhost:4000/Actor_Model/" class="read-more-btn">Read More</a>
     </div><!-- /.read-more-header -->
     <div class="read-more-content">
-      <h3><a href="http://localhost:4000/Actor_Model/" title="Actor Model (参与者模式)思想与实例">Actor Model (参与者模式)思想与实例</a></h3>
-      <p>  Actor Model 设计思想  同步问题编程实例(哲学家就餐问题)          哲学家就餐问题描述      Locks      Actors      Actor Model 设计思想Actor Model（参与者模型）简化并发而产生，它将系统中的所有组件...&hellip; <a href="http://localhost:4000/Actor_Model/">Continue reading</a></p>
+      <h3><a href="http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/" title="Hadoop-事件处理机制">Hadoop-事件处理机制</a></h3>
+      <p>- TOC{:toc}# Hadoop中的事件总线之前的文章[Hadoop状态机介绍](http://frankweapon.github.io/Hadoop-MapReduce状态机分析/)提到整个Hadoop的调度由状态机来控制，而驱动状态机变迁的则是事件。这里给出Ha...&hellip; <a href="http://localhost:4000/Hadoop%E4%B8%AD%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6/">Continue reading</a></p>
     </div><!-- /.read-more-content -->
   
   <div class="read-more-list">
     
       <div class="list-item">
-        <h4><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-YARN 流程分析">Hadoop-YARN 流程分析</a></h4>
-        <span>Published on March 13, 2017</span>
+        <h4><a href="http://localhost:4000/Actor_Model/" title="Actor Model (参与者模式)思想与实例">Actor Model (参与者模式)思想与实例</a></h4>
+        <span>Published on March 15, 2017</span>
       </div><!-- /.list-item -->
     
       <div class="list-item">
-        <h4><a href="http://localhost:4000/Task%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-MapReduce-task流程分析">Hadoop-MapReduce-task流程分析</a></h4>
-        <span>Published on March 02, 2017</span>
+        <h4><a href="http://localhost:4000/YARN%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/" title="Hadoop-YARN 流程分析">Hadoop-YARN 流程分析</a></h4>
+        <span>Published on March 13, 2017</span>
       </div><!-- /.list-item -->
     
   </div><!-- /.read-more-list -->

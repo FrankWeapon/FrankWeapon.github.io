@@ -139,6 +139,184 @@
   <header>
     
     <div class="entry-meta">
+      <span class="entry-date date published updated"><time datetime="2016-04-19T00:00:00+00:00"><a href="http://localhost:4000/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/">April 19, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
+      
+      <span class="entry-reading-time">
+        <i class="fa fa-clock-o"></i>
+        
+        Reading time ~2 minutes
+      </span><!-- /.entry-reading-time -->
+      
+    </div><!-- /.entry-meta -->
+    
+      <h1 class="entry-title"><a href="http://localhost:4000/%E7%94%A8latex%E5%86%99%E4%B8%80%E7%AF%87%E7%AE%80%E5%8D%95%E6%96%87%E7%AB%A0/" rel="bookmark" title="用latex写一篇简单文章" itemprop="url">用latex写一篇简单文章</a></h1>
+    
+  </header>
+  <div class="entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgheadline5">1. 基本元素</a>
+<ul>
+<li><a href="#orgheadline1">1.1. 文章类型——最基本的内容</a></li>
+<li><a href="#orgheadline2">1.2. 作者、标题、日期——制作标题页</a></li>
+<li><a href="#orgheadline3">1.3. 章节、段落——组织文章内容</a></li>
+<li><a href="#orgheadline4">1.4. 目录——整理章节标题</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline9">2. 版面设置</a>
+<ul>
+<li><a href="#orgheadline6">2.1. 页边距——利用好页面</a></li>
+<li><a href="#orgheadline7">2.2. 页眉、页脚——有地方显示页标、作者、日期</a></li>
+<li><a href="#orgheadline8">2.3. 间距——合理调整页面</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline14">3. 插入内容</a>
+<ul>
+<li><a href="#orgheadline10">3.1. 插入图片——自动编号你的图例</a></li>
+<li><a href="#orgheadline11">3.2. 插入表格——用代码画出表格</a></li>
+<li><a href="#orgheadline12">3.3. 插入列表——格式化你的内容</a></li>
+<li><a href="#orgheadline13">3.4. 插入公式——编辑复杂的数学内容</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<h1 id="基本元素">基本元素<a id="orgheadline5"></a></h1>
+
+<h2 id="文章类型最基本的内容">文章类型——最基本的内容<a id="orgheadline1"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
+    <span class="nt">\begin{document}</span>
+    Hello, world!
+    <span class="nt">\end{document}</span></code></pre></figure>
+
+<h2 id="作者标题日期制作标题页">作者、标题、日期——制作标题页<a id="orgheadline2"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\title</span><span class="p">{</span>hello，world!<span class="p">}</span>
+    <span class="k">\author</span><span class="p">{</span>frank weapon<span class="p">}</span>
+    <span class="k">\date</span><span class="p">{</span><span class="k">\today</span><span class="p">}</span>
+    <span class="nt">\begin{document}</span>
+    <span class="k">\maketitle</span>
+    hello，world!
+    <span class="nt">\end{document}</span></code></pre></figure>
+
+<h2 id="章节段落组织文章内容">章节、段落——组织文章内容<a id="orgheadline3"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{document}</span>
+    <span class="k">\maketitle</span>
+    <span class="k">\section</span><span class="p">{</span>hello programming language<span class="p">}</span>
+    <span class="k">\subsection</span><span class="p">{</span>hello java<span class="p">}</span>
+    <span class="k">\paragraph</span><span class="p">{</span>java<span class="p">}</span> is a OO language
+    <span class="k">\paragraph</span><span class="p">{</span>java<span class="p">}</span> is a powerful language
+    <span class="k">\subsubsection</span><span class="p">{</span>hello spring<span class="p">}</span>
+    <span class="k">\subsubsection</span><span class="p">{</span>hello struts<span class="p">}</span>
+    <span class="k">\subsection</span><span class="p">{</span>hello ruby<span class="p">}</span>
+    <span class="nt">\end{document}</span></code></pre></figure>
+
+<h2 id="目录整理章节标题">目录——整理章节标题<a id="orgheadline4"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{document}</span>
+    <span class="k">\maketitle</span>
+    <span class="k">\tableofcontents</span>
+    ...
+    <span class="nt">\end{document}</span></code></pre></figure>
+
+<h1 id="版面设置">版面设置<a id="orgheadline9"></a></h1>
+
+<h2 id="页边距利用好页面">页边距——利用好页面<a id="orgheadline6"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
+    <span class="k">\usepackage</span><span class="p">{</span>geometry<span class="p">}</span>
+    <span class="k">\geometry</span><span class="p">{</span>papersize=<span class="p">{</span>20cm,15cm<span class="p">}}</span>
+    <span class="k">\geometry</span><span class="p">{</span>left=1cm,right=2cm,top=3cm,bottom=4cm<span class="p">}</span>
+    <span class="nt">\begin{document}</span>
+    Hello, world!
+    <span class="nt">\end{document}</span></code></pre></figure>
+
+<h2 id="页眉页脚有地方显示页标作者日期">页眉、页脚——有地方显示页标、作者、日期<a id="orgheadline7"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
+    <span class="k">\usepackage</span><span class="p">{</span>fancyhdr<span class="p">}</span>
+    <span class="k">\pagestyle</span><span class="p">{</span>fancy<span class="p">}</span>
+    <span class="k">\lhead</span><span class="p">{</span>head left<span class="p">}</span>
+    <span class="k">\chead</span><span class="p">{</span>head center<span class="p">}</span>
+    <span class="k">\rhead</span><span class="p">{</span>head right<span class="p">}</span>
+    <span class="k">\lfoot</span><span class="p">{}</span>
+    <span class="k">\cfoot</span><span class="p">{</span><span class="k">\thepage</span><span class="p">}</span>
+    <span class="k">\rfoot</span><span class="p">{}</span>
+    <span class="nt">\begin{document}</span>
+    Hello, world!
+    <span class="nt">\end{document}</span></code></pre></figure>
+
+<h2 id="间距合理调整页面">间距——合理调整页面<a id="orgheadline8"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="c">%paragraph indentation</span>
+    <span class="k">\setlength</span><span class="p">{</span><span class="k">\parindent</span><span class="p">}{</span>4em<span class="p">}</span>
+    <span class="c">%paragraph spacing</span>
+    <span class="k">\setlength</span><span class="p">{</span><span class="k">\parskip</span><span class="p">}{</span>1em<span class="p">}</span>
+    <span class="c">%Line spacing</span>
+    <span class="k">\renewcommand</span><span class="p">{</span><span class="k">\baselinestretch</span><span class="p">}{</span>1.5<span class="p">}</span></code></pre></figure>
+
+<h1 id="插入内容">插入内容<a id="orgheadline14"></a></h1>
+
+<h2 id="插入图片自动编号你的图例">插入图片——自动编号你的图例<a id="orgheadline10"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{figure}</span>[h]
+      <span class="k">\centering</span>
+      <span class="k">\includegraphics</span><span class="na">[width=0.8\textwidth]</span><span class="p">{</span>figure/fig1<span class="p">}</span>
+      <span class="k">\caption</span><span class="p">{</span>demo figure<span class="p">}</span>
+      <span class="k">\label</span><span class="p">{</span>figure demo<span class="p">}</span>
+    <span class="nt">\end{figure}</span></code></pre></figure>
+
+<h2 id="插入表格用代码画出表格">插入表格——用代码画出表格<a id="orgheadline11"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{table}</span>[h]
+    <span class="nt">\begin{center}</span>
+    <span class="k">\caption</span><span class="p">{</span>demo table<span class="p">}</span>
+    <span class="k">\label</span><span class="p">{</span>table demo<span class="p">}</span>
+    <span class="nt">\begin{tabular}</span><span class="p">{</span>| l | l | l |<span class="p">}</span>
+    <span class="k">\hline</span>
+    00 <span class="p">&amp;</span> 01 <span class="p">&amp;</span> 02<span class="k">\\</span>
+    <span class="k">\hline</span>
+    10 <span class="p">&amp;</span> 11 <span class="p">&amp;</span> 12<span class="k">\\</span>
+    <span class="k">\hline</span>
+    20 <span class="p">&amp;</span> 21 <span class="p">&amp;</span> 22<span class="k">\\</span>
+    <span class="k">\hline</span>
+    <span class="nt">\end{tabular}</span>
+    <span class="nt">\end{center}</span>
+    <span class="nt">\end{table}</span></code></pre></figure>
+
+<h2 id="插入列表格式化你的内容">插入列表——格式化你的内容<a id="orgheadline12"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="nt">\begin{itemize}</span>
+    <span class="k">\item</span> one demo item
+    <span class="k">\item</span> another demo item
+    <span class="nt">\end{itemize}</span></code></pre></figure>
+
+<h2 id="插入公式编辑复杂的数学内容">插入公式——编辑复杂的数学内容<a id="orgheadline13"></a></h2>
+
+<figure class="highlight"><pre><code class="language-latex" data-lang="latex">    <span class="k">\documentclass</span><span class="p">{</span>article<span class="p">}</span>
+    <span class="k">\usepackage</span><span class="p">{</span>amsmath<span class="p">}</span>
+    <span class="nt">\begin{document}</span>
+    Hello, Math !
+    <span class="p">$</span><span class="nb">...</span><span class="p">$</span> <span class="c">% inline</span>
+    <span class="p">\[</span><span class="nb"> .. </span><span class="p">\]</span> <span class="c">% between two lines</span>
+    <span class="nt">\begin{equation}</span> <span class="c">% numbered equation between lines</span>
+    …
+    <span class="nt">\end{equation}</span>
+    <span class="nt">\end{document}</span></code></pre></figure>
+
+
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+    <div class="entry-meta">
       <span class="entry-date date published updated"><time datetime="2016-01-25T00:00:00+00:00"><a href="http://localhost:4000/Spacemacs/">January 25, 2016</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
       
       <span class="entry-reading-time">
@@ -628,289 +806,6 @@ brew linkapps
 
 <ul>
   <li>计算节点只安装了openvswitch服务（ML2），提供了实例的虚拟网络建立。</li>
-</ul>
-
-  </div><!-- /.entry-content -->
-</article><!-- /.hentry -->
-
-<article class="hentry">
-  <header>
-    
-    <div class="entry-meta">
-      <span class="entry-date date published updated"><time datetime="2015-11-15T00:00:00+00:00"><a href="http://localhost:4000/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">November 15, 2015</a></time></span><span class="author vcard"><span class="fn"><a href="http://localhost:4000/about/" title="About Frank Weapon">Frank Weapon</a></span></span>
-      
-      <span class="entry-reading-time">
-        <i class="fa fa-clock-o"></i>
-        
-        Reading time ~1 minute
-      </span><!-- /.entry-reading-time -->
-      
-    </div><!-- /.entry-meta -->
-    
-      <h1 class="entry-title"><a href="http://localhost:4000/Openstack-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="bookmark" title="OpenStack-基础环境搭建" itemprop="url">OpenStack-基础环境搭建</a></h1>
-    
-  </header>
-  <div class="entry-content">
-    <div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. 网络环境</a>
-<ul>
-<li><a href="#sec-1-1">1.1. 网络概述</a></li>
-<li><a href="#sec-1-2">1.2. 使用配置文件修改网络设置</a></li>
-<li><a href="#sec-1-3">1.3. 路由器设置</a></li>
-<li><a href="#sec-1-4">1.4. 修改hosts</a></li>
-<li><a href="#sec-1-5">1.5. controller</a></li>
-<li><a href="#sec-1-6">1.6. network</a></li>
-<li><a href="#sec-1-7">1.7. compute1</a></li>
-<li><a href="#sec-1-8">1.8. 验证</a></li>
-</ul>
-</li>
-<li><a href="#sec-2">2. Network Time Protocal (NTP)</a>
-<ul>
-<li><a href="#sec-2-1">2.1. 问题解决</a></li>
-<li><a href="#sec-2-2">2.2. 注意事项</a></li>
-</ul>
-</li>
-<li><a href="#sec-3">3. OpenStack packages</a></li>
-<li><a href="#sec-4">4. SQL database</a>
-<ul>
-<li><a href="#sec-4-1">4.1. 注意事项</a></li>
-</ul>
-</li>
-<li><a href="#sec-5">5. Message queue</a>
-<ul>
-<li><a href="#sec-5-1">5.1. 注意事项</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
-<h1 id="网络环境">网络环境<a id="sec-1" name="sec-1"></a></h1>
-
-<p>openstack网络尤其重要，理解各节点组件作用，在正确稳定的网络结构下，可以避免很多不必要的问题。整体结构如图所示
-<img src="/assets/upload/OpenStack-网络拓扑.jpg" alt="网络拓扑" />
-该文章中采centOS7的网卡命名，集成网卡名为eno1、插入的两张PCI网卡分别为enp2s10和enp2s12。</p>
-
-<p>一定要采用命令行下编辑配置文件的方式来进行网络配置，使用GUI可能会导致配置文件的混乱，要是已经弄乱了的话，后面会有解决方案。</p>
-
-<h2 id="网络概述">网络概述<a id="sec-1-1" name="sec-1-1"></a></h2>
-
-<ul>
-  <li>10.0.0.0/24
-该网段称作management，用作3台物理机间的数据通信。 需要一个网关（这里使用路由器）接入互联网。</li>
-  <li>10.0.1.0/24
-该网段称作tunnel，用作运行在compute上的实例与network间的数据通信，与controller无关。</li>
-  <li>外网
-只在network上有，不指定IP地址且BOOTPROTO为none，在安装好网络组件之前这块网卡并没有用。 创建网络环境时会将一段IP地址分配到这里，以池的形式提供NAT以及虚拟机的IP地址绑定。</li>
-</ul>
-
-<h2 id="使用配置文件修改网络设置">使用配置文件修改网络设置<a id="sec-1-2" name="sec-1-2"></a></h2>
-
-<p>centOS7 网络配置文件位于</p>
-
-<blockquote>
-  <p><em>etc/sysconfig/network-scripts</em></p>
-</blockquote>
-
-<p>目录下对应3块网卡的配置文件分别为ifcfg-eno1, ifcfg-enp2s10, ifcfg-enp2s12。</p>
-
-<p>环境中所有IP均为静态指定，所以BOOTPROTO=static。network的第三块网卡除外，要设置为 BOOTPROTO=none。</p>
-
-<p>编辑完成后重启网络</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>systemctl restart network
-</code></pre>
-</div>
-
-<h2 id="路由器设置">路由器设置<a id="sec-1-3" name="sec-1-3"></a></h2>
-
-<p>CentOS下无法直接进入路由器设置界面，需要一台windows接入LAN口输入192.168.1.1进入路由器设置。 路由器网段改为10.0.0.0,子网掩码255.255.255.0，路由器地址10.0.0.1，路由器重启后进入指定3台机器eno1的MAC地址和IP地址</p>
-<ol>
-  <li>controller
-10.0.0.11</li>
-  <li>network
-10.0.0.21</li>
-  <li>compute1
-10.0.0.31</li>
-  <li>compute2(可选）
-10.0.0.32（以此类推）</li>
-</ol>
-
-<p>注意，如果你之前在其他连入LAN口的电脑上配置了地址10.0.0.1，会导致无法进入路由器设置页面，记得修改它以避免冲突。</p>
-
-<h2 id="修改hosts">修改hosts<a id="sec-1-4" name="sec-1-4"></a></h2>
-
-<p>每个节点都需要修改hosts文件，指定各节点的通信地址。配置文件在</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>&gt; /etc/host
-</code></pre>
-</div>
-
-<p>#controller
-10.0.0.11 controller</p>
-
-<p>#network
-10.0.0.21 network</p>
-
-<p>#compute1
-10.0.0.31 compute1</p>
-
-<p>#compute2
-10.0.0.32 compute2</p>
-
-<h2 id="controller">controller<a id="sec-1-5" name="sec-1-5"></a></h2>
-
-<ul>
-  <li>
-    <p>ifcfg-eno1</p>
-
-    <blockquote>
-      <p>BOOTPROTO=static
-IPADDR=10.0.0.11
-NETMASK=255.255.255.0
-GATEWAY=10.0.0.1</p>
-
-      <p>DNS = 8.8.8.8</p>
-
-      <p>DNS1 = 8.8.4.4</p>
-    </blockquote>
-  </li>
-</ul>
-
-<h2 id="network">network<a id="sec-1-6" name="sec-1-6"></a></h2>
-
-<ul>
-  <li>
-    <p>ifcfg-eno1</p>
-
-    <blockquote>
-      <p>BOOTPROTO=static
-IPADDR=10.0.0.21
-NETMASK=255.255.255.0
-GATEWAY=10.0.0.1</p>
-
-      <p>DNS = 8.8.8.8</p>
-
-      <p>DNS1 = 8.8.4.4</p>
-    </blockquote>
-  </li>
-  <li>
-    <p>ifcfg-enp2s10</p>
-
-    <blockquote>
-      <p>BOOTPROTO=static
-IPADDR=10.0.1.21
-NETMASK=255.255.255.0</p>
-    </blockquote>
-  </li>
-  <li>
-    <p>ifcfg-enp2s12</p>
-
-    <blockquote>
-      <p>BOOTPROTO=none</p>
-    </blockquote>
-  </li>
-</ul>
-
-<h2 id="compute1">compute1<a id="sec-1-7" name="sec-1-7"></a></h2>
-
-<ul>
-  <li>
-    <p>ifcfg-eno1</p>
-
-    <blockquote>
-      <p>BOOTPROTO=static
-IPADDR=10.0.0.31
-NETMASK=255.255.255.0
-GATEWAY=10.0.0.1</p>
-
-      <p>DNS = 8.8.8.8</p>
-
-      <p>DNS1 = 8.8.4.4</p>
-    </blockquote>
-  </li>
-  <li>
-    <p>ifcfg-enp2s10</p>
-
-    <blockquote>
-      <p>BOOTPROTO=static
-IPADDR=10.0.1.31
-NETMASK=255.255.255.0</p>
-    </blockquote>
-  </li>
-</ul>
-
-<h2 id="验证">验证<a id="sec-1-8" name="sec-1-8"></a></h2>
-
-<ul>
-  <li>所有主机都能ping通外网</li>
-  <li>所有主机之间使用hosts文件中的名字都能相互ping通</li>
-  <li>compute和network可以ping通对方tunnel地址</li>
-</ul>
-
-<h1 id="network-time-protocal-ntp">Network Time Protocal (NTP)<a id="sec-2" name="sec-2"></a></h1>
-
-<h2 id="问题解决">问题解决<a id="sec-2-1" name="sec-2-1"></a></h2>
-
-<ul>
-  <li>
-    <p>控制节点上要填一个地址，用于统一时间，许多都不能用，在验证的时候显示.INIT.</p>
-
-    <p>这里给出国家授时中心的域名</p>
-
-    <blockquote>
-      <p>cn.pool.ntp.org
-1.cn.pool.ntp.org</p>
-    </blockquote>
-  </li>
-  <li>
-    <p>防火墙可能会导致NTP的通信异常，可以关闭并禁用防火墙</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>systemctl stop firewalld
-systemctl disable firewalld
-</code></pre>
-    </div>
-  </li>
-</ul>
-
-<h2 id="注意事项">注意事项<a id="sec-2-2" name="sec-2-2"></a></h2>
-
-<ul>
-  <li>其他节点都以controller作为时间标准。以后安装过程中遇到问题可以先验证NTP是否运行正常，有时网络问题会导致组件功能不正常。</li>
-</ul>
-
-<h1 id="openstack-packages">OpenStack packages<a id="sec-3" name="sec-3"></a></h1>
-
-<p>这里的按照官方文档安装没有问题</p>
-
-<h1 id="sql-database">SQL database<a id="sec-4" name="sec-4"></a></h1>
-
-<h2 id="注意事项-1">注意事项<a id="sec-4-1" name="sec-4-1"></a></h2>
-
-<ul>
-  <li>
-    <p>记得要执行Mysql的安装过程</p>
-
-    <div class="highlighter-rouge"><pre class="highlight"><code>mysql_secure_installation
-</code></pre>
-    </div>
-
-    <p>少了这一步可能会导致在之后调用程序方法的时候报服务器500错误</p>
-  </li>
-  <li>
-    <p>数据库出现问题是可以删掉重新安装的，数据会存放在另一个地方，将程序重装后数据还在。</p>
-  </li>
-</ul>
-
-<h1 id="message-queue">Message queue<a id="sec-5" name="sec-5"></a></h1>
-
-<h2 id="注意事项-2">注意事项<a id="sec-5-1" name="sec-5-1"></a></h2>
-
-<ul>
-  <li>消息队列是保证物理机之间消息通信的基础，组件出现问题的时候可以查看消息队列的日志观察是否有问题。 有的时候无法正确解析地址会导致消息队列不通使程序出现问题。 消息队列的问题不会报错，查看日志文档(存放在/var/log/rabbit<sub>mq下</sub>)会发现ERROR，根据提示解决问题即可。</li>
 </ul>
 
   </div><!-- /.entry-content -->
